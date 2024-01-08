@@ -3,13 +3,53 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hello World</title>
+    <title>Your Express.js App with Bootstrap</title>
+
+    <!-- Link to Bootstrap CSS -->
+    <link rel="stylesheet" href="/static/css/bootstrap.min.css">
+    <style>
+        .center {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+        .btn-container {
+            margin-top: 10px;
+        }
+    </style>
 </head>
 <body>
-    <h1>WELCOME!</h1>
-    <a href="/users/login">Login</a>
-    <a href="/users/register">Register</a>
+    <div class="center">
+        <h1>WELCOME!</h1>
+
+        <div class="btn-group btn-container">
+            <button type="button" class="btn btn-danger dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+              Login As
+            </button>
+            <ul class="dropdown-menu">
+              <li><a class="dropdown-item" href="/login">Reader</a></li>
+              <li><a class="dropdown-item" href="/login">Author</a></li>
+              <li><a class="dropdown-item" href="/login">Publisher</a></li>
+              <li><a class="dropdown-item" href="/login">Editor</a></li>
+            </ul>
+        </div>
+
+        <div class="btn-group btn-container">
+            <button type="button" class="btn btn-danger dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+              Register As
+            </button>
+            <ul class="dropdown-menu">
+              <li><a class="dropdown-item" href="/reader/register">Reader</a></li>
+              <li><a class="dropdown-item" href="/author/register">Author</a></li>
+              <li><a class="dropdown-item" href="/publisher/register">Publisher</a></li>
+              <li><a class="dropdown-item" href="/editor/register">Editor</a></li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Link to Bootstrap JS and Popper.js (if needed for Bootstrap's JavaScript features) -->
+    <script src="/static/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
-
-

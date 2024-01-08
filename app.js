@@ -1,67 +1,6 @@
-/*const express = require('express');
-const app = express();
-const { Client } = require('pg');
-const PORT = 3000;
-
-const client = new Client({
-  user: 'postgres',
-  host: 'localhost',
-  database: 'Maindb',
-  password: '1234',
-  port: 5432,
-});
-
-
-app.set('view engine','ejs')
-app.use(express.urlencoded({extended:true}));
-
-app.get('/', async (req, res) => {
-    await client.connect();
-    console.log('Connected to PostgreSQL');
-    res.render('index');
-});
-
-
-app.get('/users/register', async (req, res) => {
-    res.render('register');
-});
-
-app.post('/users/register', async (req, res) => {
-  let { name, email, contact, gender } = req.body;
-  console.log({ name, email, contact, gender });
-
-  // You can also send a response back to the client
-  res.send('Registration successful. Data logged in the console.');
-  
-  const query = `INSERT INTO authors (first_name, gender, email, contact) VALUES ($1, $2, $3, $4) RETURNING *`;
-
-  try {
-    const result = await client.query(query, [name, gender, email, contact]);
-    console.log('Registration successful. Data logged in the console.');
-    console.log('Inserted data:', result.rows[0]);
-    res.send('Registration successful. Data logged in the console.');
-  } catch (error) {
-    console.error('Error inserting data into the database:', error);
-    res.status(500).send('Internal Server Error');
-  }
-
-});
-
-app.get('/users/login', async (req, res) => {
-  res.render('login');
-});
-
-
-client.end();
-app.listen(PORT, () => {
-  console.log(`Server is running on http://localhost:${PORT}`);
-});*/
-
-//new version
-
 const express = require('express');
-const app = express();
 const { Client } = require('pg');
+const app = express();
 const PORT = 3000;
 
 const client = new Client({
@@ -71,21 +10,29 @@ const client = new Client({
   password: '1234',
   port: 5432,
 });
+
+// Connect to the PostgreSQL database when the application starts
+client.connect()
+  .then(() => {
+    console.log('Connected to PostgreSQL');
+  })
+  .catch((err) => {
+    console.error('Error connecting to PostgreSQL:', err);
+  });
 
 app.set('view engine', 'ejs');
 app.use(express.urlencoded({ extended: true }));
+app.use('/static', express.static('node_modules/bootstrap/dist'));
 
-app.get('/', async (req, res) => {
-  await client.connect();
-  console.log('Connected to PostgreSQL');
+app.get('/', (req, res) => {
   res.render('index');
 });
 
-app.get('/users/register', async (req, res) => {
+app.get('/author/register', (req, res) => {
   res.render('register');
 });
 
-app.post('/users/register', async (req, res) => {
+app.post('/author/register', async (req, res) => {
   let { name, email, contact, gender } = req.body;
   console.log({ name, email, contact, gender });
 
@@ -101,20 +48,69 @@ app.post('/users/register', async (req, res) => {
   }
 });
 
-app.get('/users/login', async (req, res) => {
+app.get('/login', (req, res) => {
   res.render('login');
 });
 
-// Only close the client when the server is shutting down
-process.on('SIGINT', async () => {
-  await client.end();
-  console.log('PostgreSQL client disconnected');
-  process.exit();
+
+app.post('/login', async (req, res) => {
+  let { name, email, password, role } = req.body;
+  console.log({ name, email, password, role });
+
+  const query = `SELECT * FROM Author WHERE email = $1`;
+
+  try {
+    const result = await client.query(query, [email]);
+    console.log(result.rows[0]);
+
+    if (result.rows.length === 0) {
+      // User with the provided email does not exist
+      res.status(401).send('Invalid email or password');
+      return;
+    }
+
+    const user = result.rows[0];
+
+    // Compare the provided password with the password in the database
+    if (user.password === password) {
+      // Passwords match, login successful
+      res.render('authorDashboard', {user });
+
+    } else {
+      // Passwords don't match
+      res.status(401).send('Invalid email or password');
+
+    }
+  } catch (error) {
+    console.error('Error retrieving user from the database:', error);
+    res.status(500).send('Internal Server Error');
+  }
+});
+
+/*app.get('/author/dashboard', (req, res) => {
+  res.render('authorDashboard');
+});*/
+
+
+
+// Handle shutdown gracefully by closing the database connection
+process.on('SIGINT', () => {
+  client.end()
+    .then(() => {
+      console.log('PostgreSQL client disconnected');
+      process.exit();
+    })
+    .catch((err) => {
+      console.error('Error disconnecting from PostgreSQL:', err);
+      process.exit(1);
+    });
 });
 
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
 });
+
+
 
 
 
@@ -145,10 +141,10 @@ app.get('/', async (req, res) => {
     await client.connect();
     console.log('Connected to PostgreSQL');
 
-    const result = await client.query('SELECT * FROM authors');
-    const authors = result.rows;
+    const result = await client.query('SELECT * FROM author');
+    const author = result.rows;
 
-    res.render('demo', { authors });
+    res.render('demo', { author });
   } catch (err) {
     console.error('Error connecting to PostgreSQL or executing query:', err);
     res.status(500).send('Internal Server Error');

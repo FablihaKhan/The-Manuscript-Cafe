@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Login</title>
+    <!-- Link to Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .dashboard-container{
+            max-width: 400px;
+            width: 100%;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body>
+
+<div class="dashboard-container">
+    <h1 class="text-center">Author PROFILE</h1>
+
+    <!-- Dynamically generate cards based on data from the database -->
+        <div class="card" style="width: 18rem;">
+            <div class="card-body">
+                <h5 class="card-title"><%= user.first_name %> <%= user.last_name %></h5>
+                <p class="card-text">Gender: <%= user.gender %></p>
+                <p class="card-text">Email: <%= user.email %></p>
+                <p class="card-text">Contact No: <%= user.contact_no %></p>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item">Genre: <%= user.interested_genre %></li>
+                  </ul>
+                
+                
+            </div>
+        </div>
+   
+
+    <a href="/author/edit" class="d-block text-center mt-3">Edit Profile</a>
+</div>
+
+<!-- Link to Bootstrap JS and Popper.js (if needed for Bootstrap's JavaScript features) -->
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.0.8/dist/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>
