@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Display Rows</title>
+    <style>
+        /* Add your styles here */
+    </style>
+</head>
+<body>
+    <h1>Display Rows</h1>
+    
+    <div id="rowDisplay">
+        <!-- Display the first row initially -->
+        <p>name: <%= rows[0].name %></p>
+        <p>email: <%= rows[0].email %></p>
+        <p>contact_no: <%= rows[0].contact_no %></p>
+    </div>
+
+    <button id="nextButton">Next</button>
+
+    <script>
+const rows = JSON.parse('<%- JSON.stringify(rows) %>');
+let currentIndex = 0;
+
+const nextButton = document.getElementById('nextButton');
+nextButton.addEventListener('click', showNextRow);
+
+function showNextRow() {
+    currentIndex++;
+
+    // Check if there are more rows to display
+    if (currentIndex < rows.length) {
+        document.getElementById('rowDisplay').innerHTML = `
+            <p>name: ${rows[currentIndex].name}</p>
+            <p>email: ${rows[currentIndex].email}</p>
+            <p>contact_no: ${rows[currentIndex].contact_no}</p>
+        `;
+    } else {
+        // If no more rows, display a message or handle it as needed
+        document.getElementById('rowDisplay').innerHTML = '<p>No more rows to display</p>';
+        nextButton.disabled = true;
+    }
+}
+
+
+
+
+
+
+
+    </script>
+</body>
+</html>

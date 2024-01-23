@@ -4,34 +4,66 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Register</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
-    <h1>REGISTER</h1>
+    <div class="container mt-5">
+        <h1>REGISTER</h1>
 
-    <form action="/users/register" method="post">
-        <label for="name">Name:</label>
-        <input type="text" id="name" name="name" required>
-        <br>
-        
-        <label for="email">Email:</label>
-        <input type="email" id="email" name="email" required>
-        <br>
+        <form action="/author/register" method="post">
+            <div class="form-floating mb-3">
+                <label for="first_name">First Name:</label>
+                <input type="text" class="form-control" id="first_name" name="first_name" required>
+            </div>
 
-        <label for="contact">Contact Number:</label>
-        <input type="tel" id="contact" name="contact" required>
-        <br>
-        
-        
-        <label>Gender:</label>
-        <input type="radio" id="male" name="gender" value="male" required>
-        <label for="male">Male</label>
-        <input type="radio" id="female" name="gender" value="female" required>
-        <label for="female">Female</label>
-        <br>
+            <div class="form-floating mb-3">
+                <label for="last_name">Last Name:</label>
+                <input type="text" class="form-control" id="last_name" name="last_name" required>
+            </div>
+            
+            <div class="form-floating mb-3">
+                <label for="email">Email:</label>
+                <input type="email" class="form-control" id="email" name="email" required>
+            </div>
 
-        <input type="submit" value="Register">
-    </form>
-    
-    <a href="/users/login">Login</a>
+            <div class="form-floating mb-3">
+                <label for="contact">Contact Number:</label>
+                <input type="tel" class="form-control" id="contact" name="contact" required>
+            </div>
+            
+            <div class="form-floating mb-3">
+                <label for="gender">Gender:</label>
+                <div class="form-check">
+                    <input type="radio" class="form-check-input" id="male" name="gender" value="male" required>
+                    <label class="form-check-label" for="male">Male</label>
+                </div>
+                <div class="form-check">
+                    <input type="radio" class="form-check-input" id="female" name="gender" value="female" required>
+                    <label class="form-check-label" for="female">Female</label>
+                </div>
+            </div>
+
+            <div class="form-floating mb-3">
+                <label for="interested_genre">Interested Genre:</label>
+                <input type="text" class="form-control" id="interested_genre" name="interested_genre">
+            </div>
+
+            <div class="form-floating mb-3">
+                <label for="password">Password:</label>
+                <input type="password" class="form-control" id="password" name="password" required>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Register</button>
+        </form>
+        
+        <a href="/login">Login To Your Account!</a>
+    </div>
+
+    <!-- Bootstrap JS and Popper.js -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
 </html>

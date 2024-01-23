@@ -1,16 +1,39 @@
+<!-- requestPublisher.ejs -->
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hello World</title>
+    <title>Request Publisher</title>
+    <style>
+        /* Add any styling you want for the box here */
+        .publisher-box {
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin: 10px;
+            display: inline-block;
+        }
+    </style>
 </head>
 <body>
-    <h1>WELCOME!</h1>
-    <a href="/users/login">Login</a>
-    <a href="/users/register">Register</a>
-    <button class="btn btn-primary" type="submit">Button</button>
+    <h1>Request Publisher</h1>
+    <a href="/author/request/book_details">Click here to add book details after you have requested any publisher</a>
+    <% rows.forEach((row) => { %>
+        <div class="publisher-box">
+            <p>Publisher ID: <%= row.publisher_id %></p>
+            <p>Name: <%= row.name %></p>
+            <p>Email: <%= row.email %></p>
+            <!-- Add more details as needed -->
 
+            <!-- Button for requesting this particular row -->
+            <form action="/author/request" method="post">
+                <input type="hidden" name="authorId" value="<%= authorId %>">
+                <input type="hidden" name="publisherId" value="<%= row.publisher_id %>">
+                <button type="submit">Request</button>
+            </form>
+        </div>
+    <% }); %>
 
 </body>
 </html>

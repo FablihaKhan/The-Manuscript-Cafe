@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Book Requests</title>
+  <style>
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    th, td {
+      padding: 8px;
+      text-align: left;
+      border-bottom: 1px solid #ddd;
+    }
+    th {
+      background-color: #f2f2f2;
+    }
+    .pending-count {
+      font-weight: bold;
+      color: red; /* or any color you prefer */
+    }
+  </style>
+</head>
+<body>
+  <h1>Welcome, <%= publisher.name %>!</h1>
+  <a href="/publisher/request/search">SEARCH based on criteria</a>
+
+  <h2>Pending Books</h2>
+  <p>Total Pending Books: <span class="pending-count"><%= pendingBooks %></span></p>
+
+  <% if (authorRequests.length > 0) { %>
+    <h2>Author Requests</h2>
+    <table>
+      <tr></tr>
+        <th>Author Name</th>
+        <th>Author Email</th>
+        <th>Expertise</th>
+      </tr>
+      <% authorRequests.forEach(request => { %>
+        <tr>
+          <td><%= request.first_name %></td>
+          <td><%= request.email %></td>
+          <td><%= request.interested_genre %></td>
+        </tr>
+      <% }); %>
+    </table>
+  <% } else { %>
+    <p>No author requests found.</p>
+  <% } %>
+
+  <% if (requestedBooks.length > 0) { %>
+    <h2>Requested Books</h2>
+    <table>
+      <tr>
+        <th>Book Title</th>
+        <th>Genre</th>
+        <th>Status</th>
+      </tr>
+      <% requestedBooks.forEach(book => { %>
+        <tr>
+          <td><%= book.book_name %></td>
+          <td><%= book.genre %></td>
+          <td><%= book.status %></td>
+        </tr>
+      <% }); %>
+    </table>
+  <% } else { %>
+    <p>No requested books found.</p>
+  <% } %>
+</body>
+</html>

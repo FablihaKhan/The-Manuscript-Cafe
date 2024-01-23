@@ -1,58 +1,40 @@
+<!-- requestPublisher.ejs -->
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>User Login</title>
-    <!-- Link to Bootstrap CSS -->
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <title>Request Publisher</title>
+    <style>
+        /* Add any styling you want for the box here */
+        .publisher-box {
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin: 10px;
+            display: inline-block;
+        }
+    </style>
 </head>
 <body>
-    <h1>LOGIN</h1>
+    <h1>Request Publisher</h1>
 
-    <form action="/users/login" method="post">
-        <div class="input-group mb-3">
-            <span class="input-group-text" id="name-addon">Name:</span>
-            <input type="text" class="form-control" id="name" name="name" aria-describedby="name-addon" required>
+    <% rows.forEach((row) => { %>
+        <div class="publisher-box">
+            <p>Publisher ID: <%= row.publisher_id %></p>
+            <p>Name: <%= row.name %></p>
+            <p>Email: <%= row.email %></p>
+            <!-- Add more details as needed -->
+
+            <!-- Button for requesting this particular row -->
+            <form action="/author/request" method="post">
+                <input type="hidden" name="authorId" value="<%= authorId %>">
+                <input type="hidden" name="publisherId" value="<%= row.publisher_id %>">
+                <button type="submit" href = "/author/request/book_details">Request</button>
+            </form>
         </div>
-        
-        <div class="input-group mb-3">
-            <span class="input-group-text" id="email-addon">Email:</span>
-            <input type="email" class="form-control" id="email" name="email" aria-describedby="email-addon" required>
-        </div>
+    <% }); %>
 
-        <div class="input-group mb-3">
-            <span class="input-group-text" id="password-addon">Password:</span>
-            <input type="password" class="form-control" id="password" name="password" aria-describedby="password-addon" required>
-        </div>
-
-        <div class="input-group mb-3">
-            <div class="form-check">
-                <input class="form-check-input" type="checkbox" id="reader" name="role" value="reader" style="color: red;">
-                <label class="form-check-label text-danger" for="reader">Reader</label>
-            </div>
-            <div class="form-check">
-                <input class="form-check-input" type="checkbox" id="author" name="role" value="author" style="color: red;">
-                <label class="form-check-label text-danger" for="author">Author</label>
-            </div>
-            <div class="form-check">
-                <input class="form-check-input" type="checkbox" id="publisher" name="role" value="publisher" style="color: red;">
-                <label class="form-check-label text-danger" for="publisher">Publisher</label>
-            </div>
-            <div class="form-check">
-                <input class="form-check-input" type="checkbox" id="editor" name="role" value="editor" style="color: red;">
-                <label class="form-check-label text-danger" for="editor">Editor</label>
-            </div>
-        </div>
-
-        <input type="submit" class="btn btn-primary" value="Login">
-    </form>
-
-    <a href="/users/register">Click Here to register if you don't have an account</a>
-
-    <!-- Link to Bootstrap JS and Popper.js (if needed for Bootstrap's JavaScript features) -->
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.0.8/dist/umd/popper.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <!-- Add any additional content or scripts as needed -->
 </body>
 </html>
