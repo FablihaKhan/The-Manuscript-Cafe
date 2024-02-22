@@ -37,19 +37,28 @@
         <th>Expertise</th>
         <th>Book Title</th>
         <th>Genre</th>
-        <th>Status</th>
+        <th>PDF link</th>
+        <th>Actions</th> <!-- New column for buttons -->
       </tr>
-  <ul>
       <% authorRequests.forEach((request) => { %>
-       
-          <tr>
-            <td><%= request.first_name %></td>
-            <td><%= request.email %></td>
-            <td><%= request.interested_genre %></td>
-            <td><%= request.book_name %></td>
-            <td><%= request.genre %></td>
-            <td><%= request.status %></td>
-          </tr>
+        <tr>
+          <td><%= request.first_name %></td>
+          <td><%= request.email %></td>
+          <td><%= request.interested_genre %></td>
+          <td><%= request.book_name %></td>
+          <td><%= request.genre %></td>
+          <td><%= request.pdf_link %></td>
+          <td>
+            <form action="/publisher/approve" method="POST" style="display: inline;">
+              <input type="hidden" name="request_id" value="<%= request.request_id %>">
+              <button type="submit">Approve</button>
+            </form>
+            <form action="/publisher/reject" method="POST" style="display: inline;">
+              <input type="hidden" name="request_id" value="<%= request.request_id %>">
+              <button type="submit">Reject</button>
+            </form>
+          </td>
+        </tr>
       <% }); %>
     </table>
   <% } else { %>

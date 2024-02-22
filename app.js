@@ -334,54 +334,7 @@ app.get('/publisher/login', (req, res) => {
 });
 
 
-/*app.post('/publisher/login', async (req, res) => {
-  let { email, password } = req.body;
 
-  const publisherQuery = `SELECT * FROM Publisher WHERE email = $1`;
-  const authorRequestsQuery = `SELECT * 
-                              FROM Publish_Request PR JOIN Author A ON PR.author_id = A.id WHERE PR.publisher_id = $1`;
-  const requestedBooksQuery = `SELECT * 
-                              FROM Publish_Request PR JOIN Publish_Requested_books PRB ON PR.request_id = PRB.request_id 
-                              WHERE PR.publisher_id = $1`;
-  const pendingQuery = `SELECT COUNT(rb.request_id) AS requested_book_count
-    FROM Publisher p
-    JOIN Publish_Request pr ON p.publisher_id = pr.publisher_id
-    JOIN Publish_Requested_books rb ON pr.request_id = rb.request_id
-    WHERE rb.status = 'Pending'
-    GROUP BY p.publisher_id`;
-
-  try {
-    const publisherResult = await client.query(publisherQuery, [email]);
-
-    if (publisherResult.rows.length === 0) {
-      // Publisher with the provided email does not exist
-      res.status(401).send('Invalid email or password');
-      return;
-    }
-
-    const publisher = publisherResult.rows[0];
-
-    if (publisher.password === password) {
-      // Passwords match, login successful
-      const authorRequestsResult = await client.query(authorRequestsQuery, [publisher.publisher_id]);
-      const requestedBooksResult = await client.query(requestedBooksQuery, [publisher.publisher_id]);
-      const pendingResult = await client.query(pendingQuery);
-
-      const authorRequests = authorRequestsResult.rows;
-      const requestedBooks = requestedBooksResult.rows;
-      const pendingBooks = pendingResult.rows.length > 0 ? pendingResult.rows[0].requested_book_count : 0;
-
-      // Pass the retrieved data to the 'showRequest' EJS template
-      res.render('showRequest', { publisher, authorRequests, requestedBooks,pendingBooks});
-    } else {
-      // Passwords don't match
-      res.status(401).send('Invalid email or password');
-    }
-  } catch (error) {
-    console.error('Error retrieving user from the database:', error);
-    res.status(500).send('Internal Server Error');
-  }
-});*/
 
 app.post('/publisher/login', async (req, res) => {
   let { email, password } = req.body;
@@ -414,6 +367,8 @@ app.post('/publisher/login', async (req, res) => {
     }
 
     const publisher = publisherResult.rows[0];
+    req.session.stored_publisher_Id = publisher.publisher_id;
+    
 
     if (publisher.password === password) {
       // Passwords match, login successful
@@ -433,6 +388,68 @@ app.post('/publisher/login', async (req, res) => {
     console.error('Error retrieving user from the database:', error);
     res.status(500).send('Internal Server Error');
   }
+});
+
+app.get('/publisher/approve', (req, res) => {
+  res.render('approve');
+});
+
+app.post('/publisher/approve', (req, res) => {
+  const requestId = req.body.request_id;
+  let publisherId = req.session.stored_publisher_Id;
+
+  // Insert a new row into Approved_books table
+  const insertQuery = 'INSERT INTO Approved_books (publisher_id, request_id) VALUES ($1, $2)';
+  const insertValues = [publisherId, requestId];
+
+  // Update the status to 'Approved' in Publish_Requested_books table
+  const updateQuery = 'UPDATE Publish_Requested_books SET status = $1 WHERE request_id = $2';
+  const updateValues = ['Approved', requestId];
+
+  // Execute the database queries
+  client.query(insertQuery, insertValues)
+    .then(() => {
+      return   client.query(updateQuery, updateValues);
+    })
+    .then(() => {
+      res.redirect('/publisher/approve'); // Redirect to the dashboard or appropriate page
+    })
+    .catch((error) => {
+      console.error('Error approving request:', error);
+      res.status(500).send('Internal Server Error');
+    });
+});
+
+app.get('/publisher/reject', (req, res) => {
+  res.render('reject');
+});
+
+app.post('/publisher/reject', (req, res) => {
+  const requestId = req.body.request_id;
+  let publisherId = req.session.stored_publisher_Id;
+  /*const rejectionReason = req.body.rejection_reason;*/
+  let rejectionReason= 'Need Better Script'; // Assuming the rejection reason is sent in the request body
+
+  // Update the status to 'Rejected' in Publish_Requested_books table
+  const updateQuery = 'UPDATE Publish_Requested_books SET status = $1 WHERE request_id = $2';
+  const updateValues = ['Rejected', requestId];
+
+  // Insert a new row into Rejected_books table
+  const insertQuery = 'INSERT INTO Rejected_books (publisher_id, request_id, rejection_reason) VALUES ($1, $2, $3)';
+  const insertValues = [publisherId, requestId, rejectionReason];
+
+  // Execute the database queries
+  client.query(updateQuery, updateValues)
+    .then(() => {
+      return client.query(insertQuery, insertValues);
+    })
+    .then(() => {
+      res.redirect('/publisher/reject'); // Redirect to the dashboard or appropriate page
+    })
+    .catch((error) => {
+      console.error('Error rejecting request:', error);
+      res.status(500).send('Internal Server Error');
+    });
 });
 
 
