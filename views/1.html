@@ -1,39 +1,74 @@
-<!-- requestPublisher.ejs -->
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Request Publisher</title>
+    <title>Your Express.js App with Bootstrap</title>
+
+    <!-- Link to Bootstrap CSS -->
+    <link rel="stylesheet" href="/static/css/bootstrap.min.css">
     <style>
-        /* Add any styling you want for the box here */
-        .publisher-box {
-            border: 1px solid #ccc;
-            padding: 10px;
-            margin: 10px;
-            display: inline-block;
+        .center {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+        .btn-container {
+            margin-top: 10px;
         }
     </style>
 </head>
 <body>
-    <h1>Request Publisher</h1>
-    <a href="/author/request/book_details">Click here to add book details after you have requested any publisher</a>
-    <% rows.forEach((row) => { %>
-        <div class="publisher-box">
-            <p>Publisher ID: <%= row.publisher_id %></p>
-            <p>Name: <%= row.name %></p>
-            <p>Email: <%= row.email %></p>
-            <!-- Add more details as needed -->
-
-            <!-- Button for requesting this particular row -->
-            <form action="/author/request" method="post">
-                <input type="hidden" name="authorId" value="<%= authorId %>">
-                <input type="hidden" name="publisherId" value="<%= row.publisher_id %>">
-                <button type="submit">Request</button>
-            </form>
+  <nav class="navbar navbar-expand-lg bg-dark">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="#" style="color: white;">Navbar</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+        <div class="navbar-nav">
+          <a class="nav-link active" aria-current="page" href="#" style="color: white;">Home</a>
+          <a class="nav-link" href="#" style="color: white;">Features</a>
+          <a class="nav-link" href="#" style="color: white;">Pricing</a>
+          <a class="nav-link disabled" aria-disabled="true" style="color: white;">Disabled</a>
         </div>
-    <% }); %>
+      </div>
+    </div>
+  </nav>
+  
+  
+  
+    <div class="center">
+        <h1>WELCOME!</h1>
 
+        <div class="btn-group btn-container">
+            <button type="button" class="btn btn-danger dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+              Login As
+            </button>
+            <ul class="dropdown-menu">
+              <li><a class="dropdown-item" href="/reader/login">Reader</a></li>
+              <li><a class="dropdown-item" href="/author/login">Author</a></li>
+              <li><a class="dropdown-item" href="/publisher/login">Publisher</a></li>
+              <li><a class="dropdown-item" href="/login">Editor</a></li>
+            </ul>
+        </div>
+
+        <div class="btn-group btn-container">
+            <button type="button" class="btn btn-danger dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+              Register As
+            </button>
+            <ul class="dropdown-menu">
+              <li><a class="dropdown-item" href="/reader/register">Reader</a></li>
+              <li><a class="dropdown-item" href="/author/register">Author</a></li>
+              <li><a class="dropdown-item" href="/publisher/register">Publisher</a></li>
+              <li><a class="dropdown-item" href="/editor/register">Editor</a></li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Link to Bootstrap JS and Popper.js (if needed for Bootstrap's JavaScript features) -->
+    <script src="/static/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

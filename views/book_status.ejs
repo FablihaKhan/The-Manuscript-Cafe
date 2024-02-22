@@ -1,0 +1,59 @@
+<!-- book_status.ejs -->
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Book Status</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+    }
+
+    h1 {
+      color: #333;
+    }
+
+    ul {
+      list-style-type: none;
+      padding: 0;
+    }
+
+    li {
+      margin-bottom: 10px;
+    }
+
+    .pending {
+      color: #FFA500;
+    }
+
+    .approved {
+      color: #008000;
+    }
+
+    .rejected {
+      color: #FF0000;
+    }
+  </style>
+</head>
+<body>
+  <h1>Pending Books</h1>
+  <ul>
+    <% pendingBooks.forEach(function(book) { %>
+      <li class="pending"><%= book.publisher_name %> - <%= book.book_name %></li>
+    <% }); %>
+  </ul>
+
+  <h1>Approved Books</h1>
+  <ul>
+    <% approvedBooks.forEach(function(book) { %>
+      <li class="approved"><%= book.publisher_name %> - <%= book.book_name %></li>
+    <% }); %>
+  </ul>
+
+  <h1>Rejected Books</h1>
+  <ul>
+    <% rejectedBooks.forEach(function(book) { %>
+      <li class="rejected"><%= book.publisher_name %> - <%= book.book_name %> (Rejection Reason: <%= book.rejection_reason %>)</li>
+    <% }); %>
+  </ul>
+</body>
+</html>

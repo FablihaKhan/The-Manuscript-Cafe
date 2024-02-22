@@ -5,6 +5,25 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Statistics</title>
   <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    ul {
+      list-style-type: none;
+      padding: 0;
+    }
+
+    li {
+      margin-bottom: 20px;
+    }
+
+    h1 {
+      margin-top: 40px;
+      margin-bottom: 20px;
+    }
+
+    .chart-container {
+      margin-top: 20px;
+    }
+  </style>
 </head>
 <body>
   <div class="container">
@@ -40,19 +59,26 @@
       </div>
     </div>
     <div class="row">
-      <div class="col-md-12">
+      <div class="col-md-6 chart-container">
         <h1>Approval Rate Chart</h1>
         <canvas id="approvalRateChart"></canvas>
         <!-- Input element to store data from the backend -->
         <input type="hidden" id="approvalRateData" value='<%- JSON.stringify(result) %>'>
+      </div>
+      <div class="col-md-6 chart-container">
+        <h1>Financial Statistics Chart</h1>
+        <canvas id="financialStatisticsChart"></canvas>
+        <!-- Input element to store data from the backend -->
+        <input type="hidden" id="financialStatisticsData" value='<%- JSON.stringify({ revenue: revenue, total_cost: total_cost, profit_margin: profit_margin }) %>'>
       </div>
     </div>
   </div>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.0/chart.min.js"></script>
   <script>
-    // Retrieve data from the input element
+    // Retrieve data from the input elements
     var approvalRateData = JSON.parse(document.getElementById('approvalRateData').value);
+    var financialStatisticsData = JSON.parse(document.getElementById('financialStatisticsData').value);
 
     // Define arrays to hold approval rates and publisher names
     var approvalRates = approvalRateData.map(function(row) {
@@ -62,9 +88,13 @@
       return row.publisher_name;
     });
 
-    // Create a new Chart object
-    var ctx = document.getElementById('approvalRateChart').getContext('2d');
-    var chart = new Chart(ctx, {
+    // Define labels and data for the financial statistics chart
+    var financialLabels = ['Total Revenue', 'Total Cost', 'Profit Margin'];
+    var financialData = [financialStatisticsData.revenue, financialStatisticsData.total_cost, financialStatisticsData.profit_margin];
+
+    // Create a new Chart object for the approval rate chart
+    var approvalRateCtx = document.getElementById('approvalRateChart').getContext('2d');
+    var approvalRateChart = new Chart(approvalRateCtx, {
       type: 'bar',
       data: {
         labels: publisherNames,
@@ -94,6 +124,49 @@
         }
       }
     });
+  
+    
+    // Retrieve data from the input element
+  var financialStatisticsData = JSON.parse(document.getElementById('financialStatisticsData').value);
+
+// Define labels and data for the financial statistics chart
+var financialLabels = ['Total Revenue', 'Total Cost', 'Profit Margin'];
+var financialData = [financialStatisticsData.revenue, financialStatisticsData.total_cost, financialStatisticsData.profit_margin];
+
+// Create a new Chart object for the financial statistics chart
+var financialStatisticsCtx = document.getElementById('financialStatisticsChart').getContext('2d');
+var financialStatisticsChart = new Chart(financialStatisticsCtx, {
+  type: 'pie',
+  data: {
+    labels: financialLabels,
+    datasets: [{
+      data: financialData,
+      backgroundColor: [
+        'rgba(255, 99, 132, 0.6)',
+        'rgba(54, 162, 235, 0.6)',
+        'rgba(75, 192, 192, 0.6)'
+      ],
+      borderColor: [
+        'rgba(255, 99, 132, 1)',
+        'rgba(54, 162, 235, 1)',
+        'rgba(75, 192, 192, 1)'
+      ],
+      borderWidth: 1
+    }]
+  },
+  options: {
+    responsive: true,
+    plugins: {
+      legend: {
+        position: 'bottom',
+      },
+      title: {
+        display: true,
+        text: 'Financial Statistics'
+      }
+    }
+  }
+});
   </script>
 </body>
 </html>

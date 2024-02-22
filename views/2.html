@@ -1,40 +1,19 @@
-<!-- requestPublisher.ejs -->
-
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Request Publisher</title>
-    <style>
-        /* Add any styling you want for the box here */
-        .publisher-box {
-            border: 1px solid #ccc;
-            padding: 10px;
-            margin: 10px;
-            display: inline-block;
-        }
-    </style>
-</head>
-<body>
-    <h1>Request Publisher</h1>
-
-    <% rows.forEach((row) => { %>
-        <div class="publisher-box">
-            <p>Publisher ID: <%= row.publisher_id %></p>
-            <p>Name: <%= row.name %></p>
-            <p>Email: <%= row.email %></p>
-            <!-- Add more details as needed -->
-
-            <!-- Button for requesting this particular row -->
-            <form action="/author/request" method="post">
-                <input type="hidden" name="authorId" value="<%= authorId %>">
-                <input type="hidden" name="publisherId" value="<%= row.publisher_id %>">
-                <button type="submit" href = "/author/request/book_details">Request</button>
-            </form>
-        </div>
-    <% }); %>
-
-    <!-- Add any additional content or scripts as needed -->
-</body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Statistics</title>
+  </head>
+  <body>
+    <h1>Approval Rates by Publisher</h1>
+    <ul>
+      <% result.forEach(function(row) { %>
+      <li>
+        <strong>Publisher Name:</strong> <%= row.publisher_name %><br />
+        <strong>Approval Rate:</strong> <%= row.approval_rate %>%<br />
+      </li>
+      <% }); %>
+    </ul>
+  </body>
 </html>
