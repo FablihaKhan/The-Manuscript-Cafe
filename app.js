@@ -1,8 +1,18 @@
 const express = require('express');
 const session = require('express-session');
 const { Client } = require('pg');
+const axios = require('axios');
+const googleBooks = require('google-books-search');
+const bodyParser = require('body-parser');
+
 const app = express();
 const PORT = 3000;
+
+app.use(session({
+  secret: 'your-secret-key',
+  resave: false,
+  saveUninitialized: true,
+}));
 
 const client = new Client({
   user: 'postgres',
@@ -22,6 +32,7 @@ client.connect()
   });
 
 app.set('view engine', 'ejs');
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.urlencoded({ extended: true }));
 app.use('/static', express.static('node_modules/bootstrap/dist'));
 app.use(session({
@@ -583,3 +594,244 @@ app.listen(port, () => {
 });*/
 
 
+
+
+
+
+
+////////////////Fablihaaaaa
+
+
+
+app.get('/subscribe', (req, res) => {
+  console.log("hiii");
+  res.render('sub_form');
+});
+
+app.get('/online_books', async (req, res) => {
+  try {
+    // Fetch books from the database
+    const query = 'SELECT * FROM online_book';
+    const result = await client.query(query);
+    const books = result.rows;
+
+    // Render 'online' template with book data
+    res.render('online', { books });
+  } catch (error) {
+    console.error('Error fetching books from the database:', error);
+    res.status(500).send('Internal Server Error');
+  }
+});
+
+app.post('/add_book', async (req, res) => {
+  const { bookTitle, genre, pdfUrl } = req.body;
+  const authorCode = req.session.authorCode; // Assuming you're using session for authentication
+
+  const query = 'INSERT INTO author_books (author_code, book_title, genre, pdf_url) VALUES ($1, $2, $3, $4)';
+  try {
+    await client.query(query, [authorCode, bookTitle, genre, pdfUrl]);
+    res.redirect('/author/dashboard');
+  } catch (error) {
+    console.error('Error adding book:', error);
+    res.status(500).send('Internal Server Error');
+  }
+});
+
+app.get('/login_reader', (req, res) => {
+  res.render('login_online_reader');
+});
+app.get('/sub_or_login', (req, res) => {
+  res.render('sub_or_login');
+});
+app.get('/online_author_login', (req, res) => {
+  res.render('online_author_login');
+});
+
+app.post('/online/author/login', async (req, res) => {
+  const { email, password } = req.body;
+
+  const query = 'SELECT * FROM online_author WHERE email = $1';
+
+  try {
+    const result = await client.query(query, [email]);
+
+    if (result.rows.length === 0) {
+      console.log('User not found:', email);
+      res.status(401).send('Invalid email or password');
+      return;
+    }
+
+    const author = result.rows[0];
+
+    if (author.password === password) {
+      // Passwords match, login successful
+      req.session.authorCode = author.author_code; // Store author code in the session
+      try {
+        // Assuming you're using session for authentication
+        const authorCode = req.session.authorCode;
+    
+        const query = `
+          SELECT ob.book_id, ob.book_title, ob.genre, ob.pdf_url
+          FROM online_book ob
+          JOIN online_author oa ON ob.author_code = oa.author_code
+          WHERE oa.author_code = $1;
+        `;
+    
+        const result = await client.query(query, [authorCode]);
+        const books = result.rows;
+    
+        res.render('online_books_author', { books });
+      } catch (error) {
+        console.error('Error fetching author books:', error);
+        res.status(500).send('Internal Server Error');
+      }
+    } else {
+      // Passwords don't match
+      console.log('Password mismatch for user:', email);
+      res.status(401).send('Invalid email or password');
+    }
+  } catch (error) {
+    console.error('Error during login:', error);
+    res.status(500).send('Internal Server Error');
+  }
+});
+app.post('/login_reader', async (req, res) => {
+  const { email, password } = req.body;
+
+  const userQuery = 'SELECT * FROM online_reader WHERE email = $1';
+  const booksQuery = 'SELECT * FROM online_book';
+
+  try {
+    const userResult = await client.query(userQuery, [email]);
+
+    if (userResult.rows.length === 0) {
+      res.status(401).send('Invalid email or password');
+      return;
+    }
+
+    const user = userResult.rows[0];
+
+    if (user.password === password) {
+      // Passwords match, calculate remaining time
+      const remainingTime = calculateRemainingSubscriptionTime(user.subscription_end_date);
+
+      // Fetch books from the database
+      const booksResult = await client.query(booksQuery);
+      const books = booksResult.rows;
+
+      // Render the 'online' template with user, remainingTime, and books
+      res.render('online', { user, remainingTime, books });
+    } else {
+      // Passwords don't match
+      res.status(401).send('Invalid email or password');
+    }
+  } catch (error) {
+    console.error('Error retrieving user or books from the database:', error);
+    res.status(500).send('Internal Server Error');
+  }
+});
+
+
+app.get('/online/author/register', (req, res) => {
+  res.render('online_register');
+});
+
+app.post('/online/author/register', async (req, res) => {
+  let { name, email, contact, gender } = req.body;
+  console.log({ name, email, contact, gender });
+
+  const query = `INSERT INTO authors (first_name, gender, email, contact_no) VALUES ($1, $2, $3, $4) RETURNING *;`
+
+  try {
+    const result = await client.query(query, [name, gender, email, contact]);
+    console.log('Inserted data:', result.rows[0]);
+    res.send('Registration successful. Data logged in the console.');
+  } catch (error) {
+    console.error('Error inserting data into the database:', error);
+    res.status(500).send('Internal Server Error');
+  }
+});
+
+app.post('/subscribe', async (req, res) => {
+  const { userName, contactNumber, email, password, subscriptionDuration, paymentMethod } = req.body;
+
+  // Calculate subscription end date
+  const subscriptionEndDate = calculateSubscriptionEndDate(subscriptionDuration);
+
+  // Insert data into online_reader table
+  const readerQuery = 'INSERT INTO online_reader (user_name, contact_no, email, password, subscription_end_date) VALUES ($1, $2, $3, $4, $5) RETURNING user_id';
+
+  try {
+    const readerResult = await client.query(readerQuery, [userName, contactNumber, email, password, subscriptionEndDate]);
+    const userId = readerResult.rows[0].user_id;
+
+    // Insert data into online_subscription table
+    const subscriptionQuery = 'INSERT INTO online_subscription (user_id, payment, payment_method) VALUES ($1, $2, $3)';
+    const paymentAmount = calculatePaymentAmount(subscriptionDuration);
+
+    await client.query(subscriptionQuery, [userId, paymentAmount, paymentMethod]);
+
+    res.send('Subscription successful.');
+  } catch (error) {
+    console.error('Error processing subscription:', error);
+    res.status(500).send('Internal Server Error');
+  }
+});
+
+
+// Function to calculate subscription end date
+function calculateSubscriptionEndDate(subscriptionDuration) {
+  const currentDate = new Date();
+  const endDate = new Date(currentDate.getTime() + subscriptionDuration * 30 * 24 * 60 * 60 * 1000); // Assuming subscription duration is in months
+  return endDate.toISOString(); // Store as timestamp in the database
+}
+
+// Function to calculate remaining subscription time
+function calculateRemainingSubscriptionTime(subscriptionEndDate) {
+  return new Date(subscriptionEndDate).toLocaleDateString(); // You can format the date as needed
+}
+
+function calculatePaymentAmount(subscriptionDuration) {
+  // Example logic: $10 per month
+  const monthlyRate = 10;
+  return monthlyRate * subscriptionDuration;
+}
+
+app.get('/login', (req, res) => {
+  res.render('login');
+});
+
+
+app.post('/login', async (req, res) => {
+  let { name, email, password, role } = req.body;
+  console.log({ name, email, password, role });
+
+  const query = `SELECT * FROM Author WHERE email = $1;`
+
+  try {
+    const result = await client.query(query, [email]);
+    console.log(result.rows[0]);
+
+    if (result.rows.length === 0) {
+      // User with the provided email does not exist
+      res.status(401).send('Invalid email or password');
+      return;
+    }
+
+    const user = result.rows[0];
+
+    // Compare the provided password with the password in the database
+    if (user.password === password) {
+      // Passwords match, login successful
+      res.render('authorDashboard', {user });
+
+    } else {
+      // Passwords don't match
+      res.status(401).send('Invalid email or password');
+
+    }
+  } catch (error) {
+    console.error('Error retrieving user from the database:', error);
+    res.status(500).send('Internal Server Error');
+  }
+});

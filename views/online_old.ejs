@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Online Section</title>
+    <link rel="stylesheet" href="node_modules/bootstrap/dist/css/bootstrap.css">
+    <style>
+        body {
+            background-color: #000;
+            color: #fff;
+        }
+
+        .container {
+            padding: 50px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            color: #007bff;
+        }
+
+        .book-card {
+            margin-bottom: 20px;
+        }
+
+        .card-img-top {
+            object-fit: cover;
+            height: 200px;
+        }
+
+        .subscription-info {
+            margin-top: 20px;
+        }
+
+        .category-btn {
+            background-color: #000 !important;
+            color: #fff;
+        }
+
+        .category-btn:hover {
+            background-color: #333 !important;
+        }
+
+        .see-all-btn {
+            background-color: #000 !important;
+            color: #fff;
+        }
+
+        .see-all-btn:hover {
+            background-color: #333 !important;
+        }
+    </style>
+</head>
+<body>
+    <script src="node_modules/bootstrap/dist/js/bootstrap.bundle.js"></script>
+    <div class="container mt-5">
+        <h2 class="text-center">Online Section - Books</h2>
+
+        
+        <!-- Subscription Information -->
+<div class="subscription-info">
+    <h4>Subscription Information</h4>
+    <p>Subscription Ends: <span id="subscriptionTimeRemaining"><%= remainingTime ? remainingTime  : 'N/A' %></span></p>
+</div>
+
+
+        <!-- Book Categories -->
+        <h4 class="mt-4">Book Categories</h4>
+        <div class="row">
+            <div class="col-md-3">
+                <a href="#" class="btn btn-primary btn-block category-btn">Fantasy</a>
+            </div>
+            <div class="col-md-3">
+                <a href="#" class="btn btn-primary btn-block category-btn">Drama</a>
+            </div>
+            <div class="col-md-3">
+                <a href="#" class="btn btn-primary btn-block category-btn">Mystery</a>
+            </div>
+            <div class="col-md-3">
+                <a href="#" class="btn btn-primary btn-block category-btn">Science Fiction</a>
+            </div>
+        </div>
+        
+        <div class="text-center mt-3">
+            <a href="#" class="btn btn-primary see-all-btn">See All Books</a>
+        </div>
+
+        <!-- Featured Book Cards -->
+        <h4 class="mt-4">Featured Books</h4>
+        <!-- Featured Book Cards -->
+<h4 class="mt-4">Featured Books</h4>
+
+        <!-- Featured Book Cards -->
+<h4 class="mt-4">Featured Books</h4>
+<div class="row">
+    <% books.forEach(book => { %>
+        <div class="col-md-4">
+            <div class="card book-card">
+                <!-- Use a placeholder image from Lorem Picsum -->
+                <img src="https://picsum.photos/300/200" class="card-img-top" alt="Book Cover">
+                <div class="card-body">
+                    <h5 class="card-title"><%= book.book_title %></h5>
+                    <p class="card-text">Author: <%= book.author_code %></p>
+                    <!-- Add other book details as needed -->
+                    <a href="<%= book.pdf_url %>" class="btn btn-primary">Read Now</a>
+                </div>
+            </div>
+        </div>
+    <% }); %>
+</div>
+
+        <!-- <div class="row">
+            <div class="col-md-4">
+                <div class="card book-card">
+                    <img src="https://placekitten.com/300/200" class="card-img-top" alt="Book Cover">
+                    <div class="card-body">
+                        <h5 class="card-title">Book Title 1</h5>
+                        <p class="card-text">Author: Author Name</p>
+                        <a href="#" class="btn btn-primary">Read Now</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card book-card">
+                    <img src="https://placekitten.com/300/200" class="card-img-top" alt="Book Cover">
+                    <div class="card-body">
+                        <h5 class="card-title">Book Title 2</h5>
+                        <p class="card-text">Author: Author Name</p>
+                        <a href="#" class="btn btn-primary">Read Now</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card book-card">
+                    <img src="https://placekitten.com/300/200" class="card-img-top" alt="Book Cover">
+                    <div class="card-body">
+                        <h5 class="card-title">Book Title 3</h5>
+                        <p class="card-text">Author: Author Name</p>
+                        <a href="#" class="btn btn-primary">Read Now</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div> -->
+
+</body>
+</html>

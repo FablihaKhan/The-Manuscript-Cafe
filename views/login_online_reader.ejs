@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Netflix Style</title>
+    <link rel="stylesheet" href="node_modules/bootstrap/dist/css/bootstrap.css">
+    <style>
+        body {
+            background-color: #000;
+            color: #fff;
+        }
+
+        .container {
+            margin-top: 100px;
+            max-width: 400px;
+        }
+
+        h2 {
+            color: #e50914;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            font-weight: bold;
+        }
+
+        .btn-login {
+            background-color: #e50914;
+            border: none;
+            font-size: 1.5rem;
+            padding: 15px 30px;
+            border-radius: 5px;
+            letter-spacing: 1px;
+            font-weight: bold;
+            color: #fff;
+        }
+
+        .btn-login:hover {
+            background-color: #ff3c27;
+        }
+    </style>
+</head>
+<body>
+    <script src="node_modules/bootstrap/dist/js/bootstrap.bundle.js"></script>
+    <div class="container">
+        <h2 class="text-center">Login</h2>
+        <form id="loginForm" action="/login_reader" method="post">
+            <!-- Email -->
+            <div class="form-group">
+                <label for="email">Email:</label>
+                <input type="email" class="form-control" id="email" name="email" placeholder="Enter Email" required>
+            </div>
+        
+            <!-- Password -->
+            <div class="form-group">
+                <label for="password">Password:</label>
+                <input type="password" class="form-control" id="password" name="password" placeholder="Enter Password" required>
+            </div>
+        
+            <!-- Login Button -->
+            <button type="submit" class="btn btn-login btn-block">Submit</button>
+        </form>
+        <!-- <form id="loginForm">
+            <!-- User ID -->
+            <!-- <div class="form-group">
+                <label for="userId">User ID:</label>
+                <input type="text" class="form-control" id="userId" placeholder="Enter User ID" required>
+            </div> -->
+
+            <!-- User Name -->
+            <!-- <div class="form-group">
+                <label for="userName">User Name:</label>
+                <input type="text" class="form-control" id="userName" placeholder="Enter User Name" required>
+            </div>
+
+            <!-- Email -->
+            <!-- <div class="form-group">
+                <label for="email">Email:</label>
+                <input type="email" class="form-control" id="email" placeholder="Enter Email" required>
+            </div> -->
+
+            <!-- Contact Number -->
+            <!-- <div class="form-group">
+                <label for="contactNumber">Contact Number:</label>
+                <input type="tel" class="form-control" id="contactNumber" placeholder="Enter Contact Number" required>
+            </div> -->
+
+            <!-- Password -->
+            <!-- <div class="form-group">
+                <label for="password">Password:</label>
+                <input type="password" class="form-control" id="password" placeholder="Enter Password" required>
+            </div> -->
+
+            <!-- Login Button -->
+            <!-- <button type="button" class="btn btn-login btn-block" onclick="redirectToOnlineBooks()">Submit</button>
+ -->
+
+
+        <!-- </form> --> 
+    </div>
+
+    
+<!-- Include jQuery -->
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+
+<!-- <script>
+    function redirectPage() {
+        // Fetch content from online.html using AJAX
+        $.ajax({
+            url: 'online.ejs',
+            type: 'GET',
+            success: function (data) {
+                // Replace the current content with the content from online.html
+                $('body').html(data);
+            },
+            error: function () {
+                console.error('Failed to load online.html');
+            }
+        });
+    }
+</script> -->
+<!-- <script>
+    function redirectToOnlineBooks() {
+        // Redirect to the specified URL
+        window.location.href = "/online_books";
+    }
+</script> -->
+</body>
+</html>

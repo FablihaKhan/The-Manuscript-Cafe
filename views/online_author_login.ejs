@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Online Author Login</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <style>
+    body {
+      background-color: #000;
+      color: #fff;
+      font-family: 'Arial', sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+
+    .login-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }
+
+    .login-form {
+      background-color: rgba(0, 0, 0, 0.7);
+      padding: 30px;
+      border-radius: 10px;
+      width: 400px;
+      text-align: center;
+    }
+
+    .login-form h2 {
+      color: #e50914;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-group label {
+      font-weight: bold;
+    }
+
+    .form-control {
+      border: 1px solid #e50914;
+      border-radius: 5px;
+      color: #fff;
+      background-color: rgba(255, 255, 255, 0.1);
+    }
+
+    .form-control:focus {
+      border: 1px solid #e50914;
+      box-shadow: none;
+    }
+
+    .login-btn {
+      background-color: #e50914;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      padding: 10px 20px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .login-btn:hover {
+      background-color: #ff0a16;
+    }
+  </style>
+</head>
+<body>
+
+<div class="login-container">
+  <div class="login-form">
+    <h2>Online Author Login</h2>
+    <form action="/author/login" method="POST">
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input type="email" class="form-control" id="email" name="email" required>
+      </div>
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input type="password" class="form-control" id="password" name="password" required>
+      </div>
+      <button type="submit" class="btn login-btn">Login</button>
+    </form>
+  </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+</body>
+</html>

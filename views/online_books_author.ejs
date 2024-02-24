@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Online Author Books</title>
+    <link rel="stylesheet" href="/static/bootstrap/dist/css/bootstrap.css">
+    <style>
+        /* ... (your existing styles) */
+    </style>
+</head>
+<body>
+    <script src="/static/bootstrap/dist/js/bootstrap.bundle.js"></script>
+    <div class="container mt-5">
+        <h2>Welcome, <%= authorName %>!</h2>
+
+        <!-- Display books -->
+        <% if (books.length > 0) { %>
+            <ul>
+                <% books.forEach(book => { %>
+                    <li><%= book.book_title %></li>
+                <% }); %>
+            </ul>
+        <% } else { %>
+            <p>No books available.</p>
+        <% } %>
+
+        <!-- Add Book Form -->
+        <form action="/add_book" method="post">
+            <!-- Include CSRF token -->
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
+            <div class="form-group">
+                <label for="bookTitle">Book Title:</label>
+                <input type="text" class="form-control" id="bookTitle" name="bookTitle" required>
+            </div>
+            <!-- Add more fields for book details like genre, pdf_url, etc. -->
+
+            <button type="submit" class="btn btn-primary">Add Book</button>
+        </form>
+
+        <h2 class="text-center">Your Books</h2>
+
+        <!-- Featured Book Cards -->
+        <h4 class="mt-4">Your Books</h4>
+        <div class="row">
+            <% books.forEach(book => { %>
+                <div class="col-md-4">
+                    <div class="card book-card">
+                        <img src="https://picsum.photos/300/200" class="card-img-top" alt="Book Cover">
+                        <div class="card-body">
+                            <h5 class="card-title"><%= book.book_title %></h5>
+                            <p class="card-text">Author: <%= authorName %></p>
+                            <!-- Add other book details as needed -->
+                            <a href="<%= book.pdf_url %>" class="btn btn-primary">Read Now</a>
+                        </div>
+                    </div>
+                </div>
+            <% }); %>
+        </div>
+
+        <div class="text-center mt-3">
+            <a href="#" class="btn btn-primary see-all-btn">See All Books</a>
+        </div>
+    </div>
+</body>
+</html>

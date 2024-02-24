@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Netflix-Like Page</title>
+    <link rel="stylesheet" href="node_modules/bootstrap/dist/css/bootstrap.css">
+    <style>
+        body {
+            background-color: #141414;
+            color: #ffffff;
+            font-family: 'Arial', sans-serif;
+        }
+
+        .container {
+            text-align: center;
+            padding: 100px;
+        }
+
+        h1 {
+            font-size: 3rem;
+            margin-bottom: 30px;
+        }
+
+        .btn-subscribe,
+        .btn-login {
+            font-size: 1.5rem;
+            padding: 15px 30px;
+            margin: 10px;
+            border-radius: 5px;
+            letter-spacing: 1px;
+            font-weight: bold;
+        }
+
+        .btn-subscribe {
+            background-color: #e50914;
+            border: none;
+            color: #fff;
+        }
+
+        .btn-subscribe:hover {
+            background-color: #ff3c27;
+        }
+
+        .btn-login {
+            background-color: #fff;
+            border: 1px solid #e50914;
+            color: #e50914;
+        }
+
+        .btn-login:hover {
+            background-color: #e50914;
+            color: #fff;
+        }
+    </style>
+</head>
+
+<body>
+    <script src="node_modules/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <div class="container">
+        <h1>Welcome to Our Streaming Service</h1>
+        <a href="/subscribe" class="btn btn-subscribe" onclick="subscribe()">Subscribe Now</a>
+        <a href="/login_reader" class="btn btn-login" onclick="login()">Login</a>
+    </div>
+
+    <script>
+        function subscribe() {
+            // Redirect to subscribe.html after clicking Subscribe
+            window.location.href = 'sub_form.ejs';
+        }
+
+        function login() {
+            // Redirect to login.html after clicking Login
+            window.location.href = 'login.ejs';
+        }
+    </script>
+</body>
+
+</html>

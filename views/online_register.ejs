@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register</title>
+</head>
+<body>
+    <h1>REGISTER</h1>
+
+    <form action="/users/register" method="post">
+        <label for="name">Name:</label>
+        <input type="text" id="name" name="name" required>
+        <br>
+        
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email" required>
+        <br>
+
+        <label for="contact">Contact Number:</label>
+        <input type="tel" id="contact" name="contact" required>
+        <br>
+        
+        
+        <label>Gender:</label>
+        <input type="radio" id="male" name="gender" value="male" required>
+        <label for="male">Male</label>
+        <input type="radio" id="female" name="gender" value="female" required>
+        <label for="female">Female</label>
+        <br>
+
+        <input type="submit" value="Register">
+    </form>
+    
+    <a href="\book">Login</a>
+</body>
+</html>
