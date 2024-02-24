@@ -146,7 +146,7 @@ app.post('/author/register', async (req, res) => {
 
 
 app.get('/author/login', (req, res) => {
-  console.log("hiiiiiiiiiii");
+  console.log("hello");
   res.render('login');
 });
 
