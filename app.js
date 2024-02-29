@@ -353,6 +353,69 @@ app.post('/author/request/book_details', async (req, res) => {
 });
 
 
+app.get('/author/request_to_all_publisher/book_details', async (req, res) => {
+
+  res.render('allPublisherBook');
+
+});
+
+app.post('/author/request_to_all_publisher/book_details', async (req, res) => {
+  try {
+    const { bookName, genre, pdfLink } = req.body;
+    let authorId = req.session.authorId;
+
+    // Call the stored procedure to send publish requests to all publishers
+    await client.query('CALL Send_Publish_Request_To_All_Publishers($1, $2, $3, $4)', [
+      authorId, // Replace with the appropriate author ID
+      bookName,
+      genre,
+      pdfLink
+    ]);
+
+    // Placeholder logic: just log the data for demonstration
+    console.log('Book Name:', bookName);
+    console.log('Genre:', genre);
+    console.log('PDF Link:', pdfLink);
+
+    res.status(200).send('Request submitted successfully');
+  } catch (error) {
+    console.error('Error handling form submission:', error);
+    res.status(500).send('Internal Server Error');
+  }
+});
+
+
+/*app.post('/author/request_to_all_publisher/book_details', async (req, res) => {
+  try {
+    const { bookName, genre, pdfLink } = req.body;
+    let authorId = req.session.authorId;
+
+    // Find the maximum request_id
+    const result = await client.query('SELECT MAX(request_id) AS max_request_id FROM Publish_Request');
+    const maxRequestId = result.rows[0].max_request_id;
+
+    // Call the stored procedure to send publish requests to all publishers
+    await client.query('CALL Send_Publish_Request_To_All_Publishers($1, $2, $3, $4, $5)', [
+      authorId, // Replace with the appropriate author ID
+      bookName,
+      genre,
+      pdfLink,
+      maxRequestId
+    ]);
+
+    // Placeholder logic: just log the data for demonstration
+    console.log('Book Name:', bookName);
+    console.log('Genre:', genre);
+    console.log('PDF Link:', pdfLink);
+
+    res.status(200).send('Request submitted successfully');
+  } catch (error) {
+    console.error('Error handling form submission:', error);
+    res.status(500).send('Internal Server Error');
+  }
+});*/
+
+
 app.get('/publisher/login', (req, res) => {
   res.render('publisherLogin');
 });
