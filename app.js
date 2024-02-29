@@ -47,40 +47,6 @@ app.get('/', (req, res) => {
 
 
 
-
-/*app.get('/statistics', async (req, res) => {
-  try {
-    // Query to fetch the publisher name and approval rate for each publisher
-    const query = `
-      SELECT
-        P.name AS publisher_name,
-        GetApprovalRate(P.publisher_id) AS approval_rate
-      FROM
-        Publisher P
-      WHERE
-        GetApprovalRate(P.publisher_id) > 0;
-    `;
-
-    // Execute the query to fetch publisher statistics
-    const publisherStats = await client.query(query);
-
-    // Call the GetTopGenres function to fetch top genres
-    const topGenresQuery = 'SELECT * FROM GetTopGenres(5)';
-    const topGenresResult = await client.query(topGenresQuery); // Execute the query
-
-    // Extract the rows from the query results
-    const approvalRates = publisherStats.rows;
-    const genres = topGenresResult.rows; // Access the rows property of the query result
-   
-
-    // Render the 'statistics' view with the approval rates and top genres
-    res.render('statistics', { result: approvalRates, genres });
-  } catch (err) {
-    console.error('Error executing query:', err);
-    res.status(500).send('Internal Server Error');
-  }
-});*/
-
 app.get('/statistics', async (req, res) => {
   try {
     // Call the FinancialStatistics procedure
@@ -268,6 +234,52 @@ app.get('/author/book_status', (req, res) => {
 });
 
 
+app.get('/author/search', (req, res) => {
+  res.render('author_book_search', { search_book: [] }); // Pass an empty array by default
+});
+
+app.post('/author/search', async (req, res) => {
+  try {
+    const userProvidedBookTitle = req.body.bookTitle; // Assuming the book title is passed as 'bookTitle' in the request
+
+    if (!userProvidedBookTitle) {
+      return res.status(400).send('Book title parameter is missing.');
+    }
+
+    const query = `
+      SELECT 
+        B.book_title,
+        (SELECT COUNT(*) 
+          FROM Book_sales BS 
+          JOIN Book B1 ON BS.book_id = B1.book_id 
+          WHERE B1.book_title = $1) AS total_copies_sold,
+        (SELECT P.author_gets * (SELECT COUNT(*) 
+                                  FROM Book_sales BS 
+                                  JOIN Book B1 ON BS.book_id = B1.book_id 
+                                  WHERE B1.book_title = $1) 
+          FROM Payment P 
+          JOIN Book B1 ON P.book_id = B1.book_id 
+          WHERE B1.book_title = $1) AS author_payment_amount
+      FROM 
+        Book B
+      WHERE 
+        B.book_title = $1
+        GROUP BY B.book_title`;
+
+    /*Search for the Shining */    
+
+    const result = await client.query(query, [userProvidedBookTitle]);
+    const search_book = result.rows;
+
+    // Pass the query result to the view for rendering
+    res.render('author_book_search', { search_book });
+  } catch (error) {
+    console.error('Error executing query:', error);
+    res.status(500).send('Internal Server Error');
+  }
+});
+
+
 
 
 
@@ -369,6 +381,25 @@ app.post('/publisher/login', async (req, res) => {
     GROUP BY p.publisher_id
   `;
 
+  const query2 = 
+  `SELECT a.id, a.first_name, a.last_name
+  FROM Author a
+  JOIN Book b ON a.id = b.author_id
+  JOIN Review r ON b.book_id = r.book_id
+  WHERE a.id IN (
+  SELECT author_id
+  FROM (
+    SELECT author_id, AVG(rating) AS avg_rating
+    FROM Author a
+    JOIN Book b ON a.id = b.author_id
+    JOIN Review r ON b.book_id = r.book_id
+    GROUP BY author_id
+    ORDER BY avg_rating DESC
+    LIMIT 3
+) AS top_avg_ratings
+)
+GROUP BY a.id, a.first_name, a.last_name`;
+
   try {
     const publisherResult = await client.query(publisherQuery, [email]);
 
@@ -386,12 +417,14 @@ app.post('/publisher/login', async (req, res) => {
       // Passwords match, login successful
       const mergedResult = await client.query(mergedQuery, [publisher.publisher_id]);
       const pendingResult = await client.query(pendingQuery, [publisher.publisher_id]);
+      const result2 = await client.query(query2);
 
       const authorRequests = mergedResult.rows;
       const pendingBooks = pendingResult.rows.length > 0 ? pendingResult.rows[0].requested_book_count : 0;
+      const top_rated_author = result2.rows;
 
       // Pass the retrieved data to the 'showRequest' EJS template
-      res.render('showRequest', { publisher, authorRequests, pendingBooks });
+      res.render('showRequest', { publisher, authorRequests, pendingBooks,top_rated_author });
     } else {
       // Passwords don't match
       res.status(401).send('Invalid email or password');
@@ -486,46 +519,22 @@ app.post('/publisher/request/search', async (req, res) => {
           FROM Publish_Requested_books
           WHERE genre = $1
       )`;
-    
-      const excludeGenrequery = `SELECT first_name, last_name
-      FROM Author
-      WHERE id IN (
-          SELECT author_id
-          FROM Publish_Request
-      )
-      AND id NOT IN (
-          SELECT author_id
-          FROM Publish_Request
-          WHERE request_id IN (
-              SELECT request_id
-              FROM Publish_Requested_books
-              WHERE genre = $1
-          )
-      )`;
 
-      const particularAuthorquery = `SELECT book_name, genre
-      FROM Publish_Requested_books
-      WHERE status = 'Pending'
-      AND request_id IN (
-          SELECT request_id
-          FROM Publish_Request
-          WHERE author_id IN (
-              SELECT id
-              FROM Author
-              WHERE first_name IN ($3, $4)
-          )
-      )`;
+     
 
     const result = await client.query(query, [userProvidedGenre]);
     const genre_search_book = result.rows;
 
+
     // Pass the query result to the view for rendering
-    res.render('requestSearch', { genre_search_book });
+    res.render('requestSearch', { genre_search_book});
   } catch (error) {
     console.error('Error executing query:', error);
     res.status(500).send('Internal Server Error');
   }
 });
+
+
 
 
 // Handle shutdown gracefully by closing the database connection
@@ -547,51 +556,6 @@ app.listen(PORT, () => {
 
 
 
-
-
-
-/*app.get('/about', async (req, res) => {
-  res.sendFile('./views/2.html',{root:__dirname});
-});*/
-
-
-// list of author name
-/*const express = require('express');
-const { Client } = require('pg');
-
-const app = express();
-const port = 3000;
-
-const client = new Client({
-  user: 'postgres',
-  host: 'localhost',
-  database: 'Maindb',
-  password: '1234',
-  port: 5432,
-});
-
-app.set('view engine', 'ejs');
-
-app.get('/', async (req, res) => {
-  try {
-    await client.connect();
-    console.log('Connected to PostgreSQL');
-
-    const result = await client.query('SELECT * FROM author');
-    const author = result.rows;
-
-    res.render('demo', { author });
-  } catch (err) {
-    console.error('Error connecting to PostgreSQL or executing query:', err);
-    res.status(500).send('Internal Server Error');
-  } finally {
-    await client.end();
-  }
-});
-
-app.listen(port, () => {
-  console.log(`Server is running at http://localhost:${port}`);
-});*/
 
 
 

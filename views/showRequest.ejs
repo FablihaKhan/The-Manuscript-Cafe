@@ -25,6 +25,20 @@
   <h1>Welcome, <%= publisher.name %>!</h1>
   <a href="/publisher/request/search">Search based on criteria</a>
 
+  <h2>Top Rated Authors</h2>
+  <table>
+    <tr>
+      <th>First Name</th>
+      <th>Last Name</th>
+    </tr>
+    <% top_rated_author.forEach((author) => { %>
+      <tr>
+        <td><%= author.first_name %></td>
+        <td><%= author.last_name %></td>
+      </tr>
+    <% }); %>
+  </table>
+
   <h2>Pending Books</h2>
   <p>Total Pending Books: <span class="pending-count"><%= pendingBooks %></span></p>
 
