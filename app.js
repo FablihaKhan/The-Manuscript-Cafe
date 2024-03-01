@@ -234,11 +234,31 @@ app.get('/author/book_status', (req, res) => {
 });
 
 
-app.get('/author/search', (req, res) => {
-  res.render('author_book_search', { search_book: [] }); // Pass an empty array by default
+app.post('/author/book_status', async (req, res) => {
+  try {
+    const bookName = req.body.bookName;
+
+    // Call the stored procedure to delete the request and associated records
+    await client.query('CALL DeletePublishRequest($1)', [bookName]);
+    
+
+    res.redirect('/author/book_status'); // Redirect to the book status page after canceling the request
+  } catch (error) {
+    console.error('Error canceling request:', error);
+    res.status(500).send('Error canceling request');
+  }
 });
 
+
+
+app.get('/author/search', (req, res) => {
+  res.render('author_book_search', { search_book: [],reviews:[] }); // Pass an empty array by default
+});
+
+
 app.post('/author/search', async (req, res) => {
+  let reviews; // Declare reviews variable outside the try block
+
   try {
     const userProvidedBookTitle = req.body.bookTitle; // Assuming the book title is passed as 'bookTitle' in the request
 
@@ -266,18 +286,43 @@ app.post('/author/search', async (req, res) => {
         B.book_title = $1
         GROUP BY B.book_title`;
 
-    /*Search for the Shining */    
+    const review_query = `
+      SELECT 
+        R.review_id,
+        R.rating,
+        R.review
+      FROM 
+        Review R
+        JOIN Book B ON R.book_id = B.book_id
+      WHERE 
+        B.book_title = $1`;
+
+    const review_result = await client.query(review_query, [userProvidedBookTitle]);
+    reviews = review_result.rows; // Assign the value inside the try block
 
     const result = await client.query(query, [userProvidedBookTitle]);
     const search_book = result.rows;
 
-    // Pass the query result to the view for rendering
-    res.render('author_book_search', { search_book });
+    res.render('author_book_search', { search_book, reviews });
   } catch (error) {
     console.error('Error executing query:', error);
     res.status(500).send('Internal Server Error');
   }
 });
+
+app.post('/review/delete', async (req, res) => {
+  try {
+      const reviewId = req.body.reviewId;
+
+      await client.query('DELETE FROM Review WHERE review_id = $1', [reviewId]);
+
+      res.redirect('/author/search'); // Redirect to the book status page after deleting the review
+  } catch (error) {
+      console.error('Error deleting review:', error);
+      res.status(500).send('Error deleting review');
+  }
+});
+
 
 
 

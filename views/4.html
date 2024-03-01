@@ -1,78 +1,72 @@
-<!-- requestPublisher.ejs -->
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Request Publisher</title>
-    <style>
-        body {
-            font-family: 'Arial', sans-serif;
-            background-color: #f8f8f8;
-            margin: 0;
-            padding: 0;
-            text-align: center;
-        }
-
-        h1 {
-            color: #333;
-            margin-bottom: 20px;
-        }
-
-        .publisher-box {
-            border: 1px solid #ccc;
-            padding: 20px;
-            margin: 20px;
-            display: inline-block;
-            border-radius: 8px;
-            background-color: #fff;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
-
-        .publisher-box p {
-            margin: 0;
-            padding: 5px 0;
-        }
-
-        .request-button {
-            background-color: #4CAF50;
-            color: #fff;
-            border: none;
-            padding: 10px;
-            cursor: pointer;
-            border-radius: 4px;
-        }
-
-        .request-button:hover {
-            background-color: #45a049;
-        }
-
-        .add-book-details-link {
-            display: block;
-            margin-top: 20px;
-            color: #333;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Author Book Search</title>
+  <style>
+    /* CSS styles omitted for brevity */
+  </style>
 </head>
 <body>
-    <h1>Request Publisher</h1>
-    <a class="add-book-details-link" href="/author/request/book_details">Click here to add book details after you have requested any publisher</a>
-    <% rows.forEach((row) => { %>
-        <div class="publisher-box">
-            <p><strong>Publisher ID:</strong> <%= row.publisher_id %></p>
-            <p><strong>Name:</strong> <%= row.name %></p>
-            <p><strong>Email:</strong> <%= row.email %></p>
-            <!-- Add more details as needed -->
+  <div class="container">
+    <h1>Author Book Search</h1>
 
-            <!-- Button for requesting this particular row -->
-            <form action="/author/request" method="post">
-                <input type="hidden" name="authorId" value="<%= authorId %>">
-                <input type="hidden" name="publisherId" value="<%= row.publisher_id %>">
-                <button class="request-button" type="submit">Request</button>
-            </form>
-        </div>
-    <% }); %>
+    <!-- Search Form -->
+    <form action="/author/search" method="post">
+      <label for="bookTitle">Enter Book Title:</label>
+      <input type="text" id="bookTitle" name="bookTitle" required>
+      <button type="submit">Search</button>
+    </form>
 
+    <!-- Search Results -->
+    <% if (search_book && search_book.length > 0) { %>
+      <h2>Search Results</h2>
+      <table>
+        <tr>
+          <th>Book Title</th>
+          <th>Total Copies Sold</th>
+          <th>Payment Amount</th>
+        </tr>
+        <% search_book.forEach(book => { %>
+          <tr>
+            <td><%= book.book_title %></td>
+            <td><%= book.total_copies_sold %></td>
+            <td><%= book.author_payment_amount %></td>
+          </tr>
+        <% }); %>
+      </table>
+    <% } else if (search_book) { %>
+      <p>No books found for the specified title.</p>
+    <% } %>
+
+    <!-- Review Results -->
+    <% if (reviews && reviews.length > 0) { %>
+      <h2>Reviews</h2>
+      <table>
+        <tr>
+          <th>Review ID</th>
+          <th>Rating</th>
+          <th>Review</th>
+          <th></th>
+        </tr>
+        <% reviews.forEach(review => { %>
+          <tr>
+            <td><%= review.review_id %></td>
+            <td><%= review.rating %></td>
+            <td><%= review.review %></td>
+            <td>
+              <form action="/review/delete" method="post" style="display: inline;">
+                <input type="hidden" name="reviewId" value="<%= review.review_id %>">
+                <button type="submit">Delete</button>
+              </form>
+            </td>
+          </tr>
+        <% }); %>
+      </table>
+    <% } else if (reviews) { %>
+      <p>No reviews found for the specified book.</p>
+    <% } %>
+  </div>
 </body>
 </html>

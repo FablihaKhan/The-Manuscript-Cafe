@@ -39,7 +39,12 @@
   <h1>Pending Books</h1>
   <ul>
     <% pendingBooks.forEach(function(book) { %>
-      <li class="pending"><%= book.publisher_name %> - <%= book.book_name %></li>
+      <li class="pending"><%= book.publisher_name %> - <%= book.book_name %>
+        <form method="POST" action="/author/book_status">
+          <input type="hidden" name="bookName" value="<%= book.book_name %>">
+          <button type="submit">Cancel Request</button>
+        </form>
+      </li>
     <% }); %>
   </ul>
 
