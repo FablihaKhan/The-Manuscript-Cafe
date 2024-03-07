@@ -7,6 +7,9 @@
 
     <!-- Link to Bootstrap CSS -->
     <link rel="stylesheet" href="/static/css/bootstrap.min.css">
+    
+    <!-- Link to Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 
     <style>
         /* Navbar styling */
@@ -35,13 +38,15 @@
         }
 
         .center {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-            text-align: center;
-        }
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 50vh;
+    text-align: center;
+    padding: 20px; /* Adjust padding as needed */
+}
+
 
         .btn-container {
             margin-top: 10px;
@@ -52,43 +57,94 @@
             background-color: rgba(0,0,0,0.5); /* Semi-transparent background for better readability */
         }
 
-        /* Logo styling */
-        .logo {
-            width: 100px; /* Adjust width as needed */
-            height: auto;
-            margin-bottom: 20px;
+        /* Animation container */
+
+        /* Animation keyframes */
+        @keyframes slideInFromRight {
+            0% { transform: translateX(100%); opacity: 0; }
+            45% { transform: translateX(0); opacity: 1; }
+            55% { transform: translateX(0); opacity: 1; }
+            100% { transform: translateX(-100%); opacity: 0; }
         }
+
+        /* Continuous animation */
+        .animation-container img {
+            animation: slideInFromRight 6s ease-in-out infinite; /* Apply continuous animation */
+        }
+
+        .logo {
+            height: auto;
+            margin-bottom: 5px;
+            width: 200px;
+        }
+
+        .logo:nth-child(2) {
+            animation-delay: 3s; /* Delay the animation of the second logo */
+        }
+
+        .custom-search-form {
+            flex: 1; /* This will make the search bar take up remaining space */
+            max-width: 400px; /* Set a maximum width for the search bar */
+        }
+        /* Image container styles */
+.image-container {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    margin-bottom: 20px; /* Adjust margin as needed */
+}
+
+.image-container img {
+    width: 600px; /* Adjust image width as needed */
+    height: auto;
+    margin-right: 10px; /* Adjust margin between images */
+}
     </style>
 </head>
 <body>
 
 <!-- Navbar -->
-<nav class="navbar navbar-expand-lg">
+<nav class="navbar navbar-expand-lg navbar-light" style="background-color: #343a40;">
     <div class="container-fluid">
         <a class="navbar-brand" href="#">
-            <img src="Mudron.jpg" alt="Logo" class="logo"> <!-- Replace 'your-logo.png' with your logo path -->
             Navbar
         </a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
-            <div class="navbar-nav">
+            <div class="navbar-nav me-auto">
                 <a class="nav-link active" aria-current="page" href="#">Home</a>
                 <a class="nav-link" href="#">Features</a>
                 <a class="nav-link" href="/statistics">Statistics</a>
+            </div>
+            <form class="d-flex custom-search-form"> <!-- Added custom-search-form class -->
+                <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
+                <button class="btn btn-outline-light" type="submit">Search</button>
+            </form>
+            
+            <div class="navbar-nav ms-auto">
+                <a class="nav-link" href="#"><i class="fab fa-facebook-f"></i></a> <!-- Added Font Awesome icon classes -->
+                <a class="nav-link" href="#"><i class="fab fa-twitter"></i></a> <!-- Added Font Awesome icon classes -->
             </div>
         </div>
     </div>
 </nav>
 
-<!-- Homepage Content -->
-<div class="center">
-    <div class="jumbotron">
-        <h1 class="display-4">WELCOME!</h1>
-        <p class="lead">Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+<div class="jumbotron" style="background-color: #f8f9fa; padding: 50px; border-radius: 15px; box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); text-align: center;">
+    <div class="animation-container center">
+        <img src="/uploads/logo.jpg" alt="Logo 1" class="logo" id="first">
     </div>
+    <h1 class="display-4" style="font-family: 'Arial', sans-serif; color: #DC143C; text-shadow: 2px 2px 4px #000000;">MUDRON</h1>
+    <p class="lead" style="font-size: 18px; color: #FF5733;">Thank you for visiting our website. We are dedicated to improving the book publishing and reading experience for all our users.</p>
+</div>
 
+<div class="image-container">
+    <img src="/uploads/publish.png" alt="Image 1">
+    <img src="/uploads/subs.png" alt="Image 2">
+</div>
+
+<div class="center">
     <div class="btn-group btn-container">
         <button type="button" class="btn btn-danger dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">Login As</button>
         <ul class="dropdown-menu">
@@ -107,11 +163,29 @@
             <li><a class="dropdown-item" href="/publisher/register">Publisher</a></li>
             <li><a class="dropdown-item" href="/editor/register">Editor</a></li>
         </ul>
-    </div>
+    </div> 
 </div>
+
+
+
+
+
+<!-- Homepage Content -->
+
 
 <!-- Link to Bootstrap JS and Popper.js -->
 <script src="/static/js/bootstrap.bundle.min.js"></script>
+<script>
+    // JavaScript to handle animation
+    const firstLogo = document.getElementById('first');
+    const secondLogo = document.getElementById('second');
+
+    firstLogo.addEventListener('animationend', () => {
+        firstLogo.style.display = 'none'; // Hide the first logo when animation ends
+        secondLogo.style.display = 'inline-block'; // Show the second logo
+        secondLogo.style.animation = 'slideInFromRight 6s ease-in-out infinite'; // Apply animation to the second logo
+    });
+</script>
 
 </body>
 </html>

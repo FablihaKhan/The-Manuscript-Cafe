@@ -3,10 +3,17 @@
 <html>
 <head>
   <title>Book Status</title>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
   <style>
     body {
-      font-family: Arial, sans-serif;
-    }
+            font-family: 'Arial', sans-serif;
+            background-image: url('/uploads/book_status_bg.png');
+            background-repeat: no-repeat;
+            background-size: cover;
+            margin: 0;
+            padding: 0;
+            text-align: center;
+        }
 
     h1 {
       color: #333;
@@ -32,34 +39,97 @@
     .rejected {
       color: #FF0000;
     }
+    .nav-tabs {
+            margin-bottom: 20px;
+        }
+
+        .nav-item {
+            margin-right: 10px;
+        }
+
+        .nav-link {
+            color: #000;
+        }
+
+        .nav-link.active {
+            font-weight: bold;
+            color: #007bff;
+        }
+
   </style>
 </head>
 <body>
-  <a href="/author/search" class="d-block text-center mt-3">SEARCH FOR YOUR BOOK</a>
-  <h1>Pending Books</h1>
-  <ul>
-    <% pendingBooks.forEach(function(book) { %>
-      <li class="pending"><%= book.publisher_name %> - <%= book.book_name %>
-        <form method="POST" action="/author/book_status">
-          <input type="hidden" name="bookName" value="<%= book.book_name %>">
-          <button type="submit">Cancel Request</button>
-        </form>
-      </li>
-    <% }); %>
-  </ul>
+  
+  <nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <div class="container">
+        <a class="navbar-brand" href="#">Book Status</a>
+        <ul class="navbar-nav ml-auto">
+            <li class="nav-item">
+                <a class="nav-link active" aria-current="page" href="/">Home</a>
+            </li>
+            <li class="nav-item">
+                <a href="/statistics" class="nav-link">Statistcs</a>
+            </li>
+            <li class="nav-item">
+                <a href="/author/search" class="nav-link">SEARCH FOR YOUR BOOK</a>
+            </li>
+        </ul>
+    </div>
+</nav>
 
-  <h1>Approved Books</h1>
-  <ul>
-    <% approvedBooks.forEach(function(book) { %>
-      <li class="approved"><%= book.publisher_name %> - <%= book.book_name %></li>
-    <% }); %>
-  </ul>
 
-  <h1>Rejected Books</h1>
-  <ul>
-    <% rejectedBooks.forEach(function(book) { %>
-      <li class="rejected"><%= book.publisher_name %> - <%= book.book_name %> (Rejection Reason: <%= book.rejection_reason %>)</li>
-    <% }); %>
-  </ul>
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="card" style="width: 40rem;">
+        <img src="/uploads/books.jpg" class="card-img-top" alt="...">
+        <div class="card-body">
+          <h5 class="card-title">Pending Books</h5>
+        </div>
+        <% pendingBooks.forEach(function(book) { %>
+          <ul class="list-group list-group-flush">
+            <li class="list-group-item"><%= book.publisher_name %> - <%= book.book_name %>
+              <form method="POST" action="/author/book_status">
+                <input type="hidden" name="bookName" value="<%= book.book_name %>">
+                <button type="submit">Cancel Request</button>
+              </form>
+            </li>
+          </ul>
+        <% }); %>
+      </div>
+    </div>
+  </div>
+
+<div class="container">
+  <div class="row justify-content-center">
+    <div class="card" style="width: 40rem;">
+      <img src="/uploads/approve.png" class="card-img-top" alt="...">
+      <div class="card-body">
+        <h5 class="card-title">Approved Books</h5>
+      </div>
+      <% approvedBooks.forEach(function(book) { %>
+        <ul class="list-group list-group-flush">
+          <li class="list-group-item"><%= book.publisher_name %> - <%= book.book_name %></li>
+        </ul>
+      <% }); %>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+  <div class="row justify-content-center">
+    <div class="card" style="width: 40rem;">
+      <img src="/uploads/rejected.png" class="card-img-top" alt="...">
+      <div class="card-body">
+        <h5 class="card-title">Rejected Books</h5>
+      </div>
+      <% rejectedBooks.forEach(function(book) { %>
+        <ul class="list-group list-group-flush"></ul>
+        <li class="list-group-item"><%= book.publisher_name %> - <%= book.book_name %> (Rejection Reason: <%= book.rejection_reason %>)</li>
+      </ul>
+      <% }); %>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>

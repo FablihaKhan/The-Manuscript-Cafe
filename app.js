@@ -8,6 +8,10 @@ const bodyParser = require('body-parser');
 const app = express();
 const PORT = 3000;
 
+app.use('/static', express.static('public'));
+app.use('/uploads', express.static('uploads'));
+
+
 app.use(session({
   secret: 'your-secret-key',
   resave: false,
@@ -553,6 +557,7 @@ app.post('/publisher/approve', (req, res) => {
 
   // Insert a new row into Approved_books table
   const insertQuery = 'INSERT INTO Approved_books (publisher_id, request_id) VALUES ($1, $2)';
+  /*const insert_to_online_books_Query = 'INSERT INTO online_book (author_code, book_title, genre, pdf_url) VALUES (4, 'Thrill Seeker', 'Thriller', 'thrill_seeker.pdf')';*/
   const insertValues = [publisherId, requestId];
 
   // Update the status to 'Approved' in Publish_Requested_books table

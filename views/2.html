@@ -1,172 +1,65 @@
+<!-- book_status.ejs -->
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Statistics</title>
-  <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+  <title>Book Status</title>
   <style>
+    body {
+      font-family: Arial, sans-serif;
+    }
+
+    h1 {
+      color: #333;
+    }
+
     ul {
       list-style-type: none;
       padding: 0;
     }
 
     li {
-      margin-bottom: 20px;
+      margin-bottom: 10px;
     }
 
-    h1 {
-      margin-top: 40px;
-      margin-bottom: 20px;
+    .pending {
+      color: #FFA500;
     }
 
-    .chart-container {
-      margin-top: 20px;
+    .approved {
+      color: #008000;
+    }
+
+    .rejected {
+      color: #FF0000;
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <div class="row">
-      <div class="col-md-6">
-        <h1>Approval Rates by Publisher</h1>
-        <ul>
-          <!-- Render publisher names and approval rates -->
-          <% result.forEach(function(row) { %>
-            <li>
-              <strong>Publisher Name:</strong> <%= row.publisher_name %><br>
-              <strong>Approval Rate:</strong> <%= row.approval_rate %>%<br>
-            </li>
-          <% }); %>
-        </ul>
-        <h1>Top Genres</h1>
-        <ul>
-          <% genres.forEach(function(row) { %>
-            <li>
-              <strong>Genre Name:</strong> <%= row.genre_name %><br />
-              <strong>Submission Count:</strong> <%= row.submission_count %><br />
-            </li>
-          <% }); %>
-        </ul>
-      </div>
-      <div class="col-md-6">
-        <h1>Financial Statistics</h1>
-        <ul>
-          <li><strong>Total Revenue:</strong> <%= revenue %></li>
-          <li><strong>Total Cost:</strong> <%= total_cost %></li>
-          <li><strong>Profit Margin:</strong> <%= profit_margin %></li>
-        </ul>
-      </div>
-    </div>
-    <div class="row">
-      <div class="col-md-6 chart-container">
-        <h1>Approval Rate Chart</h1>
-        <canvas id="approvalRateChart"></canvas>
-        <!-- Input element to store data from the backend -->
-        <input type="hidden" id="approvalRateData" value='<%- JSON.stringify(result) %>'>
-      </div>
-      <div class="col-md-6 chart-container">
-        <h1>Financial Statistics Chart</h1>
-        <canvas id="financialStatisticsChart"></canvas>
-        <!-- Input element to store data from the backend -->
-        <input type="hidden" id="financialStatisticsData" value='<%- JSON.stringify({ revenue: revenue, total_cost: total_cost, profit_margin: profit_margin }) %>'>
-      </div>
-    </div>
-  </div>
+  <a href="/author/search" class="d-block text-center mt-3">SEARCH FOR YOUR BOOK</a>
+  <h1>Pending Books</h1>
+  <ul>
+    <% pendingBooks.forEach(function(book) { %>
+      <li class="pending"><%= book.publisher_name %> - <%= book.book_name %>
+        <form method="POST" action="/author/book_status">
+          <input type="hidden" name="bookName" value="<%= book.book_name %>">
+          <button type="submit">Cancel Request</button>
+        </form>
+      </li>
+    <% }); %>
+  </ul>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.0/chart.min.js"></script>
-  <script>
-    // Retrieve data from the input elements
-    var approvalRateData = JSON.parse(document.getElementById('approvalRateData').value);
-    var financialStatisticsData = JSON.parse(document.getElementById('financialStatisticsData').value);
+  <h1>Approved Books</h1>
+  <ul>
+    <% approvedBooks.forEach(function(book) { %>
+      <li class="approved"><%= book.publisher_name %> - <%= book.book_name %></li>
+    <% }); %>
+  </ul>
 
-    // Define arrays to hold approval rates and publisher names
-    var approvalRates = approvalRateData.map(function(row) {
-      return row.approval_rate;
-    });
-    var publisherNames = approvalRateData.map(function(row) {
-      return row.publisher_name;
-    });
-
-    // Define labels and data for the financial statistics chart
-    var financialLabels = ['Total Revenue', 'Total Cost', 'Profit Margin'];
-    var financialData = [financialStatisticsData.revenue, financialStatisticsData.total_cost, financialStatisticsData.profit_margin];
-
-    // Create a new Chart object for the approval rate chart
-    var approvalRateCtx = document.getElementById('approvalRateChart').getContext('2d');
-    var approvalRateChart = new Chart(approvalRateCtx, {
-      type: 'bar',
-      data: {
-        labels: publisherNames,
-        datasets: [{
-          label: 'Approval Rate (%)',
-          data: approvalRates,
-          backgroundColor: 'rgba(54, 162, 235, 0.6)',
-          borderColor: 'rgba(54, 162, 235, 1)',
-          borderWidth: 1
-        }]
-      },
-      options: {
-        scales: {
-          y: {
-            beginAtZero: true,
-            title: {
-              display: true,
-              text: 'Approval Rate (%)'
-            }
-          },
-          x: {
-            title: {
-              display: true,
-              text: 'Publisher Name'
-            }
-          }
-        }
-      }
-    });
-  
-    
-    // Retrieve data from the input element
-  var financialStatisticsData = JSON.parse(document.getElementById('financialStatisticsData').value);
-
-// Define labels and data for the financial statistics chart
-var financialLabels = ['Total Revenue', 'Total Cost', 'Profit Margin'];
-var financialData = [financialStatisticsData.revenue, financialStatisticsData.total_cost, financialStatisticsData.profit_margin];
-
-// Create a new Chart object for the financial statistics chart
-var financialStatisticsCtx = document.getElementById('financialStatisticsChart').getContext('2d');
-var financialStatisticsChart = new Chart(financialStatisticsCtx, {
-  type: 'pie',
-  data: {
-    labels: financialLabels,
-    datasets: [{
-      data: financialData,
-      backgroundColor: [
-        'rgba(255, 99, 132, 0.6)',
-        'rgba(54, 162, 235, 0.6)',
-        'rgba(75, 192, 192, 0.6)'
-      ],
-      borderColor: [
-        'rgba(255, 99, 132, 1)',
-        'rgba(54, 162, 235, 1)',
-        'rgba(75, 192, 192, 1)'
-      ],
-      borderWidth: 1
-    }]
-  },
-  options: {
-    responsive: true,
-    plugins: {
-      legend: {
-        position: 'bottom',
-      },
-      title: {
-        display: true,
-        text: 'Financial Statistics'
-      }
-    }
-  }
-});
-  </script>
+  <h1>Rejected Books</h1>
+  <ul>
+    <% rejectedBooks.forEach(function(book) { %>
+      <li class="rejected"><%= book.publisher_name %> - <%= book.book_name %> (Rejection Reason: <%= book.rejection_reason %>)</li>
+    <% }); %>
+  </ul>
 </body>
 </html>
