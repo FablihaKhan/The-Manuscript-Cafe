@@ -3,110 +3,170 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Author Book Search</title>
+  <title>Statistics</title>
+  <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #f4f4f4;
-      margin: 0;
+    ul {
+      list-style-type: none;
       padding: 0;
     }
 
-    .container {
-      max-width: 600px;
-      margin: 50px auto;
-      background-color: #fff;
-      padding: 20px;
-      border-radius: 8px;
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    }
-
-    h1, h2 {
-      color: #333;
-      text-align: center;
-    }
-
-    form {
+    li {
       margin-bottom: 20px;
-      text-align: center;
     }
 
-    label {
-      margin-bottom: 10px;
-      display: block;
+    h1 {
+      margin-top: 40px;
+      margin-bottom: 20px;
     }
 
-    input[type="text"] {
-      padding: 8px;
-      margin-bottom: 10px;
-      width: 100%;
-      box-sizing: border-box;
-    }
-
-    button[type="submit"] {
-      padding: 10px 20px;
-      background-color: #4CAF50;
-      color: white;
-      border: none;
-      cursor: pointer;
-      border-radius: 5px;
-    }
-
-    button[type="submit"]:hover {
-      background-color: #45a049;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-    }
-
-    th, td {
-      border: 1px solid #ddd;
-      padding: 8px;
-      text-align: left;
-    }
-
-    th {
-      background-color: #f2f2f2;
-    }
-
-    tr:nth-child(even) {
-      background-color: #f2f2f2;
+    .chart-container {
+      margin-top: 20px;
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <h1>Author Book Search</h1>
-
-    <!-- Search Form -->
-    <form action="/author/search" method="post">
-      <label for="bookTitle">Enter Book Title:</label>
-      <input type="text" id="bookTitle" name="bookTitle" required>
-      <button type="submit">Search</button>
-    </form>
-
-    <!-- Search Results -->
-    <% if (search_book && search_book.length > 0) { %>
-      <h2>Search Results</h2>
-      <table>
-        <tr>
-          <th>Book Title</th>
-          <th>Total Copies Sold</th>
-          <th>Payment Amount</th>
-        </tr>
-        <% search_book.forEach(book => { %>
-          <tr>
-            <td><%= book.book_title %></td>
-            <td><%= book.total_copies_sold %></td>
-            <td><%= book.author_payment_amount %></td>
-          </tr>
-        <% }); %>
-      </table>
-    <% } else if (search_book) { %>
-      <p>No books found for the specified title.</p>
-    <% } %>
+    <div class="row">
+      <div class="col-md-6">
+        <h1>Approval Rates by Publisher</h1>
+        <ul>
+          <!-- Render publisher names and approval rates -->
+          <% result.forEach(function(row) { %>
+            <li>
+              <strong>Publisher Name:</strong> <%= row.publisher_name %><br>
+              <strong>Approval Rate:</strong> <%= row.approval_rate %>%<br>
+            </li>
+          <% }); %>
+        </ul>
+        <h1>Top Genres</h1>
+        <ul>
+          <% genres.forEach(function(row) { %>
+            <li>
+              <strong>Genre Name:</strong> <%= row.genre_name %><br />
+              <strong>Submission Count:</strong> <%= row.submission_count %><br />
+            </li>
+          <% }); %>
+        </ul>
+      </div>
+      <div class="col-md-6">
+        <h1>Financial Statistics</h1>
+        <ul>
+          <li><strong>Total Revenue:</strong> <%= revenue %></li>
+          <li><strong>Total Cost:</strong> <%= total_cost %></li>
+          <li><strong>Profit Margin:</strong> <%= profit_margin %></li>
+        </ul>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-6 chart-container">
+        <h1>Approval Rate Chart</h1>
+        <canvas id="approvalRateChart"></canvas>
+        <!-- Input element to store data from the backend -->
+        <input type="hidden" id="approvalRateData" value='<%- JSON.stringify(result) %>'>
+      </div>
+      <div class="col-md-6 chart-container">
+        <h1>Financial Statistics Chart</h1>
+        <canvas id="financialStatisticsChart"></canvas>
+        <!-- Input element to store data from the backend -->
+        <input type="hidden" id="financialStatisticsData" value='<%- JSON.stringify({ revenue: revenue, total_cost: total_cost, profit_margin: profit_margin }) %>'>
+      </div>
+    </div>
   </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.0/chart.min.js"></script>
+  <script>
+    // Retrieve data from the input elements
+    var approvalRateData = JSON.parse(document.getElementById('approvalRateData').value);
+    var financialStatisticsData = JSON.parse(document.getElementById('financialStatisticsData').value);
+
+    // Define arrays to hold approval rates and publisher names
+    var approvalRates = approvalRateData.map(function(row) {
+      return row.approval_rate;
+    });
+    var publisherNames = approvalRateData.map(function(row) {
+      return row.publisher_name;
+    });
+
+    // Define labels and data for the financial statistics chart
+    var financialLabels = ['Total Revenue', 'Total Cost', 'Profit Margin'];
+    var financialData = [financialStatisticsData.revenue, financialStatisticsData.total_cost, financialStatisticsData.profit_margin];
+
+    // Create a new Chart object for the approval rate chart
+    var approvalRateCtx = document.getElementById('approvalRateChart').getContext('2d');
+    var approvalRateChart = new Chart(approvalRateCtx, {
+      type: 'bar',
+      data: {
+        labels: publisherNames,
+        datasets: [{
+          label: 'Approval Rate (%)',
+          data: approvalRates,
+          backgroundColor: 'rgba(54, 162, 235, 0.6)',
+          borderColor: 'rgba(54, 162, 235, 1)',
+          borderWidth: 1
+        }]
+      },
+      options: {
+        scales: {
+          y: {
+            beginAtZero: true,
+            title: {
+              display: true,
+              text: 'Approval Rate (%)'
+            }
+          },
+          x: {
+            title: {
+              display: true,
+              text: 'Publisher Name'
+            }
+          }
+        }
+      }
+    });
+  
+    
+    // Retrieve data from the input element
+  var financialStatisticsData = JSON.parse(document.getElementById('financialStatisticsData').value);
+
+// Define labels and data for the financial statistics chart
+var financialLabels = ['Total Revenue', 'Total Cost', 'Profit Margin'];
+var financialData = [financialStatisticsData.revenue, financialStatisticsData.total_cost, financialStatisticsData.profit_margin];
+
+// Create a new Chart object for the financial statistics chart
+var financialStatisticsCtx = document.getElementById('financialStatisticsChart').getContext('2d');
+var financialStatisticsChart = new Chart(financialStatisticsCtx, {
+  type: 'pie',
+  data: {
+    labels: financialLabels,
+    datasets: [{
+      data: financialData,
+      backgroundColor: [
+        'rgba(255, 99, 132, 0.6)',
+        'rgba(54, 162, 235, 0.6)',
+        'rgba(75, 192, 192, 0.6)'
+      ],
+      borderColor: [
+        'rgba(255, 99, 132, 1)',
+        'rgba(54, 162, 235, 1)',
+        'rgba(75, 192, 192, 1)'
+      ],
+      borderWidth: 1
+    }]
+  },
+  options: {
+    responsive: true,
+    plugins: {
+      legend: {
+        position: 'bottom',
+      },
+      title: {
+        display: true,
+        text: 'Financial Statistics'
+      }
+    }
+  }
+});
+  </script>
 </body>
 </html>

@@ -31,7 +31,6 @@
       <div class="col-md-6">
         <h1>Approval Rates by Publisher</h1>
         <ul>
-          <!-- Render publisher names and approval rates -->
           <% result.forEach(function(row) { %>
             <li>
               <strong>Publisher Name:</strong> <%= row.publisher_name %><br>
@@ -39,15 +38,11 @@
             </li>
           <% }); %>
         </ul>
-        <h1>Top Genres</h1>
-        <ul>
-          <% genres.forEach(function(row) { %>
-            <li>
-              <strong>Genre Name:</strong> <%= row.genre_name %><br />
-              <strong>Submission Count:</strong> <%= row.submission_count %><br />
-            </li>
-          <% }); %>
-        </ul>
+        <div class="chart-container">
+          <h2>Approval Rate Chart</h2>
+          <canvas id="approvalRateChart"></canvas>
+          <input type="hidden" id="approvalRateData" value='<%- JSON.stringify(result) %>'>
+        </div>
       </div>
       <div class="col-md-6">
         <h1>Financial Statistics</h1>
@@ -56,23 +51,35 @@
           <li><strong>Total Cost:</strong> <%= total_cost %></li>
           <li><strong>Profit Margin:</strong> <%= profit_margin %></li>
         </ul>
+        <div class="chart-container">
+          <h2>Financial Statistics Chart</h2>
+          <canvas id="financialStatisticsChart"></canvas>
+          <input type="hidden" id="financialStatisticsData" value='<%- JSON.stringify({ revenue: revenue, total_cost: total_cost, profit_margin: profit_margin }) %>'>
+        </div>
       </div>
     </div>
     <div class="row">
-      <div class="col-md-6 chart-container">
-        <h1>Approval Rate Chart</h1>
-        <canvas id="approvalRateChart"></canvas>
-        <!-- Input element to store data from the backend -->
-        <input type="hidden" id="approvalRateData" value='<%- JSON.stringify(result) %>'>
-      </div>
-      <div class="col-md-6 chart-container">
-        <h1>Financial Statistics Chart</h1>
-        <canvas id="financialStatisticsChart"></canvas>
-        <!-- Input element to store data from the backend -->
-        <input type="hidden" id="financialStatisticsData" value='<%- JSON.stringify({ revenue: revenue, total_cost: total_cost, profit_margin: profit_margin }) %>'>
+      <div class="col-md-6">
+        <h1>Top Genres</h1>
+        <!-- Card for displaying top genres -->
+        <div class="card" style="width: 18rem;">
+          <div class="card-body">
+            <h5 class="card-title">Top Genres</h5>
+            <ul class="list-group list-group-flush">
+              <% genres.forEach(function(row) { %>
+                <li class="list-group-item">
+                  <strong>Genre Name:</strong> <%= row.genre_name %><br />
+                  <strong>Submission Count:</strong> <%= row.submission_count %><br />
+                </li>
+              <% }); %>
+            </ul>
+          </div>
+        </div>
       </div>
     </div>
   </div>
+  
+  
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.0/chart.min.js"></script>
   <script>

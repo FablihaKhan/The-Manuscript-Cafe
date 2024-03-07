@@ -1,82 +1,103 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Book Requests</title>
-  <style>
-    table {
-      width: 100%;
-      border-collapse: collapse;
-    }
-    th, td {
-      padding: 8px;
-      text-align: left;
-      border-bottom: 1px solid #ddd;
-    }
-    th {
-      background-color: #f2f2f2;
-    }
-    .pending-count {
-      font-weight: bold;
-      color: red; /* or any color you prefer */
-    }
-  </style>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
-<body>
-  <h1>Welcome, <%= publisher.name %>!</h1>
-  <a href="/publisher/request/search">Search based on criteria</a>
+<body class="bg-light">
+  <div class="container py-4">
+    <h1 class="mb-4">Welcome, <%= publisher.name %>!</h1>
+    <div class="shadow-lg p-3 mb-5 bg-body rounded">
+      <a href="/publisher/request/search" class="btn btn-primary">Search based on criteria</a>
+    </div>
 
-  <h2>Top Rated Authors</h2>
-  <table>
-    <tr>
-      <th>First Name</th>
-      <th>Last Name</th>
-    </tr>
-    <% top_rated_author.forEach((author) => { %>
-      <tr>
-        <td><%= author.first_name %></td>
-        <td><%= author.last_name %></td>
-      </tr>
-    <% }); %>
-  </table>
+    <div class="mb-4">
+      <h2 class="text-warning">Top Rated Authors</h2>
+      <div class="card text-white bg-danger mb-3" style="max-width: 18rem;">
+        <div class="card-header">Featured Authors</div>
+        <ul class="list-group list-group-flush">
+          <% top_rated_author.forEach((author) => { %>
+            <li class="list-group-item">
+              <%= author.first_name %> <%= author.last_name %>
+            </li>
+          <% }); %>
+        </ul>
+      </div>
+    </div>
+    
 
-  <h2>Pending Books</h2>
-  <p>Total Pending Books: <span class="pending-count"><%= pendingBooks %></span></p>
+    <button type="button" class="btn btn-danger position-relative">
+      Pending Books
+      <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-light text-danger">
+        <%= pendingBooks %>
+        <span class="visually-hidden">pending books</span>
+      </span>
+    </button>
+    
 
-  <% if (authorRequests.length > 0) { %>
-    <h2>Author Requests and Requested Books</h2>
-    <table>
-      <tr>
-        <th>Author Name</th>
-        <th>Author Email</th>
-        <th>Expertise</th>
-        <th>Book Title</th>
-        <th>Genre</th>
-        <th>PDF link</th>
-        <th>Actions</th> <!-- New column for buttons -->
-      </tr>
-      <% authorRequests.forEach((request) => { %>
-        <tr>
-          <td><%= request.first_name %></td>
-          <td><%= request.email %></td>
-          <td><%= request.interested_genre %></td>
-          <td><%= request.book_name %></td>
-          <td><%= request.genre %></td>
-          <td><%= request.pdf_link %></td>
-          <td>
-            <form action="/publisher/approve" method="POST" style="display: inline;">
-              <input type="hidden" name="request_id" value="<%= request.request_id %>">
-              <button type="submit">Approve</button>
-            </form>
-            <form action="/publisher/reject" method="POST" style="display: inline;">
-              <input type="hidden" name="request_id" value="<%= request.request_id %>">
-              <button type="submit">Reject</button>
-            </form>
-          </td>
-        </tr>
-      <% }); %>
-    </table>
-  <% } else { %>
-    <p>No author requests found.</p>
-  <% } %>
+    <% if (authorRequests.length > 0) { %>
+      <div class="mb-4">
+        <h2>Author Requests and Requested Books</h2>
+        <table class="table table-striped">
+          <thead>
+            <tr>
+              <th>Author Name</th>
+              <th>Author Email</th>
+              <th>Expertise</th>
+              <th>Book Title</th>
+              <th>Genre</th>
+              <th>PDF link</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% authorRequests.forEach((request) => { %>
+              <tr>
+                <td><%= request.first_name %></td>
+                <td><%= request.email %></td>
+                <td><%= request.interested_genre %></td>
+                <td><%= request.book_name %></td>
+                <td><%= request.genre %></td>
+                <td><%= request.pdf_link %></td>
+                <td class="button-container">
+                  <form action="/publisher/approve" method="POST">
+                    <input type="hidden" name="request_id" value="<%= request.request_id %>">
+                    <button type="submit" class="btn btn-success">Approve</button>
+                  </form>
+                  <form action="/publisher/reject" method="POST">
+                    <input type="hidden" name="request_id" value="<%= request.request_id %>">
+                    <button type="submit" class="btn btn-danger">Reject</button>
+                  </form>
+                </td>
+              </tr>
+            <% }); %>
+          </tbody>
+        </table>
+      </div>
+    <% } else { %>
+      <p>No author requests found.</p>
+    <% } %>
+
+    <!-- Popup for search criteria -->
+    <div class="popup" style="display: none;">
+      <div class="card">
+        <div class="card-body">
+          <h2 class="card-title">Search Based on Criteria</h2>
+          <form action="/publisher/request/search" method="GET">
+            <div class="mb-3">
+              <input type="text" class="form-control" name="criteria" placeholder="Enter criteria">
+            </div>
+            <button type="submit" class="btn btn-primary">Search</button>
+            <button type="button" class="btn btn-secondary cancel">Cancel</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+ 
 </body>
 </html>

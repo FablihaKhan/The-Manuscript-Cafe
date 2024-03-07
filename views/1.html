@@ -1,65 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Book Requests</title>
+  <style>
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    th, td {
+      padding: 8px;
+      text-align: left;
+      border-bottom: 1px solid #ddd;
+    }
+    th {
+      background-color: #f2f2f2;
+    }
+    .pending-count {
+      font-weight: bold;
+      color: red; /* or any color you prefer */
+    }
+  </style>
+</head>
+<body>
+  <h1>Welcome, <%= publisher.name %>!</h1>
+  <a href="/publisher/request/search">Search based on criteria</a>
 
+  <h2>Top Rated Authors</h2>
+  <table>
+    <tr>
+      <th>First Name</th>
+      <th>Last Name</th>
+    </tr>
+    <% top_rated_author.forEach((author) => { %>
+      <tr>
+        <td><%= author.first_name %></td>
+        <td><%= author.last_name %></td>
+      </tr>
+    <% }); %>
+  </table>
 
-// app.get('/auth/dashboard', async (req, res) => {
-//   try {
-//     // Assuming you're using session for authentication
-//     const authorCode = req.session.authorCode;
+  <h2>Pending Books</h2>
+  <p>Total Pending Books: <span class="pending-count"><%= pendingBooks %></span></p>
 
-//     const query = `
-//       SELECT ob.book_id, ob.book_title, ob.genre, ob.pdf_url
-//       FROM online_book ob
-//       JOIN online_author oa ON ob.author_code = oa.author_code
-//       WHERE oa.author_code = $1;
-//     `;
-
-//     const result = await client.query(query, [authorCode]);
-//     const books = result.rows;
-
-//     res.render('online_books_author', { books });
-//   } catch (error) {
-//     console.error('Error fetching author books:', error);
-//     res.status(500).send('Internal Server Error');
-//   }
-// });
-
-
-
-app.post('/', (req, res) => {
-  const selectedRole = req.body.role || req.query.role; // Use req.query if data is in the query parameters
-
-  // Redirect based on the selected role
-  switch (selectedRole) {
-    case 'Reader':
-      res.render('sub_or_login');
-      break;
-    case 'Online Author':
-      res.render('online_author_login');
-    case 'Author':
-      res.redirect('/author/dashboard');
-      break;
-    case 'Publisher':
-      res.redirect('/publisher/dashboard');
-      break;
-    case 'Editor':
-      res.redirect('/editor/dashboard');
-      break;
-    default:
-      // Handle the case where no valid role is selected
-      res.redirect('/');
-  }
-});
-
-
-
-
-process.on('SIGINT', () => {
-  client.end()
-    .then(() => {
-      console.log('PostgreSQL client disconnected');
-      process.exit();
-    })
-    .catch((err) => {
-      console.error('Error disconnecting from PostgreSQL:', err);
-      process.exit(1);
-    });
-});
+  <% if (authorRequests.length > 0) { %>
+    <h2>Author Requests and Requested Books</h2>
+    <table>
+      <tr>
+        <th>Author Name</th>
+        <th>Author Email</th>
+        <th>Expertise</th>
+        <th>Book Title</th>
+        <th>Genre</th>
+        <th>PDF link</th>
+        <th>Actions</th> <!-- New column for buttons -->
+      </tr>
+      <% authorRequests.forEach((request) => { %>
+        <tr>
+          <td><%= request.first_name %></td>
+          <td><%= request.email %></td>
+          <td><%= request.interested_genre %></td>
+          <td><%= request.book_name %></td>
+          <td><%= request.genre %></td>
+          <td><%= request.pdf_link %></td>
+          <td>
+            <form action="/publisher/approve" method="POST" style="display: inline;">
+              <input type="hidden" name="request_id" value="<%= request.request_id %>">
+              <button type="submit">Approve</button>
+            </form>
+            <form action="/publisher/reject" method="POST" style="display: inline;">
+              <input type="hidden" name="request_id" value="<%= request.request_id %>">
+              <button type="submit">Reject</button>
+            </form>
+          </td>
+        </tr>
+      <% }); %>
+    </table>
+  <% } else { %>
+    <p>No author requests found.</p>
+  <% } %>
+</body>
+</html>

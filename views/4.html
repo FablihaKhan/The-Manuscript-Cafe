@@ -1,72 +1,74 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Author Book Search</title>
-  <style>
-    /* CSS styles omitted for brevity */
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Express.js App with Bootstrap</title>
+
+    <!-- Link to Bootstrap CSS -->
+    <link rel="stylesheet" href="/static/css/bootstrap.min.css">
+    <style>
+        .center {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+        .btn-container {
+            margin-top: 10px;
+        }
+    </style>
 </head>
 <body>
-  <div class="container">
-    <h1>Author Book Search</h1>
+  <nav class="navbar navbar-expand-lg bg-dark">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="#" style="color: white;">Navbar</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+        <div class="navbar-nav">
+          <a class="nav-link active" aria-current="page" href="#" style="color: white;">Home</a>
+          <a class="nav-link" href="#" style="color: white;">Features</a>
+          <a class="nav-link" href="/statistics" style="color: white;">Statistics</a>
+        </div>
+      </div>
+    </div>
+  </nav>
+  
+  
+  
+    <div class="center">
+        <h1>WELCOME!</h1>
 
-    <!-- Search Form -->
-    <form action="/author/search" method="post">
-      <label for="bookTitle">Enter Book Title:</label>
-      <input type="text" id="bookTitle" name="bookTitle" required>
-      <button type="submit">Search</button>
-    </form>
+        <div class="btn-group btn-container">
+            <button type="button" class="btn btn-danger dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+              Login As
+            </button>
+            <ul class="dropdown-menu">
+              <li><a class="dropdown-item" href="/sub_or_login" data-role="Reader">Reader</a></li>
+              <li><a class="dropdown-item" href="/online_author_login" data-role="Online_Author">Online Author</a></li>
+              <li><a class="dropdown-item" href="/author/login">Author</a></li>
+              <li><a class="dropdown-item" href="/publisher/login">Publisher</a></li>
+              <li><a class="dropdown-item" href="/login">Editor</a></li>
+            </ul>
+        </div>
 
-    <!-- Search Results -->
-    <% if (search_book && search_book.length > 0) { %>
-      <h2>Search Results</h2>
-      <table>
-        <tr>
-          <th>Book Title</th>
-          <th>Total Copies Sold</th>
-          <th>Payment Amount</th>
-        </tr>
-        <% search_book.forEach(book => { %>
-          <tr>
-            <td><%= book.book_title %></td>
-            <td><%= book.total_copies_sold %></td>
-            <td><%= book.author_payment_amount %></td>
-          </tr>
-        <% }); %>
-      </table>
-    <% } else if (search_book) { %>
-      <p>No books found for the specified title.</p>
-    <% } %>
+        <div class="btn-group btn-container">
+            <button type="button" class="btn btn-danger dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+              Register As
+            </button>
+            <ul class="dropdown-menu">
+              <li><a class="dropdown-item" href="/reader/register">Reader</a></li>
+              <li><a class="dropdown-item" href="/author/register">Author</a></li>
+              <li><a class="dropdown-item" href="/publisher/register">Publisher</a></li>
+              <li><a class="dropdown-item" href="/editor/register">Editor</a></li>
+            </ul>
+        </div>
+    </div>
 
-    <!-- Review Results -->
-    <% if (reviews && reviews.length > 0) { %>
-      <h2>Reviews</h2>
-      <table>
-        <tr>
-          <th>Review ID</th>
-          <th>Rating</th>
-          <th>Review</th>
-          <th></th>
-        </tr>
-        <% reviews.forEach(review => { %>
-          <tr>
-            <td><%= review.review_id %></td>
-            <td><%= review.rating %></td>
-            <td><%= review.review %></td>
-            <td>
-              <form action="/review/delete" method="post" style="display: inline;">
-                <input type="hidden" name="reviewId" value="<%= review.review_id %>">
-                <button type="submit">Delete</button>
-              </form>
-            </td>
-          </tr>
-        <% }); %>
-      </table>
-    <% } else if (reviews) { %>
-      <p>No reviews found for the specified book.</p>
-    <% } %>
-  </div>
+    <!-- Link to Bootstrap JS and Popper.js (if needed for Bootstrap's JavaScript features) -->
+    <script src="/static/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
