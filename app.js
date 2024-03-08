@@ -912,6 +912,42 @@ app.post('/login_reader', async (req, res) => {
   }
 });
 
+app.get('/online/reader/search', (req, res) => {
+  res.render('reader_search', {
+    booksByTitle: [],
+    booksByGenre: []
+  });
+});
+
+app.post('/online/reader/search', async (req, res) => {
+  const { genre, bookTitle } = req.body;
+
+  // Assuming you're using a database library like pg-promise
+  const bookByTitleQuery = 'SELECT * FROM online_book WHERE book_title = $1';
+  const bookByGenreQuery = 'SELECT * FROM online_book WHERE genre = $1';
+
+  // Assuming you have a database connection pool initialized as 'db'
+  try {
+    // Search by book title
+    const result = await client.query(bookByTitleQuery, [bookTitle]);
+    const booksByTitle = result.rows;
+
+    const result2 = await client.query(bookByGenreQuery, [genre]);
+    const booksByGenre = result2.rows;
+
+   
+
+    // Render the search results
+    res.render('reader_search', {
+      booksByTitle,
+      booksByGenre,
+    });
+  } catch (error) {
+    console.error('Error searching for books:', error);
+    res.render('error');
+  }
+});
+
 
 app.get('/online/author/register', (req, res) => {
   res.render('online_register');
@@ -978,7 +1014,7 @@ function calculatePaymentAmount(subscriptionDuration) {
   return monthlyRate * subscriptionDuration;
 }
 
-app.get('/login', (req, res) => {
+/*app.get('/login', (req, res) => {
   res.render('login');
 });
 
@@ -1015,4 +1051,4 @@ app.post('/login', async (req, res) => {
     console.error('Error retrieving user from the database:', error);
     res.status(500).send('Internal Server Error');
   }
-});
+});*/

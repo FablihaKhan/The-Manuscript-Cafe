@@ -3,116 +3,147 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Your Express.js App with Bootstrap</title>
-
-    <!-- Link to Bootstrap CSS -->
-    <link rel="stylesheet" href="/static/css/bootstrap.min.css">
-
+    <title>Online Section</title>
+    <link rel="stylesheet" href="node_modules/bootstrap/dist/css/bootstrap.css">
     <style>
-        /* Navbar styling */
-        .navbar {
-            background-color: #343a40; /* Dark background color */
-        }
-
-        .navbar-brand {
-            color: white !important; /* White text color for brand */
-        }
-
-        .navbar-nav .nav-link {
-            color: white !important; /* White text color for links */
-        }
-
-        .navbar-nav .nav-link.active {
-            font-weight: bold; /* Bold font for active link */
-        }
-
-        /* Homepage styling */
         body {
-            background-image: url('your-background-image.jpg'); /* Replace 'your-background-image.jpg' with your image path */
-            background-size: cover;
-            background-position: center;
-            color: white; /* White text color for contrast */
+            background-color: #000;
+            color: #fff;
         }
 
-        .center {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-            text-align: center;
+        .container {
+            padding: 50px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
 
-        .btn-container {
-            margin-top: 10px;
+        h2 {
+            color: #007bff;
         }
 
-        /* Additional styles */
-        .jumbotron {
-            background-color: rgba(0,0,0,0.5); /* Semi-transparent background for better readability */
-        }
-
-        /* Logo styling */
-        .logo {
-            width: 100px; /* Adjust width as needed */
-            height: auto;
+        .book-card {
             margin-bottom: 20px;
+        }
+
+        .card-img-top {
+            object-fit: cover;
+            height: 200px;
+        }
+
+        .subscription-info {
+            margin-top: 20px;
+        }
+
+        .category-btn {
+            background-color: #000 !important;
+            color: #fff;
+        }
+
+        .category-btn:hover {
+            background-color: #333 !important;
+        }
+
+        .see-all-btn {
+            background-color: #000 !important;
+            color: #fff;
+        }
+
+        .see-all-btn:hover {
+            background-color: #333 !important;
         }
     </style>
 </head>
 <body>
+    <script src="node_modules/bootstrap/dist/js/bootstrap.bundle.js"></script>
+    <div class="container mt-5">
+        <h2 class="text-center">Online Section - Books</h2>
 
-<!-- Navbar -->
-<nav class="navbar navbar-expand-lg">
-    <div class="container-fluid">
-        <a class="navbar-brand" href="#">
-            <img src="your-logo.png" alt="Logo" class="logo"> <!-- Replace 'your-logo.png' with your logo path -->
-            Navbar
-        </a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
-            <div class="navbar-nav">
-                <a class="nav-link active" aria-current="page" href="#">Home</a>
-                <a class="nav-link" href="#">Features</a>
-                <a class="nav-link" href="/statistics">Statistics</a>
-            </div>
-        </div>
-    </div>
-</nav>
-
-<!-- Homepage Content -->
-<div class="center">
-    <div class="jumbotron">
-        <h1 class="display-4">WELCOME!</h1>
-        <p class="lead">Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
-    </div>
-
-    <div class="btn-group btn-container">
-        <button type="button" class="btn btn-danger dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">Login As</button>
-        <ul class="dropdown-menu">
-            <li><a class="dropdown-item" href="/sub_or_login" data-role="Reader">Reader</a></li>
-            <li><a class="dropdown-item" href="/online_author_login" data-role="Online_Author">Online Author</a></li>
-            <li><a class="dropdown-item" href="/author/login">Author</a></li>
-            <li><a class="dropdown-item" href="/publisher/login">Publisher</a></li>
-            <li><a class="dropdown-item" href="/login">Editor</a></li>
-        </ul>
-    </div>
-
-    <div class="btn-group btn-container">
-        <button type="button" class="btn btn-danger dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">Register As</button>
-        <ul class="dropdown-menu">
-            <li><a class="dropdown-item" href="/reader/register">Reader</a></li>
-            <li><a class="dropdown-item" href="/author/register">Author</a></li>
-            <li><a class="dropdown-item" href="/publisher/register">Publisher</a></li>
-            <li><a class="dropdown-item" href="/editor/register">Editor</a></li>
-        </ul>
-    </div>
+        
+        <!-- Subscription Information -->
+<div class="subscription-info">
+    <h4>Subscription Information</h4>
+    <p>Subscription Ends: <span id="subscriptionTimeRemaining"><%= remainingTime ? remainingTime  : 'N/A' %></span></p>
 </div>
 
-<!-- Link to Bootstrap JS and Popper.js -->
-<script src="/static/js/bootstrap.bundle.min.js"></script>
+
+        <!-- Book Categories -->
+        <h4 class="mt-4">Book Categories</h4>
+        <div class="row">
+            <div class="col-md-3">
+                <a href="#" class="btn btn-primary btn-block category-btn">Fantasy</a>
+            </div>
+            <div class="col-md-3">
+                <a href="#" class="btn btn-primary btn-block category-btn">Drama</a>
+            </div>
+            <div class="col-md-3">
+                <a href="#" class="btn btn-primary btn-block category-btn">Mystery</a>
+            </div>
+            <div class="col-md-3">
+                <a href="#" class="btn btn-primary btn-block category-btn">Science Fiction</a>
+            </div>
+        </div>
+        
+        <div class="text-center mt-3">
+            <a href="#" class="btn btn-primary see-all-btn">See All Books</a>
+        </div>
+
+        <!-- Featured Book Cards -->
+        <h4 class="mt-4">Featured Books</h4>
+        <!-- Featured Book Cards -->
+<h4 class="mt-4">Featured Books</h4>
+
+        <!-- Featured Book Cards -->
+<h4 class="mt-4">Featured Books</h4>
+<div class="row">
+    <% books.forEach(book => { %>
+        <div class="col-md-4">
+            <div class="card book-card">
+                <!-- Use a placeholder image from Lorem Picsum -->
+                <img src="https://picsum.photos/300/200" class="card-img-top" alt="Book Cover">
+                <div class="card-body">
+                    <h5 class="card-title"><%= book.book_title %></h5>
+                    <p class="card-text">Author: <%= book.author_code %></p>
+                    <!-- Add other book details as needed -->
+                    <a href="<%= book.pdf_url %>" class="btn btn-primary">Read Now</a>
+                </div>
+            </div>
+        </div>
+    <% }); %>
+</div>
+
+        <!-- <div class="row">
+            <div class="col-md-4">
+                <div class="card book-card">
+                    <img src="https://placekitten.com/300/200" class="card-img-top" alt="Book Cover">
+                    <div class="card-body">
+                        <h5 class="card-title">Book Title 1</h5>
+                        <p class="card-text">Author: Author Name</p>
+                        <a href="#" class="btn btn-primary">Read Now</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card book-card">
+                    <img src="https://placekitten.com/300/200" class="card-img-top" alt="Book Cover">
+                    <div class="card-body">
+                        <h5 class="card-title">Book Title 2</h5>
+                        <p class="card-text">Author: Author Name</p>
+                        <a href="#" class="btn btn-primary">Read Now</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card book-card">
+                    <img src="https://placekitten.com/300/200" class="card-img-top" alt="Book Cover">
+                    <div class="card-body">
+                        <h5 class="card-title">Book Title 3</h5>
+                        <p class="card-text">Author: Author Name</p>
+                        <a href="#" class="btn btn-primary">Read Now</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div> -->
 
 </body>
 </html>

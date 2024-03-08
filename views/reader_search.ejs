@@ -1,0 +1,44 @@
+<!-- reader_search.ejs -->
+
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Reader Search</title>
+</head>
+<body>
+  <h1>Reader Search</h1>
+
+  <form action="/online/reader/search" method="POST">
+    <label for="bookTitle">Book Title:</label>
+    <input type="text" id="bookTitle" name="bookTitle" required>
+
+    <label for="genre">Genre:</label>
+    <input type="text" id="genre" name="genre" required>
+
+    <button type="submit">Search</button>
+  </form>
+
+  <% if (booksByTitle.length > 0 || booksByGenre.length > 0) { %>
+    <h2>Search Results:</h2>
+
+    <% if (booksByTitle.length > 0) { %>
+      <h3>Books by Title:</h3>
+      <ul>
+        <% booksByTitle.forEach((book) => { %>
+          <li><%= book.book_title %></li>
+        <% }); %>
+      </ul>
+    <% } %>
+
+    <% if (booksByGenre.length > 0) { %>
+      <h3>Books by Genre:</h3>
+      <ul>
+        <% booksByGenre.forEach((book) => { %>
+          <li><%= book.book_title %></li>
+        <% }); %>
+      </ul>
+    <% } %>
+  <% } %>
+</body>
+</html>
