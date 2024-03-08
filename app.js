@@ -97,9 +97,6 @@ app.get('/statistics', async (req, res) => {
 });
 
 
-
-
-
 app.get('/author/register', (req, res) => {
   res.render('register');
 });
@@ -118,10 +115,15 @@ app.post('/author/register', async (req, res) => {
   try {
     const result = await client.query(query, [first_name, last_name, gender, email, contact_no, interested_genre, password]);
     console.log('Inserted data:', result.rows[0]);
-    res.send('Registration successful. Data logged in the console.');
+    res.send({ success: true, message: 'Registration successful' });
   } catch (error) {
-    console.error('Error inserting data into the database:', error);
-    res.status(500).send('Internal Server Error');
+    if (error.code === '23505') { // Unique violation error code
+      /*console.error('Error inserting data into the database:', error);*/
+      res.status(400).send({ success: false, message: 'Registration failed: Author with the same email already exists' });
+    } else {
+      /*console.error('Error inserting data into the database:', error);*/
+      res.status(500).send({ success: false, message: 'Internal Server Error' });
+    }
   }
 });
 
@@ -166,6 +168,60 @@ app.post('/author/login', async (req, res) => {
     res.status(500).send('Internal Server Error');
   }
 });
+
+app.get('/author/edit', async (req, res) => {
+  try {
+    // Retrieve author information from the database based on some identifier like user ID or session data
+    const authorId = req.session.authorId; // Assuming you have session data with author ID
+    const query = `
+      SELECT * FROM Author WHERE id = $1
+    `;
+    const result = await client.query(query, [authorId]);
+    const author = result.rows[0];
+    res.render('authorEdit', { author }); // Render the editProfile.ejs template with author data
+  } catch (error) {
+    console.error('Error retrieving author data:', error);
+    res.status(500).send('Internal Server Error');
+  }
+});
+
+
+app.post('/author/edit', async (req, res) => {
+  const { first_name, last_name, email, contact_no, gender, interested_genre, password } = req.body;
+  console.log({first_name, last_name, email, contact_no, gender, interested_genre, password });
+  authorId = req.session.authorId;
+
+  let updateFields = [];
+  let queryParams = [authorId];
+  
+  if (first_name) {
+    updateFields.push(`first_name = $${queryParams.push(first_name)}`);
+  }
+  if (last_name) {
+    updateFields.push(`last_name = $${queryParams.push(last_name)}`);
+  }
+  if (email) {
+    updateFields.push(`email = $${queryParams.push(email)}`);
+  }
+  // Add conditions for other fields here
+
+  const updateQuery = `
+    UPDATE Author 
+    SET ${updateFields.join(', ')}
+    WHERE id = $1
+    RETURNING *
+  `;
+  
+  try {
+    const result = await client.query(updateQuery, queryParams);
+    console.log('Updated data:', result.rows[0]);
+    res.send({ success: true, message: 'Profile updated successfully' });
+  } catch (error) {
+    console.error('Error updating profile:', error);
+    res.status(500).send({ success: false, message: 'Failed to update profile' });
+  }
+});
+
 
 app.get('/author/book_status', (req, res) => {
   const authorId = req.session.authorId; // Assuming authorId is stored in the session

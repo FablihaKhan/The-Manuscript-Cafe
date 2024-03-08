@@ -12,7 +12,7 @@
     <div class="container mt-5">
         <h1>REGISTER</h1>
 
-        <form action="/author/register" method="post">
+        <form action="/author/register" method="post" id="registrationForm">
             <div class="form-floating mb-3">
                 <label for="first_name">First Name:</label>
                 <input type="text" class="form-control" id="first_name" name="first_name" required>
@@ -65,5 +65,37 @@
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+  
+  
+  <!-- Your JavaScript code -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script>
+    $('#registrationForm').submit(function(event) {
+      event.preventDefault(); // Prevent default form submission
+      var formData = $(this).serialize(); // Serialize form data
+  
+      $.post('/author/register', formData)
+        .done(function(response) {
+          // Handle success response
+          if (response.success) {
+            // Display success message or redirect
+            alert(response.message);
+            // Redirect example:
+            // window.location.href = '/success-page';
+          } else {
+            // Display error message
+            alert(response.message);
+          }
+        })
+        .fail(function(xhr, status, error) {
+          // Handle error response
+          console.error('Error:', error);
+          // Display generic error message
+          alert('This Author Already Exists');
+        });
+    });
+  </script>
+  
 </body>
 </html>
