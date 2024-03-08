@@ -2,28 +2,85 @@
 <html>
 <head>
   <title>Approved Books</title>
+  <!-- Add Bootstrap CSS link -->
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/5.0.0-alpha1/css/bootstrap.min.css">
+  <style>
+    /* Custom styles */
+    .custom-container {
+      padding: 20px;
+    }
+    .nav-tabs {
+            margin-bottom: 20px;
+        }
+
+        .nav-item {
+            margin-right: 10px;
+        }
+
+        .nav-link {
+            color: #000;
+        }
+
+        .nav-link.active {
+            font-weight: bold;
+            color: #007bff;
+        }
+  </style>
 </head>
 <body>
-  <h1>Approved Books</h1>
-  <% if (books.length > 0) { %>
-    <ul>
+  <nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <div class="container">
+        <a class="navbar-brand" href="#">Sent To Edit</a>
+        <ul class="navbar-nav ml-auto">
+            <li class="nav-item">
+                <a class="nav-link active" aria-current="page" href="/">Home</a>
+            </li>
+            <li class="nav-item">
+                <a href="/statistics" class="nav-link">Statistcs</a>
+            </li>
+            <li class="nav-item">
+                <a href="/publisher/request/search" class="nav-link">SEARCH</a>
+            </li>
+        </ul>
+    </div>
+</nav>
+
+  <div class="row g-0 bg-body-secondary position-relative">
+    <div class="col-md-6 mb-md-0 p-md-4">
+      <img src="/uploads/edit.png" class="w-100" alt="...">
+    </div>
+    <div class="col-md-6 p-4 ps-md-0">
+      <h1>BOOKS FOR EDITING</h1>
+    <% if (books.length > 0) { %>
+    <ul class="list-group">
       <% books.forEach(function(book) { %>
-        <li>
-          <strong>Approve ID:</strong> <%= book.approve_id %><br>
-          <strong>Book Name:</strong> <%= book.book_name %><br>
-          <strong>Genre:</strong> <%= book.genre %><br>
-          <strong>PDF Link:</strong> <%= book.pdf_link %><br>
-          <strong>Approval Date:</strong> <%= book.approval_date %><br>
-          <form method="post" action="/publisher/edit">
-            <input type="hidden" name="request_id" value="<%= book.request_id %>">
-            <input type="hidden" name="approve_id" value="<%= book.approve_id %>">
-            <button type="submit">Edit Book</button>
-          </form>
+        <li class="list-group-item">
+          <div class="d-flex justify-content-between">
+            <div>
+              <h5 class="mt-0">Approve ID: <%= book.approve_id %></h5>
+              <p><strong>Book Name:</strong> <%= book.book_name %></p>
+              <p><strong>Genre:</strong> <%= book.genre %></p>
+              <p><strong>PDF Link:</strong> <%= book.pdf_link %></p>
+              <p><strong>Approval Date:</strong> <%= book.approval_date %></p>
+            </div>
+            <div>
+              <form method="post" action="/publisher/edit">
+                <input type="hidden" name="request_id" value="<%= book.request_id %>">
+                <input type="hidden" name="approve_id" value="<%= book.approve_id %>">
+                <button class="btn btn-primary" type="submit">Edit Book</button>
+              </form>
+            </div>
+          </div>
         </li>
       <% }); %>
     </ul>
-  <% } else { %>
-    <p>No approved books found.</p>
-  <% } %>
+    <% } else { %>
+      <p>No approved books found.</p>
+    <% } %>
+      
+    </div>
+  </div>
+  <!-- Add Bootstrap JS scripts -->
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/5.0.0-alpha1/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
