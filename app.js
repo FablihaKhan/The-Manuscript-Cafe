@@ -626,7 +626,7 @@ app.post('/publisher/approve', (req, res) => {
       return   client.query(updateQuery, updateValues);
     })
     .then(() => {
-      res.redirect('/publisher/approve'); // Redirect to the dashboard or appropriate page
+      res.redirect('/publisher/login'); // Redirect to the dashboard or appropriate page
     })
     .catch((error) => {
       console.error('Error approving request:', error);
@@ -658,7 +658,7 @@ app.post('/publisher/reject', (req, res) => {
       return client.query(insertQuery, insertValues);
     })
     .then(() => {
-      res.redirect('/publisher/reject'); // Redirect to the dashboard or appropriate page
+      res.redirect('/publisher/login'); // Redirect to the dashboard or appropriate page
     })
     .catch((error) => {
       console.error('Error rejecting request:', error);
@@ -701,6 +701,54 @@ app.post('/publisher/request/search', async (req, res) => {
     console.error('Error executing query:', error);
     res.status(500).send('Internal Server Error');
   }
+});
+
+app.get('/publisher/send_edit', (req, res) => {
+  // Execute the SQL query
+  const query = `
+  SELECT ab.approve_id,ab.request_id, prb.book_name, prb.genre, prb.pdf_link, ab.approval_date
+  FROM Approved_books ab
+  JOIN Publish_Requested_books prb ON ab.request_id = prb.request_id
+  WHERE ab.publisher_id = 1
+  AND NOT EXISTS (
+    SELECT 1
+    FROM Editor_Books eb
+    WHERE eb.approve_id = ab.approve_id
+      AND eb.request_id = ab.request_id
+  );
+  `;
+  // Assuming you are using a database library like 'pg' for PostgreSQL
+  client.query(query)
+    .then(result => {
+      // Pass the query result as data to the template
+      res.render('send_edit', { books: result.rows });
+    })
+    .catch(error => {
+      // Handle any errors that occurred during the query
+      console.error('Error executing SQL query:', error);
+      res.status(500).send('Internal Server Error');
+    });
+});
+
+
+app.post('/publisher/edit', (req, res) => {
+  const approveId = req.body.approve_id;
+  const requestId = req.body.request_id;
+
+  // Call the SendEditRequest procedure
+  const callProcedure = async () => {
+    try {
+      await client.query('CALL SendEditRequest($1, $2)', [requestId, approveId]);
+
+    } catch (error) {
+      console.error('Error executing procedure:', error);
+    }
+  };
+
+  callProcedure();
+
+  // Send a response or redirect to another page
+  res.send('Book editing in progress...');
 });
 
 

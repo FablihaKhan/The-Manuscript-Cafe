@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Approved Books</title>
+</head>
+<body>
+  <h1>Approved Books</h1>
+  <% if (books.length > 0) { %>
+    <ul>
+      <% books.forEach(function(book) { %>
+        <li>
+          <strong>Approve ID:</strong> <%= book.approve_id %><br>
+          <strong>Book Name:</strong> <%= book.book_name %><br>
+          <strong>Genre:</strong> <%= book.genre %><br>
+          <strong>PDF Link:</strong> <%= book.pdf_link %><br>
+          <strong>Approval Date:</strong> <%= book.approval_date %><br>
+          <form method="post" action="/publisher/edit">
+            <input type="hidden" name="request_id" value="<%= book.request_id %>">
+            <input type="hidden" name="approve_id" value="<%= book.approve_id %>">
+            <button type="submit">Edit Book</button>
+          </form>
+        </li>
+      <% }); %>
+    </ul>
+  <% } else { %>
+    <p>No approved books found.</p>
+  <% } %>
+</body>
+</html>
