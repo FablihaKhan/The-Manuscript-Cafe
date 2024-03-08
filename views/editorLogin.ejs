@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Login</title>
+    <!-- Link to Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .login-container {
+            max-width: 400px;
+            width: 100%;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <h1 class="text-center">LOGIN</h1>
+            <form action="/editor/login" method="post">
+                <div class="input-group mb-3">
+                    <span class="input-group-text" id="name-addon">Name:</span>
+                    <input type="text" class="form-control" id="name" name="name" aria-describedby="name-addon" required>
+                </div>
+                
+                <div class="input-group mb-3">
+                    <span class="input-group-text" id="email-addon">Email:</span>
+                    <input type="email" class="form-control" id="email" name="email" aria-describedby="email-addon" required>
+                </div>
+        
+                <div class="input-group mb-3">
+                    <span class="input-group-text" id="password-addon">Password:</span>
+                    <input type="password" class="form-control" id="password" name="password" aria-describedby="password-addon" required>
+                </div>
+        
+                <div class="input-group mb-3">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="reader" name="role" value="reader" style="color: red;">
+                        <label class="form-check-label text-danger" for="reader">Reader</label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="author" name="role" value="author" style="color: red;">
+                        <label class="form-check-label text-danger" for="author">Author</label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="publisher" name="role" value="publisher" style="color: red;">
+                        <label class="form-check-label text-danger" for="publisher">Publisher</label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="editor" name="role" value="editor" style="color: red;">
+                        <label class="form-check-label text-danger" for="editor">Editor</label>
+                    </div>
+                </div>
+        
+                <input type="submit" class="btn btn-primary" value="Login">
+            </form>
+
+        <a href="/users/register" class="d-block text-center mt-3">Click Here to register if you don't have an account</a>
+    </div>
+
+    <!-- Link to Bootstrap JS and Popper.js (if needed for Bootstrap's JavaScript features) -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.0.8/dist/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>

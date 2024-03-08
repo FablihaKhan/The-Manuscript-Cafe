@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Books Sent for Editing</title>
+    <style>
+        /* Add your custom CSS styles here */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+    <h1>!!!COMPLETE BEFORE DEADLINE!!!</h1>
+    <% if (edit_book.length > 0) { %>
+        <table>
+            <thead>
+                <tr>
+                    <th>Book Name</th>
+                    <th>Genre</th>
+                    <th>PDF Link</th>
+                    <th>Status</th>
+                    <th>Editing Status</th>
+                    <th>Edit Start Date</th>
+                    <th>Edit Deadline</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% edit_book.forEach(function(book) { %>
+                    <tr>
+                        <td><%= book.book_name %></td>
+                        <td><%= book.genre %></td>
+                        <td><a href="<%= book.pdf_link %>">PDF</a></td>
+                        <td><%= book.editing_status %></td>
+                        <td><%= book.edit_start_date %></td>
+                        <td><%= book.edit_deadline %></td>
+                    </tr>
+                <% }); %>
+            </tbody>
+        </table>
+    <% } else { %>
+        <p>No books found for editing.</p>
+    <% } %>
+</body>
+</html>

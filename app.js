@@ -739,6 +739,66 @@ app.post('/publisher/edit', (req, res) => {
 
 
 
+app.get('/editor/login', (req, res) => {
+  res.render('editorLogin');
+});
+
+
+
+
+app.post('/editor/login', async (req, res) => {
+  let { email, password } = req.body;
+  const editorQuery = `SELECT * FROM Editor WHERE email = $1`;
+  const editQuery = `
+  SELECT 
+  PRB.book_name,
+  PRB.genre,
+  PRB.pdf_link,
+  PRB.status,
+  EB.editing_status,
+  EB.edit_start_date,
+  EB.edit_deadline
+FROM 
+  Editor_Books EB
+JOIN 
+  Publish_Requested_books PRB ON EB.request_id = PRB.request_id
+WHERE 
+  EB.editor_id = $1;
+  `;
+
+  try {
+    const editorrResult = await client.query(editorQuery, [email]);
+
+    if (editorrResult.rows.length === 0) {
+      // Publisher with the provided email does not exist
+      res.status(401).send('Invalid email or password');
+      return;
+    }
+
+    const editor = editorrResult.rows[0];
+    req.session.stored_editor_Id = editor.editor_id;
+    
+
+    if (editor.password === password) {
+      // Passwords match, login successful
+      const editResult = await client.query(editQuery, [editor.editor_id]);
+    
+      const edit_book = editResult.rows;
+
+      // Pass the retrieved data to the 'showRequest' EJS template
+      res.render('sent_to_edit', {edit_book});
+    } else {
+      // Passwords don't match
+      res.status(401).send('Invalid email or password');
+    }
+  } catch (error) {
+    console.error('Error retrieving user from the database:', error);
+    res.status(500).send('Internal Server Error');
+  }
+});
+
+
+
 // Handle shutdown gracefully by closing the database connection
 process.on('SIGINT', () => {
   client.end()
