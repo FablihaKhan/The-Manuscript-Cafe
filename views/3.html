@@ -1,149 +1,160 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Online Section</title>
-    <link rel="stylesheet" href="node_modules/bootstrap/dist/css/bootstrap.css">
-    <style>
-        body {
-            background-color: #000;
-            color: #fff;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Author Book Search</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f0f0f0;
+      margin: 0;
+      padding: 0;
+    }
 
-        .container {
-            padding: 50px;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        }
+    .container {
+      max-width: 800px;
+      margin: 20px auto;
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
 
-        h2 {
-            color: #007bff;
-        }
+    h1 {
+      font-size: 24px;
+      color: #333;
+    }
 
-        .book-card {
-            margin-bottom: 20px;
-        }
+    form {
+      margin-bottom: 20px;
+    }
 
-        .card-img-top {
-            object-fit: cover;
-            height: 200px;
-        }
+    label {
+      font-weight: bold;
+    }
 
-        .subscription-info {
-            margin-top: 20px;
-        }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      margin-top: 4px;
+      margin-bottom: 12px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      box-sizing: border-box;
+    }
 
-        .category-btn {
-            background-color: #000 !important;
-            color: #fff;
-        }
+    button[type="submit"] {
+      background-color: #007bff;
+      color: #fff;
+      padding: 8px 16px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
 
-        .category-btn:hover {
-            background-color: #333 !important;
-        }
+    button[type="submit"]:hover {
+      background-color: #0056b3;
+    }
 
-        .see-all-btn {
-            background-color: #000 !important;
-            color: #fff;
-        }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
 
-        .see-all-btn:hover {
-            background-color: #333 !important;
-        }
-    </style>
+    th, td {
+      border: 1px solid #ddd;
+      padding: 8px;
+      text-align: left;
+    }
+
+    th {
+      background-color: #f2f2f2;
+    }
+
+    tr:nth-child(even) {
+      background-color: #f9f9f9;
+    }
+
+    tr:hover {
+      background-color: #f2f2f2;
+    }
+
+    p {
+      color: #999;
+    }
+  </style>
 </head>
 <body>
-    <script src="node_modules/bootstrap/dist/js/bootstrap.bundle.js"></script>
-    <div class="container mt-5">
-        <h2 class="text-center">Online Section - Books</h2>
+  <div class="container">
+    <h1>Author Book Search</h1>
 
-        
-        <!-- Subscription Information -->
-<div class="subscription-info">
-    <h4>Subscription Information</h4>
-    <p>Subscription Ends: <span id="subscriptionTimeRemaining"><%= remainingTime ? remainingTime  : 'N/A' %></span></p>
-</div>
+    <!-- Search Form -->
+    <form action="/author/search" method="post">
+      <label for="bookTitle">Enter Book Title:</label>
+      <input type="text" id="bookTitle" name="bookTitle" required>
+      <button type="submit">Search</button>
+    </form>
+
+    <!-- Search Results -->
+    <% if (search_book && search_book.length > 0) { %>
+      <h2>Search Results</h2>
+      <table>
+        <tr>
+          <th>Book Title</th>
+          <th>Total Copies Sold</th>
+          <th>Payment Amount</th>
+        </tr>
+        <% search_book.forEach(book => { %>
+          <tr>
+            <td><%= book.book_title %></td>
+            <td><%= book.total_copies_sold %></td>
+            <td><%= book.author_payment_amount %></td>
+          </tr>
+        <% }); %>
+      </table>
+      <form action="/author/search" method="post">
+        <input type="hidden" name="bookId" value="<%= book.book_id %>">
+        <button class="request-button" type="submit">Discontinue</button>
+      </form>
+    <% } else if (search_book) { %>
+      <p>No books found for the specified title.</p>
+    <% } %>
+
+    <!-- Review Results -->
+    <% if (reviews && reviews.length > 0) { %>
+      <h2>Reviews</h2>
+      <table>
+        <tr>
+          <th>Review ID</th>
+          <th>Rating</th>
+          <th>Review</th>
+          <th></th>
+        </tr>
+        <% reviews.forEach(review => { %>
+          <tr>
+            <td><%= review.review_id %></td>
+            <td><%= review.rating %></td>
+            <td><%= review.review %></td>
+            <td>
+              <form action="/review/delete" method="post" style="display: inline;">
+                <input type="hidden" name="reviewId" value="<%= review.review_id %>">
+                <button type="submit" style="background-color: #dc3545; color: #fff; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer;">Delete</button>
+              </form>
+            </td>
+          </tr>
+        <% }); %>
+      </table>
+      
+    <% } else if (reviews) { %>
+      <p>No reviews found for the specified book.</p>
+    <% } %>
+
+   
 
 
-        <!-- Book Categories -->
-        <h4 class="mt-4">Book Categories</h4>
-        <div class="row">
-            <div class="col-md-3">
-                <a href="#" class="btn btn-primary btn-block category-btn">Fantasy</a>
-            </div>
-            <div class="col-md-3">
-                <a href="#" class="btn btn-primary btn-block category-btn">Drama</a>
-            </div>
-            <div class="col-md-3">
-                <a href="#" class="btn btn-primary btn-block category-btn">Mystery</a>
-            </div>
-            <div class="col-md-3">
-                <a href="#" class="btn btn-primary btn-block category-btn">Science Fiction</a>
-            </div>
-        </div>
-        
-        <div class="text-center mt-3">
-            <a href="#" class="btn btn-primary see-all-btn">See All Books</a>
-        </div>
-
-        <!-- Featured Book Cards -->
-        <h4 class="mt-4">Featured Books</h4>
-        <!-- Featured Book Cards -->
-<h4 class="mt-4">Featured Books</h4>
-
-        <!-- Featured Book Cards -->
-<h4 class="mt-4">Featured Books</h4>
-<div class="row">
-    <% books.forEach(book => { %>
-        <div class="col-md-4">
-            <div class="card book-card">
-                <!-- Use a placeholder image from Lorem Picsum -->
-                <img src="https://picsum.photos/300/200" class="card-img-top" alt="Book Cover">
-                <div class="card-body">
-                    <h5 class="card-title"><%= book.book_title %></h5>
-                    <p class="card-text">Author: <%= book.author_code %></p>
-                    <!-- Add other book details as needed -->
-                    <a href="<%= book.pdf_url %>" class="btn btn-primary">Read Now</a>
-                </div>
-            </div>
-        </div>
-    <% }); %>
-</div>
-
-        <!-- <div class="row">
-            <div class="col-md-4">
-                <div class="card book-card">
-                    <img src="https://placekitten.com/300/200" class="card-img-top" alt="Book Cover">
-                    <div class="card-body">
-                        <h5 class="card-title">Book Title 1</h5>
-                        <p class="card-text">Author: Author Name</p>
-                        <a href="#" class="btn btn-primary">Read Now</a>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card book-card">
-                    <img src="https://placekitten.com/300/200" class="card-img-top" alt="Book Cover">
-                    <div class="card-body">
-                        <h5 class="card-title">Book Title 2</h5>
-                        <p class="card-text">Author: Author Name</p>
-                        <a href="#" class="btn btn-primary">Read Now</a>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card book-card">
-                    <img src="https://placekitten.com/300/200" class="card-img-top" alt="Book Cover">
-                    <div class="card-body">
-                        <h5 class="card-title">Book Title 3</h5>
-                        <p class="card-text">Author: Author Name</p>
-                        <a href="#" class="btn btn-primary">Read Now</a>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div> -->
-
+  </div>
+  
 </body>
 </html>

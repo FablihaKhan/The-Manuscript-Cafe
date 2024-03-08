@@ -328,7 +328,7 @@ app.post('/author/search', async (req, res) => {
 
     const query = `
       SELECT 
-        B.book_title,
+        B.book_title,B.book_id,
         (SELECT COUNT(*) 
           FROM Book_sales BS 
           JOIN Book B1 ON BS.book_id = B1.book_id 
@@ -344,7 +344,7 @@ app.post('/author/search', async (req, res) => {
         Book B
       WHERE 
         B.book_title = $1
-        GROUP BY B.book_title`;
+        GROUP BY B.book_title,B.book_id`;
 
     const review_query = `
       SELECT 
@@ -375,6 +375,21 @@ app.post('/review/delete', async (req, res) => {
       const reviewId = req.body.reviewId;
 
       await client.query('DELETE FROM Review WHERE review_id = $1', [reviewId]);
+
+      res.redirect('/author/search'); // Redirect to the book status page after deleting the review
+  } catch (error) {
+      console.error('Error deleting review:', error);
+      res.status(500).send('Error deleting review');
+  }
+});
+
+
+
+app.post('/author/book/delete', async (req, res) => {
+  try {
+      const bookId = req.body.bookId;
+
+      await client.query('DELETE FROM Book WHERE book_id = $1', [bookId]);
 
       res.redirect('/author/search'); // Redirect to the book status page after deleting the review
   } catch (error) {
@@ -489,36 +504,6 @@ app.post('/author/request_to_all_publisher/book_details', async (req, res) => {
   }
 });
 
-
-/*app.post('/author/request_to_all_publisher/book_details', async (req, res) => {
-  try {
-    const { bookName, genre, pdfLink } = req.body;
-    let authorId = req.session.authorId;
-
-    // Find the maximum request_id
-    const result = await client.query('SELECT MAX(request_id) AS max_request_id FROM Publish_Request');
-    const maxRequestId = result.rows[0].max_request_id;
-
-    // Call the stored procedure to send publish requests to all publishers
-    await client.query('CALL Send_Publish_Request_To_All_Publishers($1, $2, $3, $4, $5)', [
-      authorId, // Replace with the appropriate author ID
-      bookName,
-      genre,
-      pdfLink,
-      maxRequestId
-    ]);
-
-    // Placeholder logic: just log the data for demonstration
-    console.log('Book Name:', bookName);
-    console.log('Genre:', genre);
-    console.log('PDF Link:', pdfLink);
-
-    res.status(200).send('Request submitted successfully');
-  } catch (error) {
-    console.error('Error handling form submission:', error);
-    res.status(500).send('Internal Server Error');
-  }
-});*/
 
 
 app.get('/publisher/login', (req, res) => {
@@ -780,7 +765,7 @@ app.listen(PORT, () => {
 
 
 
-////////////////Fablihaaaaa
+////////////////Subscription Part
 
 
 
