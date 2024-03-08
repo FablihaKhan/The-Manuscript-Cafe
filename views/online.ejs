@@ -9,6 +9,7 @@
         body {
             background-color: #000;
             color: #fff;
+            font-size: 18px; /* Larger font size for all text */
         }
 
         .container {
@@ -19,6 +20,7 @@
 
         h2 {
             color: #007bff;
+            font-size: 24px; /* Larger font size for heading */
         }
 
         .book-card {
@@ -51,23 +53,44 @@
         .see-all-btn:hover {
             background-color: #333 !important;
         }
+
+        /* Custom styles for Add Review and Add Rating buttons */
+        .add-review-btn,
+        .add-rating-btn {
+            background-color: #8b0000; /* Dark red color */
+            color: #fff;
+            font-size: 20px; /* Larger font size for buttons */
+            margin-right: 10px; /* Add some spacing between buttons */
+        }
+
+        .add-review-btn:hover,
+        .add-rating-btn:hover {
+            background-color: #800000; /* Darker shade of red on hover */
+        }
     </style>
 </head>
 <body>
     <script src="node_modules/bootstrap/dist/js/bootstrap.bundle.js"></script>
     <div class="container mt-5">
+        <a href="/online/reader/search">Go to search</a>
         <h2 class="text-center">Online Section - Books</h2>
 
-        
         <!-- Subscription Information -->
-<div class="subscription-info">
-    <h4>Subscription Information</h4>
-    <p>Subscription Ends: <span id="subscriptionTimeRemaining"><%= remainingTime ? remainingTime  : 'N/A' %></span></p>
-</div>
-
+        <div class="subscription-info">
+            <h4>Subscription Information</h4>
+            <p>Subscription Ends: <span id="subscriptionTimeRemaining"><%= remainingTime ? remainingTime  : 'N/A' %></span></p>
+        </div>
+        
+        <!-- Search Form -->
+        <form action="/online_books/search" method="post" class="mt-4">
+            <div class="form-group">
+                <label for="searchQuery">Search Books:</label>
+                <input type="text" id="searchQuery" name="searchQuery" class="form-control" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Search</button>
+        </form>
 
         <!-- Book Categories -->
-        <a href="/online/reader/search">Go to search</a>
         <h4 class="mt-4">Book Categories</h4>
         <div class="row">
             <div class="col-md-3">
@@ -87,30 +110,34 @@
         <div class="text-center mt-3">
             <a href="#" class="btn btn-primary see-all-btn">See All Books</a>
         </div>
-
+        
         <!-- Featured Book Cards -->
-        <h4 class="mt-4">Featured Books</h4>
-        <!-- Featured Book Cards -->
-<h4 class="mt-4">Featured Books</h4>
-
-        <!-- Featured Book Cards -->
-<h4 class="mt-4">Featured Books</h4>
-<div class="row">
-    <% books.forEach(book => { %>
-        <div class="col-md-4">
-            <div class="card book-card">
-                <!-- Use a placeholder image from Lorem Picsum -->
-                <img src="/uploads/books.jpg" class="card-img-top" alt="Book Cover">
-                <div class="card-body">
-                    <h5 class="card-title"><%= book.book_title %></h5>
-                    <p class="card-text">Author: <%= book.author_code %></p>
-                    <!-- Add other book details as needed -->
-                    <a href="<%= book.pdf_url %>" class="btn btn-primary">Read Now</a>
+        <h4 class="mt-4">Search Results</h4>
+        <div class="row">
+            <% books.forEach(book => { %>
+                <div class="col-md-4">
+                    <div class="card book-card">
+                        <!-- Use a placeholder image from Lorem Picsum -->
+                        <img src="https://picsum.photos/300/200
+" class="card-img-top" alt="Book Cover">
+                        <div class="card-body">
+                            <h5 class="card-title"><%= book.book_title %></h5>
+                            <p class="card-text">Author: <%= book.author_code %></p>
+                            <!-- Add other book details as needed -->
+                            <a href="<%= book.pdf_url %>" class="btn btn-primary">Read Now</a>
+                            
+                            <!-- Add Review and Rating section -->
+                            <div class="review-rating-section mt-3">
+                                <form action="/reader/review_rate" method="post">
+                                    <input type="hidden" name="bookId" value="<%= book.book_id %>">
+                                    <button class="request-button" type="submit">Add Review Rating</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-            </div>
+            <% }); %>
         </div>
-    <% }); %>
-</div>
-
+    </div>
 </body>
 </html>

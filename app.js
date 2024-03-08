@@ -344,7 +344,7 @@ app.post('/author/search', async (req, res) => {
         Book B
       WHERE 
         B.book_title = $1
-        GROUP BY B.book_title,B.book_id`;
+        GROUP BY B.book_id,B.book_title`;
 
     const review_query = `
       SELECT 
@@ -1059,41 +1059,78 @@ function calculatePaymentAmount(subscriptionDuration) {
   return monthlyRate * subscriptionDuration;
 }
 
-/*app.get('/login', (req, res) => {
-  res.render('login');
+  app.post('/reader/review_rate', (req, res) => {
+    const bookId = req.body.bookId;
+    res.render('review_rating',{bookId});
+  });
+
+// Assuming you're using a PostgreSQL client library like 'pg'
+
+app.post('/submit_review', (req, res) => {
+  const { bookId,review, rating } = req.body;
+  console.log(review, rating);
+
+  // Insert the review and rating into the Review table using parameterized query
+  const insertQuery = `
+      INSERT INTO Review (book_id, rating, review)
+      VALUES ($1, $2, $3)
+  `;
+  const values = [bookId, rating, review]; // Convert bookId to integer
+
+  // Execute the SQL query with parameterized query
+  client.query(insertQuery, values)
+      .then(() => {
+          res.send('Review submitted successfully');
+      })
+      .catch((error) => {
+          console.error('Error inserting review:', error);
+          res.status(500).send('Internal Server Error');
+      });
 });
 
 
-app.post('/login', async (req, res) => {
-  let { name, email, password, role } = req.body;
-  console.log({ name, email, password, role });
+/*app.post('/write_review/:bookId', (req, res) => {
+  const bookId = req.params.bookId;
+  console.log(bookId);
+  const hasGivenReview = true;
+  // Example query to fetch book details
+  const query = `
+      SELECT * FROM online_book
+      WHERE book_id = $1
+  `;
+  
+  client.query(query, [bookId], (err, result) => { // Change 'pool' to 'client'
+      if (err) {
+          console.error('Error executing query', err);
+          res.status(500).send('Internal Server Error');
+          return;
+      }
+      console.log('hasGivenReview:', hasGivenReview);
+      // Render the write_review.ejs template with book details
+      res.render('write_review', { bookId, bookTitle: result.rows[0].book_title });
+  });
+});
 
-  const query = `SELECT * FROM Author WHERE email = $1;`
 
-  try {
-    const result = await client.query(query, [email]);
-    console.log(result.rows[0]);
+// Route to render give rating page
+// Example route handler for /give_rating/:bookId
+app.get('/give_rating/:bookId', (req, res) => {
+  const bookId = req.params.bookId;
+  
+  // Example query to fetch book details
+  const query = `
+      SELECT * FROM online_book
+      WHERE book_id = $1
+  `;
+  
+  client.query(query, [bookId], (err, result) => {
+      if (err) {
+          console.error('Error executing query', err);
+          res.status(500).send('Internal Server Error');
+          return;
+      }
 
-    if (result.rows.length === 0) {
-      // User with the provided email does not exist
-      res.status(401).send('Invalid email or password');
-      return;
-    }
-
-    const user = result.rows[0];
-
-    // Compare the provided password with the password in the database
-    if (user.password === password) {
-      // Passwords match, login successful
-      res.render('authorDashboard', {user });
-
-    } else {
-      // Passwords don't match
-      res.status(401).send('Invalid email or password');
-
-    }
-  } catch (error) {
-    console.error('Error retrieving user from the database:', error);
-    res.status(500).send('Internal Server Error');
-  }
+      // Render the give_rating.ejs template with book details
+      res.render('give_rating', { bookId, bookTitle: result.rows[0].book_title }); // Pass bookId to the template
+  });
 });*/
