@@ -1,10 +1,72 @@
-<!-- reader_search.ejs -->
-
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Reader Search</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+    h1 {
+      text-align: center;
+    }
+    form {
+      max-width: 400px;
+      margin: 20px auto;
+      padding: 20px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+    label {
+      display: block;
+      margin-bottom: 10px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      margin-bottom: 15px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+    button[type="submit"] {
+      display: block;
+      width: 100%;
+      padding: 10px;
+      background-color: #007bff;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    button[type="submit"]:hover {
+      background-color: #0056b3;
+    }
+    h2 {
+    text-align: center;
+    margin-top: 40px;
+  }
+
+  h3 {
+    text-align: center;
+    margin-top: 20px;
+  }
+
+  ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    text-align: center;
+  }
+
+  li {
+    margin-bottom: 10px;
+    font-size: 16px;
+  }
+   
+  </style>
 </head>
 <body>
   <h1>Reader Search</h1>
@@ -27,6 +89,8 @@
       <ul>
         <% booksByTitle.forEach((book) => { %>
           <li><%= book.book_title %></li>
+          <li><%= book.genre %></li>
+          <li><%= book.pdf_url %></li>
         <% }); %>
       </ul>
     <% } %>
