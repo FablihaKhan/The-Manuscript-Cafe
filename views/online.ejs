@@ -7,9 +7,9 @@
     <link rel="stylesheet" href="node_modules/bootstrap/dist/css/bootstrap.css">
     <style>
         body {
-            background-color: #000;
-            color: #fff;
-            font-size: 18px; /* Larger font size for all text */
+            background-color: white;
+            color:black;
+            font-size: 20px; /* Larger font size for all text */
         }
 
         .container {
@@ -19,7 +19,7 @@
         }
 
         h2 {
-            color: #007bff;
+            color: skyblue;
             font-size: 24px; /* Larger font size for heading */
         }
 
@@ -33,31 +33,32 @@
         }
 
         .subscription-info {
+            color: #007bff;
+            font-size: 24px;
             margin-top: 20px;
         }
 
-        .category-btn {
-            background-color: #000 !important;
-            color: #fff;
+        .category-btn,.see-all-btn {
+            background-color: skyblue !important;
+        }
+        .btn {
+          background-color: skyblue;
+        color: white; /* Set button text color to white */
+        border: none;
+        border-radius: 5px;
+        padding: 10px 20px;
+        cursor: pointer;
+    }
+        .category-btn:hover,.see-all-btn:hover {
+            background-color: #0056b3 !important;
         }
 
-        .category-btn:hover {
-            background-color: #333 !important;
-        }
-
-        .see-all-btn {
-            background-color: #000 !important;
-            color: #fff;
-        }
-
-        .see-all-btn:hover {
-            background-color: #333 !important;
-        }
+        
 
         /* Custom styles for Add Review and Add Rating buttons */
         .add-review-btn,
         .add-rating-btn {
-            background-color: #8b0000; /* Dark red color */
+            background-color: skyblue; /* Dark red color */
             color: #fff;
             font-size: 20px; /* Larger font size for buttons */
             margin-right: 10px; /* Add some spacing between buttons */
@@ -65,7 +66,7 @@
 
         .add-review-btn:hover,
         .add-rating-btn:hover {
-            background-color: #800000; /* Darker shade of red on hover */
+            background-color: skyblue; /* Darker shade of red on hover */
         }
     </style>
 </head>
