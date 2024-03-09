@@ -392,7 +392,8 @@ app.post('/author/book/delete', async (req, res) => {
 
       await client.query('DELETE FROM Book WHERE book_id = $1', [bookId]);
 
-      res.redirect('/author/search'); // Redirect to the book status page after deleting the review
+     /* res.redirect('/author/search');*/ // Redirect to the book status page after deleting the review
+     res.status(200).send('DELETED SUCCESSFULLY');
   } catch (error) {
       console.error('Error deleting review:', error);
       res.status(500).send('Error deleting review');
