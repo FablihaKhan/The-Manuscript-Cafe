@@ -302,7 +302,8 @@ app.post('/author/book_status', async (req, res) => {
     await client.query('CALL DeletePublishRequest($1)', [bookName]);
     
 
-    res.redirect('/author/book_status'); // Redirect to the book status page after canceling the request
+    /*res.redirect('/author/book_status');*/
+    res.status(200).send('Request Cancelled');// Redirect to the book status page after canceling the request
   } catch (error) {
     console.error('Error canceling request:', error);
     res.status(500).send('Error canceling request');
@@ -611,7 +612,8 @@ app.post('/publisher/approve', (req, res) => {
       return   client.query(updateQuery, updateValues);
     })
     .then(() => {
-      res.redirect('/publisher/login'); // Redirect to the dashboard or appropriate page
+      /*res.redirect('/publisher/login');*/ // Redirect to the dashboard or appropriate page
+      res.status(200).send('Approve Successful');
     })
     .catch((error) => {
       console.error('Error approving request:', error);
@@ -643,7 +645,8 @@ app.post('/publisher/reject', (req, res) => {
       return client.query(insertQuery, insertValues);
     })
     .then(() => {
-      res.redirect('/publisher/login'); // Redirect to the dashboard or appropriate page
+      /*res.redirect('/publisher/login');*/ // Redirect to the dashboard or appropriate page
+      res.status(200).send('Rejection Successful');
     })
     .catch((error) => {
       console.error('Error rejecting request:', error);
