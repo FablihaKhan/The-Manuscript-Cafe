@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,47 +8,82 @@
     <link rel="stylesheet" href="node_modules/bootstrap/dist/css/bootstrap.css">
     <style>
         body {
-            background-color: #000;
-            color: #fff;
+            /* Set background image */
+            background-image: url('https://th.bing.com/th/id/OIG4.Lr5IoYZbvnrybVYv104y?pid=ImgGn');
+            background-size: cover; /* Cover the entire background */
+            background-position: center; /* Center the background image */
+            color: #fff; /* White text color */
             font-family: 'Arial', sans-serif;
+            font-size: 16px; /* Smaller font size */
+            margin: 0;
+            padding: 0;
+        }
+
+        .carousel-item img {
+            height: 300px; /* Adjust the height of the carousel images */
+            object-fit: cover; /* Maintain aspect ratio and cover the entire container */
         }
 
         .container {
-            padding: 50px;
+            padding: 20px; /* Reduced padding for the container */
+            text-align: center; /* Center align the content */
         }
 
         h2 {
-            color: #e50914;
+            color: #e50914; /* Red heading color */
+            font-size: 2rem; /* Medium font size for heading */
+            margin-bottom: 20px; /* Decreased margin below heading */
         }
 
         .form-group {
-            margin-bottom: 20px;
+            margin-bottom: 15px; /* Decreased margin between form elements */
         }
 
         label {
             font-weight: bold;
+            font-size: 1.6rem; /* Medium font size for labels */
+        }
+
+        .form-control {
+            font-size: 1.6rem; /* Medium font size for form inputs */
+            padding: 10px; /* Reduced padding for form inputs */
+            border-radius: 8px; /* Rounded corners for form inputs */
+            border: 2px solid #e50914; /* Red border for form inputs */
+            background-color: transparent; /* Transparent background */
+            color: #fff; /* White text color */
+        }
+
+        .form-control:focus {
+            outline: none; /* Remove focus outline */
+            box-shadow: none; /* Remove box shadow on focus */
         }
 
         .btn-subscribe {
-            background-color: #e50914;
+            background-color: #000; /* Black button background */
             border: none;
-            font-size: 1.5rem;
-            padding: 15px 30px;
-            border-radius: 5px;
+            font-size: 1.6rem; /* Medium font size for button */
+            padding: 10px 20px; /* Reduced padding for button */
+            border-radius: 8px; /* Rounded corners for button */
             letter-spacing: 1px;
             font-weight: bold;
-            color: #fff;
+            color: #fff; /* White text color */
+            width: 50%; /* Make button half width */
         }
 
         .btn-subscribe:hover {
-            background-color: #ff3c27;
+            background-color: #e50914; /* Red background color on hover */
         }
     </style>
 </head>
+
 <body>
     <script src="node_modules/bootstrap/dist/js/bootstrap.bundle.js"></script>
+
+    
+    <!-- End of Bootstrap Carousel -->
+
     <div class="container">
-        <h2 class="text-center">Subscribe to Our Service</h2>
+        <h2>Subscribe to Our Service</h2>
         <form action="/subscribe" method="post">
             <!-- User Name -->
             <div class="form-group">
@@ -97,8 +133,9 @@
             </div>
 
             <!-- Subscribe Button -->
-            <button type="submit" class="btn btn-subscribe btn-block">Subscribe Now</button>
+            <button type="submit" class="btn btn-subscribe">Subscribe Now</button>
         </form>
     </div>
 </body>
+
 </html>

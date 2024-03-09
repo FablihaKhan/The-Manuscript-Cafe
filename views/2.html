@@ -1,65 +1,80 @@
-<!-- book_status.ejs -->
 <!DOCTYPE html>
-<html>
+<html lang="en">
+
 <head>
-  <title>Book Status</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Netflix-Like Page</title>
+    <link rel="stylesheet" href="node_modules/bootstrap/dist/css/bootstrap.css">
+    <style>
+        body {
+            background-color: #141414;
+            color: #ffffff;
+            font-family: 'Arial', sans-serif;
+        }
 
-    h1 {
-      color: #333;
-    }
+        .container {
+            text-align: center;
+            padding: 100px;
+        }
 
-    ul {
-      list-style-type: none;
-      padding: 0;
-    }
+        h1 {
+            font-size: 3rem;
+            margin-bottom: 30px;
+        }
 
-    li {
-      margin-bottom: 10px;
-    }
+        .btn-subscribe,
+        .btn-login {
+            font-size: 1.5rem;
+            padding: 15px 30px;
+            margin: 10px;
+            border-radius: 5px;
+            letter-spacing: 1px;
+            font-weight: bold;
+        }
 
-    .pending {
-      color: #FFA500;
-    }
+        .btn-subscribe {
+            background-color: #e50914;
+            border: none;
+            color: #fff;
+        }
 
-    .approved {
-      color: #008000;
-    }
+        .btn-subscribe:hover {
+            background-color: #ff3c27;
+        }
 
-    .rejected {
-      color: #FF0000;
-    }
-  </style>
+        .btn-login {
+            background-color: #fff;
+            border: 1px solid #e50914;
+            color: #e50914;
+        }
+
+        .btn-login:hover {
+            background-color: #e50914;
+            color: #fff;
+        }
+    </style>
 </head>
+
 <body>
-  <a href="/author/search" class="d-block text-center mt-3">SEARCH FOR YOUR BOOK</a>
-  <h1>Pending Books</h1>
-  <ul>
-    <% pendingBooks.forEach(function(book) { %>
-      <li class="pending"><%= book.publisher_name %> - <%= book.book_name %>
-        <form method="POST" action="/author/book_status">
-          <input type="hidden" name="bookName" value="<%= book.book_name %>">
-          <button type="submit">Cancel Request</button>
-        </form>
-      </li>
-    <% }); %>
-  </ul>
+    <script src="node_modules/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <div class="container">
+        <h1>Welcome to Our Streaming Service</h1>
+        <a href="/subscribe" class="btn btn-subscribe" onclick="subscribe()">Subscribe Now</a>
+        <a href="/login_reader" class="btn btn-login" onclick="login()">Login</a>
+    </div>
 
-  <h1>Approved Books</h1>
-  <ul>
-    <% approvedBooks.forEach(function(book) { %>
-      <li class="approved"><%= book.publisher_name %> - <%= book.book_name %></li>
-    <% }); %>
-  </ul>
+    <script>
+        function subscribe() {
+            // Redirect to subscribe.html after clicking Subscribe
+            window.location.href = 'sub_form.ejs';
+        }
 
-  <h1>Rejected Books</h1>
-  <ul>
-    <% rejectedBooks.forEach(function(book) { %>
-      <li class="rejected"><%= book.publisher_name %> - <%= book.book_name %> (Rejection Reason: <%= book.rejection_reason %>)</li>
-    <% }); %>
-  </ul>
+        function login() {
+            // Redirect to login.html after clicking Login
+            window.location.href = 'login.ejs';
+        }
+    </script>
 </body>
+
 </html>

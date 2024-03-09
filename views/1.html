@@ -1,82 +1,104 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Book Requests</title>
-  <style>
-    table {
-      width: 100%;
-      border-collapse: collapse;
-    }
-    th, td {
-      padding: 8px;
-      text-align: left;
-      border-bottom: 1px solid #ddd;
-    }
-    th {
-      background-color: #f2f2f2;
-    }
-    .pending-count {
-      font-weight: bold;
-      color: red; /* or any color you prefer */
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Subscription Page</title>
+    <link rel="stylesheet" href="node_modules/bootstrap/dist/css/bootstrap.css">
+    <style>
+        body {
+            background-color: #000;
+            color: #fff;
+            font-family: 'Arial', sans-serif;
+        }
+
+        .container {
+            padding: 50px;
+        }
+
+        h2 {
+            color: #e50914;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            font-weight: bold;
+        }
+
+        .btn-subscribe {
+            background-color: #e50914;
+            border: none;
+            font-size: 1.5rem;
+            padding: 15px 30px;
+            border-radius: 5px;
+            letter-spacing: 1px;
+            font-weight: bold;
+            color: #fff;
+        }
+
+        .btn-subscribe:hover {
+            background-color: #ff3c27;
+        }
+    </style>
 </head>
 <body>
-  <h1>Welcome, <%= publisher.name %>!</h1>
-  <a href="/publisher/request/search">Search based on criteria</a>
+    <script src="node_modules/bootstrap/dist/js/bootstrap.bundle.js"></script>
+    <div class="container">
+        <h2 class="text-center">Subscribe to Our Service</h2>
+        <form action="/subscribe" method="post">
+            <!-- User Name -->
+            <div class="form-group">
+                <label for="userName">User Name:</label>
+                <input type="text" class="form-control" id="userName" name="userName" placeholder="Enter User Name" required>
+            </div>
 
-  <h2>Top Rated Authors</h2>
-  <table>
-    <tr>
-      <th>First Name</th>
-      <th>Last Name</th>
-    </tr>
-    <% top_rated_author.forEach((author) => { %>
-      <tr>
-        <td><%= author.first_name %></td>
-        <td><%= author.last_name %></td>
-      </tr>
-    <% }); %>
-  </table>
+            <!-- Contact Number -->
+            <div class="form-group">
+                <label for="contactNumber">Contact Number:</label>
+                <input type="tel" class="form-control" id="contactNumber" name="contactNumber" placeholder="Enter Contact Number" required>
+            </div>
 
-  <h2>Pending Books</h2>
-  <p>Total Pending Books: <span class="pending-count"><%= pendingBooks %></span></p>
+            <!-- Email -->
+            <div class="form-group">
+                <label for="email">Email:</label>
+                <input type="email" class="form-control" id="email" name="email" placeholder="Enter Email" required>
+            </div>
 
-  <% if (authorRequests.length > 0) { %>
-    <h2>Author Requests and Requested Books</h2>
-    <table>
-      <tr>
-        <th>Author Name</th>
-        <th>Author Email</th>
-        <th>Expertise</th>
-        <th>Book Title</th>
-        <th>Genre</th>
-        <th>PDF link</th>
-        <th>Actions</th> <!-- New column for buttons -->
-      </tr>
-      <% authorRequests.forEach((request) => { %>
-        <tr>
-          <td><%= request.first_name %></td>
-          <td><%= request.email %></td>
-          <td><%= request.interested_genre %></td>
-          <td><%= request.book_name %></td>
-          <td><%= request.genre %></td>
-          <td><%= request.pdf_link %></td>
-          <td>
-            <form action="/publisher/approve" method="POST" style="display: inline;">
-              <input type="hidden" name="request_id" value="<%= request.request_id %>">
-              <button type="submit">Approve</button>
-            </form>
-            <form action="/publisher/reject" method="POST" style="display: inline;">
-              <input type="hidden" name="request_id" value="<%= request.request_id %>">
-              <button type="submit">Reject</button>
-            </form>
-          </td>
-        </tr>
-      <% }); %>
-    </table>
-  <% } else { %>
-    <p>No author requests found.</p>
-  <% } %>
+            <!-- Password -->
+            <div class="form-group">
+                <label for="password">Password:</label>
+                <input type="password" class="form-control" id="password" name="password" placeholder="Enter Password" required>
+            </div>
+
+            <!-- Subscription Duration -->
+            <div class="form-group">
+                <label for="subscriptionDuration">Subscription Duration:</label>
+                <select class="form-control" id="subscriptionDuration" name="subscriptionDuration" required>
+                    <option value="" selected disabled>Select Duration</option>
+                    <option value="1">1 Month</option>
+                    <option value="3">3 Months</option>
+                    <option value="6">6 Months</option>
+                    <option value="12">12 Months</option>
+                </select>
+            </div>
+
+            <!-- Payment Method -->
+            <div class="form-group">
+                <label for="paymentMethod">Payment Method:</label>
+                <select class="form-control" id="paymentMethod" name="paymentMethod" required>
+                    <option value="" selected disabled>Select Payment Method</option>
+                    <option value="creditCard">Credit Card</option>
+                    <option value="paypal">PayPal</option>
+                    <!-- Add more options as needed -->
+                </select>
+            </div>
+
+            <!-- Subscribe Button -->
+            <button type="submit" class="btn btn-subscribe btn-block">Subscribe Now</button>
+        </form>
+    </div>
 </body>
 </html>

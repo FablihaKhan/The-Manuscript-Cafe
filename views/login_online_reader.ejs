@@ -1,53 +1,77 @@
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Netflix Style</title>
+    <title>Login - Aesthetic Style</title>
     <link rel="stylesheet" href="node_modules/bootstrap/dist/css/bootstrap.css">
     <style>
         body {
-            background-color: #000;
-            color: #fff;
+            background-image: url('https://th.bing.com/th/id/OIG4.D_Sy_byxXkM04yY_bw6I?pid=ImgGn'); /* URL of your background image */
+            background-size: cover; /* Cover the entire background */
+            background-position: center; /* Center the background image */
+            color: #fff; /* White text color */
+            font-size: 24px; /* Larger font size */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
         }
 
         .container {
-            margin-top: 100px;
             max-width: 400px;
+            text-align: center; /* Center-align the content */
         }
 
         h2 {
-            color: #e50914;
+            color: #e50914; /* Red heading color */
+            font-size: 36px; /* Larger font size for heading */
+            margin-bottom: 30px;
         }
 
         .form-group {
-            margin-bottom: 20px;
+            margin-bottom: 30px;
         }
 
         label {
             font-weight: bold;
+            font-size: 24px; /* Larger font size for labels */
+            display: block; /* Make labels display as blocks for better spacing */
+            margin-bottom: 10px; /* Add some spacing below labels */
+        }
+
+        .form-control {
+            font-size: 24px; /* Larger font size for form inputs */
+            width: 100%; /* Make form inputs full width */
+            background-color: #ff0000; /* Red background color */
+            border-color: #ff0000; /* Red border color */
+            color: #fff; /* White text color */
         }
 
         .btn-login {
-            background-color: #e50914;
+            background-color: #000; /* Black button background */
             border: none;
-            font-size: 1.5rem;
-            padding: 15px 30px;
+            font-size: 24px; /* Larger font size for button */
+            padding: 20px 30px; /* Increased padding for button */
             border-radius: 5px;
             letter-spacing: 1px;
             font-weight: bold;
-            color: #fff;
+            color: #fff; /* White text color */
+            width: 100%;
         }
 
         .btn-login:hover {
-            background-color: #ff3c27;
+            background-color: #333; /* Darker shade of black on hover */
         }
     </style>
 </head>
 <body>
     <script src="node_modules/bootstrap/dist/js/bootstrap.bundle.js"></script>
     <div class="container">
-        <h2 class="text-center">Login</h2>
+        <h2>Login</h2>
         <form id="loginForm" action="/login_reader" method="post">
             <!-- Email -->
             <div class="form-group">
@@ -64,70 +88,6 @@
             <!-- Login Button -->
             <button type="submit" class="btn btn-login btn-block">Submit</button>
         </form>
-        <!-- <form id="loginForm">
-            <!-- User ID -->
-            <!-- <div class="form-group">
-                <label for="userId">User ID:</label>
-                <input type="text" class="form-control" id="userId" placeholder="Enter User ID" required>
-            </div> -->
-
-            <!-- User Name -->
-            <!-- <div class="form-group">
-                <label for="userName">User Name:</label>
-                <input type="text" class="form-control" id="userName" placeholder="Enter User Name" required>
-            </div>
-
-            <!-- Email -->
-            <!-- <div class="form-group">
-                <label for="email">Email:</label>
-                <input type="email" class="form-control" id="email" placeholder="Enter Email" required>
-            </div> -->
-
-            <!-- Contact Number -->
-            <!-- <div class="form-group">
-                <label for="contactNumber">Contact Number:</label>
-                <input type="tel" class="form-control" id="contactNumber" placeholder="Enter Contact Number" required>
-            </div> -->
-
-            <!-- Password -->
-            <!-- <div class="form-group">
-                <label for="password">Password:</label>
-                <input type="password" class="form-control" id="password" placeholder="Enter Password" required>
-            </div> -->
-
-            <!-- Login Button -->
-            <!-- <button type="button" class="btn btn-login btn-block" onclick="redirectToOnlineBooks()">Submit</button>
- -->
-
-
-        <!-- </form> --> 
     </div>
-
-    
-<!-- Include jQuery -->
-<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
-
-<!-- <script>
-    function redirectPage() {
-        // Fetch content from online.html using AJAX
-        $.ajax({
-            url: 'online.ejs',
-            type: 'GET',
-            success: function (data) {
-                // Replace the current content with the content from online.html
-                $('body').html(data);
-            },
-            error: function () {
-                console.error('Failed to load online.html');
-            }
-        });
-    }
-</script> -->
-<!-- <script>
-    function redirectToOnlineBooks() {
-        // Redirect to the specified URL
-        window.location.href = "/online_books";
-    }
-</script> -->
 </body>
 </html>
