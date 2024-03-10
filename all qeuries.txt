@@ -1,0 +1,589 @@
+
+***********************Advanced Queries and PL SQL compiled From app.js
+
+******for INSERT,UPDATE,DELETE,Advanced Queries and PL SQL check out app.js
+
+
+
+//////////CREATE OR REPLACE FUNCTION GetTotalSubmissions() RETURNS INT AS $$
+DECLARE
+    total_submissions INT;
+BEGIN
+    SELECT COUNT(*) INTO total_submissions FROM Publish_Requested_books;
+    RETURN total_submissions;
+END;
+$$ LANGUAGE plpgsql;
+
+
+///////////approval rate publisher
+CREATE OR REPLACE FUNCTION GetApprovalRate(publisher_id BIGINT) 
+RETURNS FLOAT AS $$
+DECLARE
+    total_submissions INT;
+    approved_count INT;
+    approval_rate FLOAT;
+BEGIN
+    SELECT COUNT(*) INTO total_submissions FROM Publish_Request WHERE Publish_Request.publisher_id = GetApprovalRate.publisher_id;
+    SELECT COUNT(*) INTO approved_count FROM Approved_books WHERE Approved_books.publisher_id = GetApprovalRate.publisher_id;
+    
+    IF total_submissions = 0 THEN
+        approval_rate := 0;
+    ELSE
+        approval_rate := (approved_count * 100.0) / total_submissions;
+    END IF;
+    
+    RETURN approval_rate;
+END;
+$$ LANGUAGE plpgsql;
+
+SELECT
+    P.name AS publisher_name,
+    GetApprovalRate(P.publisher_id)
+FROM
+    Publisher P
+WHERE
+   GetApprovalRate(P.publisher_id) > 0;
+
+
+
+
+////////////////top 5 genre
+CREATE OR REPLACE FUNCTION GetTopGenres(
+    top_genre_count INT
+) 
+RETURNS TABLE (
+    genre_name VARCHAR,
+    submission_count BIGINT  -- Update the return type to BIGINT
+) AS $$
+BEGIN
+    RETURN QUERY
+    SELECT genre, COUNT(*) AS submission_count
+    FROM Publish_Requested_books
+    GROUP BY genre
+    ORDER BY submission_count DESC
+    LIMIT top_genre_count;
+END;
+$$ LANGUAGE plpgsql;
+
+
+SELECT * FROM GetTopGenres(5);
+
+
+
+//////////money
+DROP PROCEDURE financialstatistics();
+
+CREATE OR REPLACE PROCEDURE FinancialStatistics(
+    OUT total_revenue DECIMAL(10, 2),
+    OUT total_cost DECIMAL(10, 2),
+    OUT profit_margin DECIMAL(10, 2)
+)
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    -- Calculate total revenue
+    SELECT SUM(book_price) INTO total_revenue
+    FROM Payment;
+
+    -- Calculate total cost
+    SELECT SUM(author_gets) + SUM(editor_gets) + SUM(publisher_gets) INTO total_cost
+    FROM Payment;
+
+    -- Calculate profit margin
+    profit_margin := (total_revenue - total_cost) / total_revenue * 100;
+END;
+$$;
+
+
+DO
+$$
+DECLARE
+    revenue DECIMAL(10, 2);
+    t_cost DECIMAL(10, 2);
+    profit DECIMAL(10, 2);
+BEGIN
+    CALL FinancialStatistics(revenue,t_cost,profit);
+    RAISE NOTICE 'Total Revenue: %', revenue;
+    RAISE NOTICE 'Total Cost: %', t_cost;
+    RAISE NOTICE 'Profit Margin: %', profit;
+END;
+$$;
+
+
+
+//////////////////////procedure to cascade delete an request
+DROP PROCEDURE DeletePublishRequest;
+CREATE OR REPLACE PROCEDURE DeletePublishRequest(p_book_name IN VARCHAR) 
+AS $$
+DECLARE
+  v_request_id BIGINT;
+BEGIN
+  -- Cursor declaration to select multiple request_ids
+  FOR v_request_id IN
+    SELECT request_id FROM Publish_Requested_books WHERE book_name = p_book_name
+  LOOP
+    -- Delete associated requests from Publish_Requested_books table
+    DELETE FROM Publish_Requested_books WHERE request_id = v_request_id;
+
+    -- Delete requests from Publish_Request table
+    DELETE FROM Publish_Request WHERE request_id = v_request_id;
+
+    -- Display success message for each request_id
+    RAISE NOTICE 'Request ID % deleted successfully.', v_request_id;
+  END LOOP;
+
+  -- Display overall success message
+  RAISE NOTICE 'Publish requests and associated records deleted successfully.';
+EXCEPTION
+  WHEN OTHERS THEN
+    -- Display error message
+    RAISE NOTICE 'Error: Failed to delete publish requests and associated records.';
+END;
+$$ LANGUAGE plpgsql;
+
+CALL DeletePublishRequest('Buet campus life');
+
+DROP PROCEDURE DeletePublishRequest;/////use this
+CREATE OR REPLACE PROCEDURE DeletePublishRequest(p_book_name IN VARCHAR) 
+AS $$
+DECLARE
+  v_request_id BIGINT;
+BEGIN
+    SELECT request_id INTO  v_request_id FROM Publish_Requested_books WHERE book_name = p_book_name;
+
+    -- Delete associated requests from Publish_Requested_books table
+    DELETE FROM Publish_Requested_books WHERE request_id = v_request_id;
+
+    -- Delete requests from Publish_Request table
+    DELETE FROM Publish_Request WHERE request_id = v_request_id;
+    
+EXCEPTION
+  WHEN OTHERS THEN
+    -- Display error message
+    RAISE NOTICE 'Error: Failed to delete publish requests and associated records.';
+END;
+$$ LANGUAGE plpgsql;
+
+
+
+
+
+///////////////////////procedure to send request to all publisher
+
+CREATE OR REPLACE PROCEDURE Send_Publish_Request_To_All_Publishers(
+    IN author_id_in BIGINT,
+    IN book_name_in VARCHAR(255),
+    IN genre_in VARCHAR(50),
+    IN pdf_link_in VARCHAR(255)
+)
+AS $$
+DECLARE
+    publisher_record Publisher%ROWTYPE;
+    request_id_out BIGINT;
+    loop_counter INT := 0;
+    max_loops INT := 50; -- Number of times to run the loop
+BEGIN
+    -- Insert into Publish_Requested_books table for each publisher
+    FOR publisher_record IN SELECT * FROM Publisher
+    LOOP
+        EXIT WHEN loop_counter >= max_loops; -- Exit loop after 5 iterations
+
+        -- Generate a new request_id for each iteration
+        SELECT nextval('publish_request_request_id_seq') INTO request_id_out;
+
+        -- Insert into Publish_Request table
+        INSERT INTO Publish_Request (request_id, author_id, publisher_id)
+        VALUES (request_id_out, author_id_in, publisher_record.publisher_id);
+
+        -- Insert into Publish_Requested_books table
+        INSERT INTO Publish_Requested_books (request_id, book_name, genre, pdf_link)
+        VALUES (request_id_out, book_name_in, genre_in, pdf_link_in);
+
+        loop_counter := loop_counter + 1;
+    END LOOP;
+END;
+$$ LANGUAGE plpgsql;
+
+CALL Send_Publish_Request_To_All_Publishers(10, 'Buet campus life', 'Tragedy', 'here.pdf');
+
+
+
+
+
+////////////////////////////procedure to send edit requests to all the editors
+
+DROP PROCEDURE SendEditRequest; 
+
+CREATE OR REPLACE PROCEDURE SendEditRequest(
+    p_request_id Editor_Books.request_id%TYPE,
+    p_approve_id Editor_Books.approve_id%TYPE
+)
+LANGUAGE plpgsql
+AS $$
+DECLARE
+    editor_rec RECORD;
+    editor_cursor CURSOR FOR SELECT editor_id FROM Editor;
+BEGIN
+    OPEN editor_cursor;
+    LOOP
+        FETCH NEXT FROM editor_cursor INTO editor_rec;
+        EXIT WHEN NOT FOUND;
+        INSERT INTO Editor_Books (editor_id, approve_id, request_id, editing_status, edit_start_date,edit_deadline)
+        VALUES (editor_rec.editor_id, p_approve_id, p_request_id, 'Not Started', NULL,NULL);
+    END LOOP;
+    CLOSE editor_cursor;
+    
+    COMMIT;
+END;
+$$;
+
+CALL SendEditRequest(p_request_id := 123, p_approve_id := 456);
+
+
+//////////////////////////trigger on duplicate author
+
+CREATE OR REPLACE FUNCTION prevent_duplicate_author()
+RETURNS TRIGGER AS
+$$
+BEGIN
+    IF EXISTS (SELECT 1 FROM Author WHERE email = NEW.email) THEN
+        RAISE EXCEPTION 'Author with the same email already exists';
+    END IF;
+    
+    IF EXISTS (SELECT 1 FROM Author WHERE password = NEW.password) THEN
+        RAISE EXCEPTION 'Password already exists in the database';
+    END IF;
+
+    RETURN NEW;
+END;
+$$
+LANGUAGE plpgsql;
+
+CREATE OR REPLACE TRIGGER prevent_duplicate_author_trigger
+BEFORE INSERT ON Author
+FOR EACH ROW
+EXECUTE FUNCTION prevent_duplicate_author();
+
+
+////////////////////trigger on duplicate publisher
+CREATE OR REPLACE FUNCTION prevent_duplicate_publisher()
+RETURNS TRIGGER AS
+$$
+BEGIN
+     IF EXISTS (SELECT 1 FROM Publisher WHERE email = NEW.email) THEN
+        RAISE EXCEPTION 'Author with the same email already exists';
+    END IF;
+    
+    IF EXISTS (SELECT 1 FROM Publisher WHERE password = NEW.password) THEN
+        RAISE EXCEPTION 'Password already exists in the database';
+    END IF;
+    RETURN NEW;
+END;
+$$
+LANGUAGE plpgsql;
+
+CREATE OR REPLACE TRIGGER prevent_duplicate_publisher_trigger
+BEFORE INSERT ON Publisher
+FOR EACH ROW
+EXECUTE FUNCTION prevent_duplicate_publisher();
+
+
+
+
+//////////////////cannot update password/email that is of another author
+CREATE OR REPLACE FUNCTION prevent_duplicate_email_and_password()
+RETURNS TRIGGER AS
+$$
+BEGIN
+    IF EXISTS (SELECT 1 FROM Author WHERE email = NEW.email AND id <> NEW.id) THEN
+        RAISE EXCEPTION 'Another author with the same email already exists';
+    END IF;
+
+    IF EXISTS (SELECT 1 FROM Author WHERE password = NEW.password AND id <> NEW.id) THEN
+        RAISE EXCEPTION 'Another author with the same password already exists';
+    END IF;
+
+    RETURN NEW;
+END;
+$$
+LANGUAGE plpgsql;
+
+CREATE OR REPLACE TRIGGER prevent_duplicate_email_and_password_trigger
+BEFORE UPDATE ON Author
+FOR EACH ROW
+EXECUTE FUNCTION prevent_duplicate_email_and_password();
+
+
+/////////////////////trigger for book deletion
+
+CREATE OR REPLACE FUNCTION delete_associated_records()
+RETURNS TRIGGER AS $$
+BEGIN
+    -- Delete records from Payment table associated with the deleted book
+    DELETE FROM Payment WHERE book_id = OLD.book_id;
+
+    -- Delete records from Review table associated with the deleted book
+    DELETE FROM Review WHERE book_id = OLD.book_id;
+
+    RETURN OLD;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER delete_associated_records_trigger
+BEFORE DELETE ON Book
+FOR EACH ROW
+EXECUTE FUNCTION delete_associated_records();
+
+
+////////////////////trigger on edit deadline
+
+
+-- Create a function to calculate the deadline date
+CREATE OR REPLACE FUNCTION calculate_edit_deadline()
+    RETURNS TRIGGER AS $$
+BEGIN
+    -- Get the approval date and duration for the approved book
+    DECLARE
+        approval_date DATE;
+        deadline_date DATE;
+    BEGIN
+        SELECT Approved_books.approval_date
+        INTO approval_date
+        FROM Approved_books
+        WHERE approve_id = NEW.approve_id;
+
+        -- Calculate the deadline date by adding the duration to the approval date
+        deadline_date := approval_date + INTERVAL '15 DAY';
+
+        -- Set the calculated deadline date in the Editor_Books table
+        NEW.edit_deadline := deadline_date;
+
+        RETURN NEW;
+    END;
+END;
+$$ LANGUAGE plpgsql;
+
+
+CREATE TRIGGER calculate_edit_deadline_trigger
+    BEFORE INSERT ON Editor_Books
+    FOR EACH ROW
+    EXECUTE FUNCTION calculate_edit_deadline();
+
+
+
+
+////////////////////////////subquery to see review and profits
+
+SELECT 
+    B.book_title,
+    (SELECT COUNT(*) 
+     FROM Book_sales BS 
+     JOIN Book B1 ON BS.book_id = B1.book_id 
+     WHERE B1.book_title = 'The Shining') AS total_copies_sold,
+    (SELECT P.author_gets *(SELECT COUNT(*) 
+     FROM Book_sales BS 
+     JOIN Book B1 ON BS.book_id = B1.book_id 
+     WHERE B1.book_title = 'The Shining')
+            FROM Payment P 
+            JOIN Book B1 ON P.book_id = B1.book_id 
+            WHERE B1.book_title = 'The Shining'
+        )
+FROM 
+    Book B
+WHERE 
+    B.book_title = 'The Shining';
+
+
+
+
+//////////////////////publisher search for top 3 authors
+
+
+SELECT a.id, a.first_name, a.last_name
+FROM Author a
+JOIN Book b ON a.id = b.author_id
+JOIN Review r ON b.book_id = r.book_id
+WHERE a.id IN (
+    SELECT author_id
+    FROM (
+        SELECT author_id, AVG(rating) AS avg_rating
+        FROM Author a
+        JOIN Book b ON a.id = b.author_id
+        JOIN Review r ON b.book_id = r.book_id
+        GROUP BY author_id
+        ORDER BY avg_rating DESC
+        LIMIT 3
+    ) AS top_avg_ratings
+)
+GROUP BY a.id, a.first_name, a.last_name;
+
+//////////////
+SELECT a.id, a.first_name, a.last_name
+  FROM Author a
+  JOIN Book b ON a.id = b.author_id
+  JOIN Review r ON b.book_id = r.book_id
+  WHERE a.id IN (
+  SELECT author_id
+  FROM (
+    SELECT author_id, AVG(rating) AS avg_rating
+    FROM Author a
+    JOIN Book b ON a.id = b.author_id
+    JOIN Review r ON b.book_id = r.book_id
+    GROUP BY author_id
+    ORDER BY avg_rating DESC
+    LIMIT 3
+) AS top_avg_ratings
+)
+GROUP BY a.id, a.first_name, a.last_name
+
+////////////////
+ SELECT ab.approve_id,ab.request_id, prb.book_name, prb.genre, prb.pdf_link, ab.approval_date
+  FROM Approved_books ab
+  JOIN Publish_Requested_books prb ON ab.request_id = prb.request_id
+  WHERE ab.publisher_id = 1
+  AND NOT EXISTS (
+    SELECT 1
+    FROM Editor_Books eb
+    WHERE eb.approve_id = ab.approve_id
+      AND eb.request_id = ab.request_id
+  );
+
+
+//////////////
+ SELECT pb.name AS publisher_name,
+           prb.book_name
+    FROM Publish_Request pr
+    JOIN Author ar ON pr.author_id = ar.id
+    JOIN Publisher pb ON pr.publisher_id = pb.publisher_id
+    JOIN Publish_Requested_books prb ON pr.request_id = prb.request_id
+    WHERE pr.request_id IN (SELECT request_id FROM Publish_Requested_books WHERE status = 'Pending')
+      AND ar.id = $1;
+////////////
+ SELECT pb.name AS publisher_name,
+           prb.book_name
+    FROM Publish_Request pr
+    JOIN Author ar ON pr.author_id = ar.id
+    JOIN Publisher pb ON pr.publisher_id = pb.publisher_id
+    JOIN Publish_Requested_books prb ON pr.request_id = prb.request_id
+    WHERE pr.request_id IN (SELECT request_id FROM Approved_books)
+      AND ar.id = $1;
+///////////////
+SELECT pb.name AS publisher_name,
+           prb.book_name,
+           rb.rejection_reason
+    FROM Publish_Request pr
+    JOIN Author ar ON pr.author_id = ar.id
+    JOIN Publisher pb ON pr.publisher_id = pb.publisher_id
+    JOIN Publish_Requested_books prb ON pr.request_id = prb.request_id
+    JOIN Rejected_books rb ON pr.request_id = rb.request_id
+    WHERE ar.id = $1
+/////////////////
+SELECT 
+        B.book_title,
+        (SELECT COUNT(*) 
+          FROM Book_sales BS 
+          JOIN Book B1 ON BS.book_id = B1.book_id 
+          WHERE B1.book_title = $1) AS total_copies_sold,
+        (SELECT P.author_gets * (SELECT COUNT(*) 
+                                  FROM Book_sales BS 
+                                  JOIN Book B1 ON BS.book_id = B1.book_id 
+                                  WHERE B1.book_title = $1) 
+          FROM Payment P 
+          JOIN Book B1 ON P.book_id = B1.book_id 
+          WHERE B1.book_title = $1) AS author_payment_amount
+      FROM 
+        Book B
+      WHERE 
+        B.book_title = $1
+        GROUP BY B.book_title
+//////////////////
+ SELECT 
+        R.review_id,
+        R.rating,
+        R.review
+      FROM 
+        Review R
+        JOIN Book B ON R.book_id = B.book_id
+      WHERE 
+        B.book_title = $1
+///////////////
+ SELECT PR.*,
+           PRB.*,A.*
+    FROM Publish_Request PR
+    JOIN Author A ON PR.author_id = A.id
+    JOIN Publish_Requested_books PRB ON PR.request_id = PRB.request_id
+    WHERE PR.publisher_id = $1;
+//////////////
+SELECT a.id, a.first_name, a.last_name
+  FROM Author a
+  JOIN Book b ON a.id = b.author_id
+  JOIN Review r ON b.book_id = r.book_id
+  WHERE a.id IN (
+  SELECT author_id
+  FROM (
+    SELECT author_id, AVG(rating) AS avg_rating
+    FROM Author a
+    JOIN Book b ON a.id = b.author_id
+    JOIN Review r ON b.book_id = r.book_id
+    GROUP BY author_id
+    ORDER BY avg_rating DESC
+    LIMIT 3
+) AS top_avg_ratings
+)
+GROUP BY a.id, a.first_name, a.last_name
+////////////////////
+ SELECT COUNT(rb.request_id) AS requested_book_count
+    FROM Publisher p
+    JOIN Publish_Request pr ON p.publisher_id = pr.publisher_id
+    JOIN Publish_Requested_books rb ON pr.request_id = rb.request_id
+    WHERE rb.status = 'Pending' AND p.publisher_id = $1
+    GROUP BY p.publisher_id
+///////////////////
+SELECT
+        P.name AS publisher_name,
+        GetApprovalRate(P.publisher_id) AS approval_rate
+      FROM
+        Publisher P
+      WHERE
+        GetApprovalRate(P.publisher_id) > 0;
+////////////////
+  SELECT 
+  PRB.book_name,
+  PRB.genre,
+  PRB.pdf_link,
+  PRB.status,
+  EB.editing_status,
+  EB.edit_start_date,
+  EB.edit_deadline
+FROM 
+  Editor_Books EB
+JOIN 
+  Publish_Requested_books PRB ON EB.request_id = PRB.request_id
+WHERE 
+  EB.editor_id = $1;
+
+//////////////////
+ SELECT b.book_title, a.author_name, AVG(br.rating) AS avg_rating
+      FROM online_book b
+      JOIN author_books ab ON b.book_id = ab.book_id
+      JOIN online_author a ON ab.author_code = a.author_code
+      LEFT JOIN book_rating br ON b.book_id = br.book_id
+      GROUP BY b.book_title, a.author_name
+      ORDER BY avg_rating DESC
+      LIMIT 10;
+
+SELECT b.book_title, COUNT(bc.comment_id) AS comment_count
+       FROM online_book b
+       LEFT JOIN review bc ON b.book_id = bc.book_id
+       GROUP BY b.book_title
+       ORDER BY comment_count DESC
+       LIMIT 10;
+
+
+
+
+
+
+
+
+

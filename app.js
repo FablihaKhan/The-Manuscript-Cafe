@@ -1093,3 +1093,73 @@ app.post('/submit_review', (req, res) => {
 });
 
 
+
+
+
+////////////////////////not working
+/*app.get('/top_rated_books', async (req, res) => {
+  try {
+    const topRatedBooks = await pool.query(`
+      SELECT b.book_title, a.author_name, AVG(br.rating) AS avg_rating
+      FROM online_book b
+      JOIN author_books ab ON b.book_id = ab.book_id
+      JOIN online_author a ON ab.author_code = a.author_code
+      LEFT JOIN book_rating br ON b.book_id = br.book_id
+      GROUP BY b.book_title, a.author_name
+      ORDER BY avg_rating DESC
+      LIMIT 10;
+    `);
+    res.render('top_rated_books', { topRatedBooks: topRatedBooks.rows });
+  } catch (error) {
+    console.error('Error executing SQL query:', error);
+    res.status(500).send('Internal Server Error');
+  }
+});
+
+app.get('/most_commented_books', async (req, res) => {
+  try {
+    const mostCommentedBooks = await pool.query(`
+      SELECT b.book_title, COUNT(bc.comment_id) AS comment_count
+      FROM online_book b
+      LEFT JOIN book_comment bc ON b.book_id = bc.book_id
+      GROUP BY b.book_title
+      ORDER BY comment_count DESC
+      LIMIT 10;
+    `);
+    res.render('most_commented_books', { mostCommentedBooks: mostCommentedBooks.rows });
+  } catch (error) {
+    console.error('Error executing SQL query:', error);
+    res.status(500).send('Internal Server Error');
+  }
+});
+
+app.get('/books_by_genre', async (req, res) => {
+  try {
+    const booksByGenre = await pool.query(`
+      SELECT genre, COUNT(*) AS book_count
+      FROM online_book
+      GROUP BY genre;
+    `);
+    res.render('books_by_genre', { booksByGenre: booksByGenre.rows });
+  } catch (error) {
+    console.error('Error executing SQL query:', error);
+    res.status(500).send('Internal Server Error');
+  }
+});
+
+app.get('/most_commented_books', async (req, res) => {
+   try {
+    const mostCommentedBooks = await pool.query(`
+       SELECT b.book_title, COUNT(bc.comment_id) AS comment_count
+       FROM online_book b
+       LEFT JOIN review bc ON b.book_id = bc.book_id
+       GROUP BY b.book_title
+       ORDER BY comment_count DESC
+       LIMIT 10;
+     `);
+     res.render('most_commented_books', { mostCommentedBooks: mostCommentedBooks.rows });
+   } catch (error) {
+     console.error('Error executing SQL query:', error);
+     res.status(500).send('Internal Server Error');
+   }
+ });*/

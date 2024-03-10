@@ -1,0 +1,221 @@
+gH"Fg$aMP+OPJV
+sZ1?S.q9t4AE6,!
+
+create table Book (
+	book_id BIGSERIAL NOT NULL PRIMARY KEY,
+	author_id BIGINT REFERENCES Author(id),
+	book_title VARCHAR(37),
+	price INT,
+	type VARCHAR(7),
+	date_of_publish DATE,
+	CONSTRAINT Book_Author_FK FOREIGN KEY (author_id) REFERENCES Author(id)
+);
+
+
+CREATE TABLE Payment (
+    book_id BIGINT REFERENCES Book(book_id),
+    book_price DECIMAL(10, 2),
+    publisher_id BIGINT REFERENCES Publisher(publisher_id),
+    author_id BIGINT REFERENCES Author(id),
+    editor_id BIGINT REFERENCES Editor(editor_id),
+    author_gets DECIMAL(10, 2), 
+    editor_gets DECIMAL(10, 2), 
+    publisher_gets DECIMAL(10, 2),
+    publication_date DATE,
+    CONSTRAINT Payment_Publisher_FK FOREIGN KEY (publisher_id) REFERENCES Publisher(publisher_id),
+    CONSTRAINT Payment_Author_FK FOREIGN KEY (author_id) REFERENCES Author(id),
+    CONSTRAINT Payment_Editor_FK FOREIGN KEY (editor_id) REFERENCES Editor(editor_id)
+);
+
+CREATE TABLE Review
+(
+    review_id BIGSERIAL PRIMARY KEY,
+    book_id BIGINT REFERENCES Book(book_id),
+    rating INTEGER DEFAULT 0,
+    review VARCHAR(250)
+);
+
+CREATE TABLE Reader_interaction (
+    interaction_id BIGINT PRIMARY KEY,
+    book_id BIGINT REFERENCES Book(book_id),
+    reader_id BIGINT REFERENCES Reader(reader_id),
+    action_type VARCHAR(50), -- e.g., 'download', 'rating', 'reading'
+    timestamp TIMESTAMP,
+    FOREIGN KEY (book_id) REFERENCES Book(book_id),
+    FOREIGN KEY (reader_id) REFERENCES Reader(reader_id)
+);
+
+CREATE TABLE Reader
+(
+    reader_id BIGSERIAL PRIMARY KEY,
+    reader_name VARCHAR(50) NOT NULL,
+    email VARCHAR(100) NOT NULL,
+    contact_no VARCHAR(15),
+    password VARCHAR(50) NOT NULL
+);
+
+
+create table Author (
+	id BIGSERIAL NOT NULL PRIMARY KEY,
+	first_name VARCHAR(50),
+	last_name VARCHAR(50),
+	gender VARCHAR(50),
+	email VARCHAR(50),
+	contact_no VARCHAR(50),
+	interested_genre VARCHAR(50),
+	password VARCHAR(50)
+);
+
+CREATE TABLE Publisher (
+        publisher_id BIGSERIAL PRIMARY KEY,
+	name VARCHAR(255) NOT NULL,
+	email VARCHAR(50),
+	contact_no VARCHAR(50),
+	password VARCHAR(50)
+);
+
+CREATE TABLE Approved_books (
+    approve_id BIGSERIAL PRIMARY KEY,
+    publisher_id INT REFERENCES Publisher(publisher_id),
+    request_id BIGINT REFERENCES Publish_Request(request_id),
+    approval_date DATE DEFAULT CURRENT_DATE,
+    CONSTRAINT Request_Publisher_FK FOREIGN KEY (publisher_id) REFERENCES Publisher(publisher_id)
+);
+
+CREATE TABLE Rejected_books (
+    rejection_id BIGSERIAL PRIMARY KEY,
+    publisher_id INT REFERENCES Publisher(publisher_id),
+    request_id BIGINT REFERENCES Publish_Request(request_id),
+    rejection_reason VARCHAR(200),
+    CONSTRAINT Request_Publisher_FK FOREIGN KEY (publisher_id) REFERENCES Publisher(publisher_id)
+);
+
+CREATE TABLE Publish_Request
+(
+    request_id BIGSERIAL PRIMARY KEY,
+    author_id BIGINT REFERENCES Author(id),
+    publisher_id BIGINT REFERENCES Publisher(publisher_id),
+    CONSTRAINT Request_Publisher_FK FOREIGN KEY (publisher_id) REFERENCES Publisher(publisher_id),
+    CONSTRAINT Request_Author_FK FOREIGN KEY (author_id) REFERENCES Author(id)
+);
+
+ CREATE TABLE Publish_Requested_books (
+     request_id BIGINT PRIMARY KEY REFERENCES Publish_Request(request_id),
+     book_name VARCHAR(255),
+     genre VARCHAR(50),
+     pdf_link VARCHAR(255),
+     request_date DATE DEFAULT CURRENT_DATE,
+     status VARCHAR(20) DEFAULT 'Pending',
+     CONSTRAINT Request_Publish_FK FOREIGN KEY (request_id) REFERENCES Publish_Request(request_id)
+ );
+
+
+
+CREATE TABLE Editor (
+    editor_id BIGSERIAL PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    email VARCHAR(255),
+    contact_no VARCHAR(20),
+    password VARCHAR(50) NOT NULL
+);
+
+
+CREATE TABLE Editor_Books (
+    editor_id BIGINT REFERENCES Editor(editor_id),
+    approve_id BIGINT REFERENCES Approved_books(approve_id),
+    request_id BIGINT REFERENCES Publish_Requested_books(request_id),
+    editing_status VARCHAR(20) DEFAULT 'Not Started',
+    edit_start_date DATE,
+    edit_deadline DATE, -- New column for edit deadline
+    PRIMARY KEY (editor_id, approve_id, request_id)
+);
+
+
+CREATE TABLE BookStore (
+    Store_id INT PRIMARY KEY,
+    Publisher_id INT,
+    Name VARCHAR(255) NOT NULL,
+    Copies_got INTEGER,
+    Email VARCHAR(255),
+    Contact_no VARCHAR(20),
+    FOREIGN KEY (publisher_id) REFERENCES Publisher(publisher_id)
+);
+
+CREATE TABLE BookStore_Inventory (
+    Store_id INT,
+    book_id BIGINT,
+    Copies_in_stock INTEGER,
+    PRIMARY KEY (Store_id,book_id),
+    FOREIGN KEY (Store_id) REFERENCES BookStore(Store_id),
+    FOREIGN KEY (book_id) REFERENCES Book(book_id)
+);
+
+
+
+
+/////////////////////////////////tables for subscription
+
+
+CREATE TABLE online_author (
+  author_code BIGSERIAL PRIMARY KEY,
+  author_name VARCHAR(255),
+  email VARCHAR(255),
+  contact_no VARCHAR(20),
+  username VARCHAR(50) UNIQUE,
+  password_hash VARCHAR(255),
+  session_token VARCHAR(255) UNIQUE 
+);
+
+CREATE TABLE online_book (
+  book_id SERIAL PRIMARY KEY,
+  author_code INT REFERENCES online_author(author_code),
+  book_title VARCHAR(255) NOT NULL,
+  genre VARCHAR(100),
+  pdf_url VARCHAR(255)
+);
+
+CREATE TABLE online_reader (
+  user_id SERIAL PRIMARY KEY,
+  user_name VARCHAR(255),
+  email VARCHAR(255),
+  contact_no VARCHAR(20),
+  password VARCHAR(255)
+);
+
+CREATE TABLE Interested_To_Read
+(
+    Interested_id INT PRIMARY KEY,
+    Reader_id VARCHAR(15) REFERENCES Reader(Reader_id),
+    Online_Book_Code BIGINT REFERENCES Online_Book(Online_Book_Code),
+    CONSTRAINT Interested_Reader_FK FOREIGN KEY (Reader_id) REFERENCES Reader(Reader_id),
+    CONSTRAINT Interested_Book_FK FOREIGN KEY (Online_Book_Code) REFERENCES Online_Book(Online_Book_Code)
+);
+
+CREATE TABLE Finished_Books
+(
+    Finished_id INT PRIMARY KEY,
+    Reader_id VARCHAR(15) REFERENCES Reader(Reader_id),
+    Online_Book_Code BIGINT REFERENCES Online_Book(Online_Book_Code),
+    CONSTRAINT Finished_Reader_FK FOREIGN KEY (Reader_id) REFERENCES Reader(Reader_id),
+    CONSTRAINT Finished_Book_FK FOREIGN KEY (Online_Book_Code) REFERENCES Online_Book(Online_Book_Code)
+);
+
+
+CREATE TABLE Read_Books
+(
+    Reader_id VARCHAR(15),
+    Book_Code BIGINT,
+    CONSTRAINT Read_Books_PK PRIMARY KEY (Reader_id, Book_Code),
+    CONSTRAINT Read_Books_Reader_FK FOREIGN KEY (Reader_id) REFERENCES Reader(Reader_id),
+    CONSTRAINT Read_Books_Book_FK FOREIGN KEY (Book_Code) REFERENCES Book(book_id)
+);
+
+CREATE TABLE online_subscription (
+  subscription_id SERIAL PRIMARY KEY,
+  user_id INT REFERENCES online_reader(user_id),
+  payment DECIMAL,
+  payment_method VARCHAR(50)
+);
+
+ALTER TABLE online_reader
+ADD COLUMN subscription_end_date TIMESTAMP;
