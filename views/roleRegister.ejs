@@ -1,0 +1,34 @@
+<%- include('partials/rolehead', {
+  role: role, pageTitle: title,
+  nav: [ { href: '/', label: 'হোম' }, { href: loginLink, label: 'লগইন' } ]
+}) %>
+
+<div class="narrow" style="max-width:520px;margin:0 auto">
+  <h1><%= title %></h1>
+  <p class="sub">
+    <%= role === 'publisher'
+        ? 'প্রকাশক হিসেবে লেখকের প্রকাশ-অনুরোধ পর্যালোচনা ও অনুমোদন করবেন।'
+        : 'সম্পাদক হিসেবে প্রকাশকের পাঠানো বই সম্পাদনা করবেন।' %>
+  </p>
+
+  <% if (error) { %><div class="notice bad"><%= error %></div><% } %>
+
+  <form class="card" method="post" action="<%= action %>">
+    <label for="name"><%= role === 'publisher' ? 'প্রকাশনার নাম' : 'সম্পাদকের নাম' %></label>
+    <input id="name" name="name" type="text" required>
+
+    <label for="email">ইমেইল</label>
+    <input id="email" name="email" type="email" required>
+
+    <label for="contact_no">যোগাযোগ নম্বর</label>
+    <input id="contact_no" name="contact_no" type="text">
+
+    <label for="password">পাসওয়ার্ড</label>
+    <input id="password" name="password" type="password" required minlength="4">
+
+    <p style="margin-top:1.2rem"><button class="btn" type="submit">নিবন্ধন করুন</button></p>
+    <p class="muted">ইতিমধ্যে অ্যাকাউন্ট আছে? <a href="<%= loginLink %>">লগইন করুন</a></p>
+  </form>
+</div>
+
+<%- include('partials/foot') %>

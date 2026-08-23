@@ -1,0 +1,54 @@
+<%- include('../partials/head', { pageTitle, narrow: true }) %>
+
+<h1>পাণ্ডুলিপি আপলোড</h1>
+<p class="sub">DOCX, TXT বা Markdown ফাইল দিন। অধ্যায়ের শিরোনাম (অধ্যায় ৩, পরিচ্ছেদ, Chapter 3, ## শিরোনাম) নিজে থেকেই চেনা হবে।</p>
+
+<% if (error) { %><div class="notice bad"><%= error %></div><% } %>
+
+<div class="notice">
+  PDF নেওয়া হয় না — PDF থেকে বাংলা লেখা বের করলে যুক্তাক্ষর ভেঙে যায় এবং বিশ্লেষণ ভুল হয়।
+  প্রকাশকরাও DOCX-ই চান।
+</div>
+
+<form class="card" method="post" action="/studio/upload" enctype="multipart/form-data">
+  <label for="manuscript">পাণ্ডুলিপি ফাইল <span class="muted">(সর্বোচ্চ ২৫ MB)</span></label>
+  <input id="manuscript" type="file" name="manuscript" accept=".docx,.txt,.md,.markdown" required>
+
+  <label for="title">বইয়ের নাম</label>
+  <input id="title" type="text" name="title" placeholder="ফাঁকা রাখলে ফাইলের নাম ব্যবহার হবে">
+
+  <label for="subtitle">উপশিরোনাম <span class="muted">(ঐচ্ছিক)</span></label>
+  <input id="subtitle" type="text" name="subtitle">
+
+  <label for="genre">ধরন</label>
+  <select id="genre" name="genre">
+    <option value="">নির্বাচন করুন</option>
+    <option value="Fiction">কথাসাহিত্য / Fiction</option>
+    <option value="Literary">সাহিত্যিক উপন্যাস / Literary</option>
+    <option value="Thriller">থ্রিলার</option>
+    <option value="Mystery">রহস্য</option>
+    <option value="Romance">প্রেমকাহিনি</option>
+    <option value="Fantasy">কল্পকাহিনি</option>
+    <option value="Sci-Fi">কল্পবিজ্ঞান</option>
+    <option value="History">ইতিহাস</option>
+    <option value="Biography">জীবনী</option>
+    <option value="Poetry">কবিতা</option>
+    <option value="Children">শিশুতোষ</option>
+    <option value="Non-fiction">প্রবন্ধ / Non-fiction</option>
+  </select>
+
+  <label for="audience">পাঠক</label>
+  <select id="audience" name="audience">
+    <option value="adult">প্রাপ্তবয়স্ক</option>
+    <option value="ya">তরুণ (YA)</option>
+    <option value="children">শিশু-কিশোর</option>
+    <option value="academic">শিক্ষায়তনিক</option>
+  </select>
+
+  <label for="synopsis">সারসংক্ষেপ <span class="muted">(প্রকাশককে পাঠানোর সময় এটাই কাজে লাগবে)</span></label>
+  <textarea id="synopsis" name="synopsis" placeholder="বইটি কী নিয়ে — কয়েক অনুচ্ছেদে লিখুন।"></textarea>
+
+  <p style="margin-top:1.2rem"><button class="btn" type="submit">আপলোড করে বিশ্লেষণ শুরু করুন</button></p>
+</form>
+
+<%- include('../partials/foot') %>

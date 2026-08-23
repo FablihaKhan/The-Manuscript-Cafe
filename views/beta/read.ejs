@@ -1,0 +1,48 @@
+<%- include('../partials/head', { pageTitle, narrow: true }) %>
+
+<h1><%= invite.title %></h1>
+<p class="sub">
+  আপনাকে এই বইটির অধ্যায় <%= bn(invite.from_chapter) %>–<%= invite.to_chapter ? bn(invite.to_chapter) : 'শেষ' %>
+  পড়ে মতামত দিতে আমন্ত্রণ জানানো হয়েছে। পড়া শেষে নিচের ফর্মটি পূরণ করুন।
+</p>
+
+<div class="notice">লেখাটি অপ্রকাশিত। অনুগ্রহ করে অন্য কোথাও শেয়ার করবেন না।</div>
+
+<% chapters.forEach(function (c) { %>
+  <div class="card">
+    <h2 style="margin-top:0"><%= c.title || ('অধ্যায় ' + bn(c.chapter_no)) %></h2>
+    <% paragraphs(c.content).forEach(function (p) { %>
+      <p style="text-align:justify"><%= p %></p>
+    <% }) %>
+  </div>
+<% }) %>
+
+<form class="card" method="post" action="/beta/<%= invite.token %>">
+  <h2 style="margin-top:0">আপনার মতামত</h2>
+
+  <label for="reader_name">আপনার নাম</label>
+  <input id="reader_name" name="reader_name" type="text" value="<%= invite.reader_name || '' %>" required>
+
+  <label for="chapter_no">কোন অধ্যায় নিয়ে <span class="muted">(পুরো বই হলে ফাঁকা রাখুন)</span></label>
+  <input id="chapter_no" name="chapter_no" type="number" min="1">
+
+  <% [['story','গল্প কেমন লাগল'], ['characters','চরিত্রগুলো'], ['pacing','গতি'],
+      ['ending','সমাপ্তি'], ['prose','ভাষা ও গদ্য']].forEach(function (f) { %>
+    <label for="<%= f[0] %>"><%= f[1] %> <span class="muted">(০–১০)</span></label>
+    <input id="<%= f[0] %>" name="<%= f[0] %>" type="range" min="0" max="10" value="7"
+           oninput="document.getElementById('v_<%= f[0] %>').textContent = this.value">
+    <div class="muted" style="text-align:left">মান: <span id="v_<%= f[0] %>">7</span></div>
+  <% }) %>
+
+  <label style="display:flex;gap:.5rem;align-items:center;margin-top:1rem">
+    <input type="checkbox" name="would_recommend" value="yes" style="width:auto">
+    বইটি আমি অন্যকে পড়তে বলব
+  </label>
+
+  <label for="comment">খোলা মন্তব্য <span class="muted">(কোথায় আটকে গেলেন, কী ভালো লাগল)</span></label>
+  <textarea id="comment" name="comment"></textarea>
+
+  <p style="margin-top:1rem"><button class="btn" type="submit">মতামত পাঠান</button></p>
+</form>
+
+<%- include('../partials/foot') %>

@@ -1,0 +1,79 @@
+<%- include('../partials/head', { pageTitle }) %>
+
+<h1>Metadata ও খুঁজে পাওয়ার সক্ষমতা</h1>
+<p class="sub">পাঠক যা লিখে খোঁজেন, বইয়ের তথ্যে সেটাই থাকা দরকার। শিরোনাম, blurb, keyword, category — সবই এখানে।</p>
+
+<%- include('../partials/msnav', { ms, tab }) %>
+
+<div class="card">
+  <form method="post" action="/studio/<%= ms.manuscript_id %>/metadata/generate" style="display:flex;gap:1rem;align-items:center;flex-wrap:wrap">
+    <button class="btn" type="submit"><%= md ? 'নতুন করে তৈরি করুন' : 'তৈরি করুন' %></button>
+    <% if (aiOn) { %>
+      <label style="margin:0;display:flex;gap:.4rem;align-items:center">
+        <input type="checkbox" name="use_ai" value="on" checked style="width:auto"> AI দিয়ে লিখুন
+      </label>
+    <% } else { %>
+      <span class="muted">AI বন্ধ — লেখার শুরু থেকে খসড়া তৈরি হবে, আপনি সম্পাদনা করবেন।</span>
+    <% } %>
+  </form>
+</div>
+
+<% if (md) { %>
+<div class="card">
+  <div class="score">
+    <div class="dial" style="--v:<%= md.seo_score %>;--dial:<%= md.seo_score >= 75 ? 'var(--good)' : md.seo_score >= 50 ? 'var(--warn)' : 'var(--bad)' %>">
+      <span><%= bn(md.seo_score) %></span><small>/১০০</small>
+    </div>
+    <div>
+      <h2 style="margin:0">Discoverability Score</h2>
+      <p class="muted" style="margin:.2rem 0">
+        keyword সংখ্যা, blurb-এর দৈর্ঘ্য, category-র গভীরতা এবং keyword গুলো blurb-এ আছে কিনা — এসব মিলিয়ে।
+      </p>
+    </div>
+  </div>
+</div>
+<% } %>
+
+<form class="card" method="post" action="/studio/<%= ms.manuscript_id %>/metadata/save">
+  <div class="grid two">
+    <div>
+      <label for="title">শিরোনাম</label>
+      <input id="title" name="title" type="text" value="<%= md ? md.title : ms.title %>" required>
+
+      <label for="subtitle">উপশিরোনাম</label>
+      <input id="subtitle" name="subtitle" type="text" value="<%= md && md.subtitle ? md.subtitle : '' %>">
+
+      <label for="audience">লক্ষ্য পাঠক</label>
+      <input id="audience" name="audience" type="text" value="<%= md && md.audience ? md.audience : ms.audience %>">
+
+      <label for="keywords">Keyword <span class="muted">(কমা দিয়ে আলাদা করুন, ৭টি হলে ভালো)</span></label>
+      <textarea id="keywords" name="keywords" style="min-height:5rem"><%= md && md.keywords ? md.keywords.join(', ') : '' %></textarea>
+
+      <label for="categories">Category <span class="muted">(কমা দিয়ে আলাদা করুন)</span></label>
+      <textarea id="categories" name="categories" style="min-height:5rem"><%= md && md.categories ? md.categories.join(', ') : '' %></textarea>
+    </div>
+    <div>
+      <label for="blurb">Blurb <span class="muted">(পিছনের মলাটের লেখা, ১২০–১৮০ শব্দ)</span></label>
+      <textarea id="blurb" name="blurb" style="min-height:16rem"><%= md && md.blurb ? md.blurb : '' %></textarea>
+
+      <label for="comp_titles">তুলনীয় বই</label>
+      <textarea id="comp_titles" name="comp_titles" style="min-height:6rem"><%= md && md.comp_titles ? md.comp_titles : '' %></textarea>
+    </div>
+  </div>
+  <p style="margin-top:1rem"><button class="btn" type="submit">সংরক্ষণ করুন</button></p>
+</form>
+
+<% if (md && md.keywords && md.keywords.length) { %>
+<div class="card">
+  <h3 style="margin-top:0">Keyword গুলো blurb-এ আছে কিনা</h3>
+  <p class="muted">যে keyword blurb-এ নেই, সেটি খোঁজে তেমন কাজে আসে না।</p>
+  <p>
+    <% md.keywords.forEach(function (k) {
+         const inBlurb = (md.blurb || '').toLowerCase().indexOf(String(k).toLowerCase()) !== -1; %>
+      <span class="pill <%= inBlurb ? 'good' : 'warn' %>" style="margin:0 .25rem .35rem 0"><%= k %></span>
+    <% }) %>
+  </p>
+</div>
+<% } %>
+
+<%- include('../partials/foot') %>

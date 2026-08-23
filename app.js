@@ -1,29 +1,42 @@
+require('dotenv').config();
+
 const express = require('express');
 const session = require('express-session');
 const { Client } = require('pg');
 const axios = require('axios');
 const googleBooks = require('google-books-search');
 const bodyParser = require('body-parser');
+const path = require('path');
+
+// --- Mudron 2.0 ---
+const { verifyPassword, hashPassword } = require('./middleware/auth');
+const studioRoutes = require('./routes/studio');
+const submissionRoutes = require('./routes/submissions');
+const communityRoutes = require('./routes/community');
+const langSvc = require('./services/lang');
 
 const app = express();
-const PORT = 3000;
+const PORT = parseInt(process.env.PORT || '3000', 10);
 
 app.use('/static', express.static('public'));
 app.use('/uploads', express.static('uploads'));
 
+// Bangla numerals are available to every template as bn().
+app.locals.bn = (n) => langSvc.toBanglaDigits(n == null ? 0 : n);
 
 app.use(session({
-  secret: 'your-secret-key',
+  secret: process.env.SESSION_SECRET || 'mudron-dev-secret-change-me',
   resave: false,
-  saveUninitialized: true,
+  saveUninitialized: false,
+  cookie: { httpOnly: true, sameSite: 'lax', maxAge: 7 * 24 * 60 * 60 * 1000 },
 }));
 
 const client = new Client({
-  user: 'postgres',
-  host: 'localhost',
-  database: 'Maindb',
-  password: '1234',
-  port: 5432,
+  user: process.env.PGUSER || 'postgres',
+  host: process.env.PGHOST || 'localhost',
+  database: process.env.PGDATABASE || 'Maindb',
+  password: process.env.PGPASSWORD || '1234',
+  port: parseInt(process.env.PGPORT || '5432', 10),
 });
 
 // Connect to the PostgreSQL database when the application starts
@@ -39,14 +52,20 @@ app.set('view engine', 'ejs');
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.urlencoded({ extended: true }));
 app.use('/static', express.static('node_modules/bootstrap/dist'));
-app.use(session({
-  secret: 'your-secret-key', // Change this to a secure random string
-  resave: false,
-  saveUninitialized: true
-}));
 
 app.get('/', (req, res) => {
   res.render('index');
+});
+
+// --- Mudron 2.0 routers ---------------------------------------------------
+// Order matters: studioRoutes ends with a catch-all '/:id', so every router
+// holding a more specific /studio/... path must be mounted before it.
+app.use('/studio', submissionRoutes);
+app.use('/', communityRoutes);
+app.use('/studio', studioRoutes);
+
+app.get('/author/logout', (req, res) => {
+  req.session.destroy(() => res.redirect('/'));
 });
 
 
@@ -106,14 +125,17 @@ app.post('/author/register', async (req, res) => {
   let { first_name, last_name, email, contact_no, gender, interested_genre, password } = req.body;
   console.log({ first_name, last_name, email, contact_no, gender, interested_genre, password });
 
+  // Store a bcrypt hash. The legacy password column is left NULL for new rows.
+  const password_hash = await hashPassword(password);
+
   const query = `
-    INSERT INTO Author (first_name, last_name, gender, email, contact_no, interested_genre, password)
+    INSERT INTO Author (first_name, last_name, gender, email, contact_no, interested_genre, password_hash)
     VALUES ($1, $2, $3, $4, $5, $6, $7)
     RETURNING *
   `;
 
   try {
-    const result = await client.query(query, [first_name, last_name, gender, email, contact_no, interested_genre, password]);
+    const result = await client.query(query, [first_name, last_name, gender, email, contact_no, interested_genre, password_hash]);
     console.log('Inserted data:', result.rows[0]);
     res.send({ success: true, message: 'Registration successful' });
   } catch (error) {
@@ -151,17 +173,12 @@ app.post('/author/login', async (req, res) => {
     }
 
     const user = result.rows[0];
-    req.session.authorId = user.id;
 
-    // Compare the provided password with the password in the database
-    if (user.password === password) {
-      // Passwords match, login successful
-      res.render('authorDashboard', {user });
-
+    if (await verifyPassword(user, password, 'author')) {
+      req.session.authorId = user.id;
+      res.render('authorDashboard', { user });
     } else {
-      // Passwords don't match
       res.status(401).send('Invalid email or password');
-
     }
   } catch (error) {
     console.error('Error retrieving user from the database:', error);
@@ -512,6 +529,32 @@ app.get('/publisher/login', (req, res) => {
   res.render('publisherLogin');
 });
 
+// --- Publisher registration (Mudron 2.0) ---------------------------------
+app.get('/publisher/register', (req, res) => {
+  res.render('roleRegister', {
+    role: 'publisher', title: 'প্রকাশক নিবন্ধন', action: '/publisher/register',
+    loginLink: '/publisher/login', error: null,
+  });
+});
+
+app.post('/publisher/register', async (req, res) => {
+  const { name, email, contact_no, password } = req.body;
+  try {
+    const password_hash = await hashPassword(password);
+    await client.query(
+      'INSERT INTO Publisher (name, email, contact_no, password_hash) VALUES ($1,$2,$3,$4)',
+      [name, email, contact_no, password_hash]
+    );
+    res.redirect('/publisher/login');
+  } catch (error) {
+    res.status(400).render('roleRegister', {
+      role: 'publisher', title: 'প্রকাশক নিবন্ধন', action: '/publisher/register',
+      loginLink: '/publisher/login',
+      error: /already exists/.test(error.message) ? 'এই ইমেইলে ইতিমধ্যে একটি অ্যাকাউন্ট আছে।' : 'নিবন্ধন ব্যর্থ হয়েছে।',
+    });
+  }
+});
+
 
 
 
@@ -565,11 +608,9 @@ GROUP BY a.id, a.first_name, a.last_name`;
     }
 
     const publisher = publisherResult.rows[0];
-    req.session.stored_publisher_Id = publisher.publisher_id;
-    
 
-    if (publisher.password === password) {
-      // Passwords match, login successful
+    if (await verifyPassword(publisher, password, 'publisher')) {
+      req.session.stored_publisher_Id = publisher.publisher_id;
       const mergedResult = await client.query(mergedQuery, [publisher.publisher_id]);
       const pendingResult = await client.query(pendingQuery, [publisher.publisher_id]);
       const result2 = await client.query(query2);
@@ -747,6 +788,31 @@ app.get('/editor/login', (req, res) => {
   res.render('editorLogin');
 });
 
+// --- Editor registration (Mudron 2.0) ------------------------------------
+app.get('/editor/register', (req, res) => {
+  res.render('roleRegister', {
+    role: 'editor', title: 'সম্পাদক নিবন্ধন', action: '/editor/register',
+    loginLink: '/editor/login', error: null,
+  });
+});
+
+app.post('/editor/register', async (req, res) => {
+  const { name, email, contact_no, password } = req.body;
+  try {
+    const password_hash = await hashPassword(password);
+    await client.query(
+      'INSERT INTO Editor (name, email, contact_no, password_hash) VALUES ($1,$2,$3,$4)',
+      [name, email, contact_no, password_hash]
+    );
+    res.redirect('/editor/login');
+  } catch (error) {
+    res.status(400).render('roleRegister', {
+      role: 'editor', title: 'সম্পাদক নিবন্ধন', action: '/editor/register',
+      loginLink: '/editor/login', error: 'নিবন্ধন ব্যর্থ হয়েছে।',
+    });
+  }
+});
+
 
 
 
@@ -780,11 +846,9 @@ WHERE
     }
 
     const editor = editorrResult.rows[0];
-    req.session.stored_editor_Id = editor.editor_id;
-    
 
-    if (editor.password === password) {
-      // Passwords match, login successful
+    if (await verifyPassword(editor, password, 'editor')) {
+      req.session.stored_editor_Id = editor.editor_id;
       const editResult = await client.query(editQuery, [editor.editor_id]);
     
       const edit_book = editResult.rows;
@@ -893,8 +957,10 @@ app.post('/online/author/login', async (req, res) => {
 
     const author = result.rows[0];
 
-    if (author.password === password) {
-      // Passwords match, login successful
+    // online_author stores the password in password_hash, not password — the
+    // original `author.password === password` compared an undefined column and
+    // could never succeed.
+    if (await verifyPassword(author, password)) {
       req.session.authorCode = author.author_code; // Store author code in the session
       try {
         // Assuming you're using session for authentication
@@ -1163,3 +1229,26 @@ app.get('/most_commented_books', async (req, res) => {
      res.status(500).send('Internal Server Error');
    }
  });*/
+
+// ---------------------------------------------------------------------------
+// Mudron 2.0 — error handling (registered last so it sees every route)
+// ---------------------------------------------------------------------------
+app.use((req, res) => {
+  res.status(404).render('error', {
+    title: 'পাতাটি পাওয়া যায়নি',
+    message: 'আপনি যে ঠিকানাটি খুঁজছেন সেটি নেই।',
+    link: '/',
+    linkText: 'হোমে ফিরুন',
+  });
+});
+
+app.use((err, req, res, next) => {
+  console.error('Unhandled error:', err);
+  const isUpload = err && (err.code === 'LIMIT_FILE_SIZE' || /আপলোড|ফাইল/.test(err.message || ''));
+  res.status(isUpload ? 400 : 500).render('error', {
+    title: isUpload ? 'ফাইলটি নেওয়া গেল না' : 'কিছু একটা ভুল হয়েছে',
+    message: isUpload ? err.message : 'সার্ভারে সমস্যা হয়েছে। আবার চেষ্টা করুন।',
+    link: '/studio',
+    linkText: 'স্টুডিওতে ফিরুন',
+  });
+});

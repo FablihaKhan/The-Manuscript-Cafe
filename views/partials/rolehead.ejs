@@ -1,0 +1,28 @@
+<%
+  // expects: role ('author'|'publisher'|'editor'|'reader'), roleLabel, pageTitle,
+  //          nav (array of {href,label}), userName (optional), logout (href optional)
+  const roleBn = { author:'লেখক', publisher:'প্রকাশক', editor:'সম্পাদক', reader:'পাঠক' }[role] || '';
+%><!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title><%= typeof pageTitle !== 'undefined' ? pageTitle : 'মুদ্রণ' %> · মুদ্রণ</title>
+  <link rel="stylesheet" href="/static/css/mudron.css">
+</head>
+<body>
+<nav class="topbar role-<%= role %>">
+  <span class="brand"><a href="/" style="color:inherit;text-decoration:none">মুদ্রণ</a></span>
+  <span class="role-badge"><%= roleBn %></span>
+  <% (typeof nav !== 'undefined' ? nav : []).forEach(function (n) { %>
+    <a href="<%= n.href %>"><%= n.label %></a>
+  <% }) %>
+  <span class="spacer"></span>
+  <% if (typeof userName !== 'undefined' && userName) { %>
+    <span class="muted" style="color:rgba(255,255,255,.75)"><%= userName %></span>
+  <% } %>
+  <% if (typeof logout !== 'undefined' && logout) { %>
+    <a href="<%= logout %>">লগআউট</a>
+  <% } %>
+</nav>
+<main class="wrap">

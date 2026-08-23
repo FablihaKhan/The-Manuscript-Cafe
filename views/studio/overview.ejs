@@ -1,0 +1,168 @@
+<%- include('../partials/head', { pageTitle }) %>
+
+<h1><%= ms.title %></h1>
+<p class="sub">
+  <%= ms.genre || 'ধরন দেওয়া হয়নি' %> ·
+  <%= bn(ms.word_count) %> শব্দ ·
+  <%= bn(ms.chapter_count) %> অধ্যায় ·
+  <%= ms.language === 'bn' ? 'বাংলা' : ms.language === 'en' ? 'ইংরেজি' : 'মিশ্র ভাষা' %>
+</p>
+
+<%- include('../partials/msnav', { ms, tab }) %>
+
+<!-- ================= Publishing Readiness ================= -->
+<div class="card">
+  <div class="score" style="margin-bottom:1.2rem">
+    <div class="dial" style="--v:<%= readiness.overall_pct %>;--dial:<%= readiness.overall_pct >= 85 ? 'var(--good)' : readiness.overall_pct >= 50 ? 'var(--warn)' : 'var(--bad)' %>">
+      <span><%= bn(readiness.overall_pct) %>%</span>
+    </div>
+    <div>
+      <h2 style="margin:0 0 .2rem">প্রকাশের প্রস্তুতি</h2>
+      <p style="margin:0"><%= readiness.verdict %></p>
+      <% if (readiness.blockers.length) { %>
+        <p class="muted" style="margin:.3rem 0 0">
+          <%= bn(readiness.blockers.length) %>টি কাজ বাকি আছে।
+        </p>
+      <% } %>
+    </div>
+  </div>
+
+  <div class="grid four">
+    <% const pillars = [
+        ['পাণ্ডুলিপি', readiness.manuscript_pct],
+        ['সম্পাদনা', readiness.editing_pct],
+        ['ফরম্যাটিং', readiness.formatting_pct],
+        ['প্রচ্ছদ', readiness.cover_pct],
+        ['Metadata', readiness.metadata_pct]
+      ]; %>
+    <% pillars.forEach(function (p) { %>
+      <div class="pillar">
+        <div class="row"><span><%= p[0] %></span><strong><%= bn(p[1]) %>%</strong></div>
+        <div class="bar <%= p[1] >= 80 ? 'good' : p[1] >= 45 ? 'warn' : 'bad' %>"><i style="width:<%= p[1] %>%"></i></div>
+      </div>
+    <% }) %>
+  </div>
+</div>
+
+<% if (readiness.blockers.length) { %>
+<div class="card">
+  <h2 style="margin-top:0">যেগুলো ঠিক করতে হবে</h2>
+  <% readiness.blockers.forEach(function (b, i) { %>
+    <div class="blocker">
+      <span class="n"><%= bn(i + 1) %></span>
+      <div style="flex:1">
+        <div><%= b.message %></div>
+        <div class="muted" style="font-size:.8rem"><%= b.pillar %></div>
+      </div>
+      <a class="btn small ghost" href="<%= b.link %>">ঠিক করুন</a>
+    </div>
+  <% }) %>
+</div>
+<% } %>
+
+<div class="grid two">
+  <!-- ================= Doctor summary ================= -->
+  <div class="card">
+    <h2 style="margin-top:0">Manuscript Doctor</h2>
+    <% if (analysis) { %>
+      <div class="score">
+        <div class="dial" style="--v:<%= analysis.health_score %>;--dial:<%= analysis.health_score >= 75 ? 'var(--good)' : analysis.health_score >= 50 ? 'var(--warn)' : 'var(--bad)' %>">
+          <span><%= bn(analysis.health_score) %></span><small>/১০০</small>
+        </div>
+        <div>
+          <p style="margin:0">শেষ বিশ্লেষণ: <%= new Date(analysis.run_at).toLocaleDateString('bn-BD') %></p>
+          <p class="muted" style="margin:.2rem 0">
+            ইঞ্জিন: <%= analysis.engine === 'hybrid' ? 'AI + heuristic' : 'heuristic' %>
+          </p>
+          <a class="btn small" href="/studio/<%= ms.manuscript_id %>/doctor">বিস্তারিত দেখুন</a>
+        </div>
+      </div>
+    <% } else { %>
+      <p class="muted">এখনো বিশ্লেষণ করা হয়নি।</p>
+      <form method="post" action="/studio/<%= ms.manuscript_id %>/doctor/run">
+        <button class="btn" type="submit">এখনই বিশ্লেষণ করুন</button>
+      </form>
+    <% } %>
+  </div>
+
+  <!-- ================= Cover ================= -->
+  <div class="card">
+    <h2 style="margin-top:0">প্রচ্ছদ</h2>
+    <% if (ms.cover_path) { %>
+      <img src="/<%= ms.cover_path %>" alt="প্রচ্ছদ" style="max-width:150px;border-radius:6px;border:1px solid var(--line)">
+    <% } else { %>
+      <p class="muted">প্রচ্ছদ আপলোড করা হয়নি।</p>
+    <% } %>
+    <form method="post" action="/studio/<%= ms.manuscript_id %>/cover" enctype="multipart/form-data">
+      <label for="cover">প্রচ্ছদ ছবি (JPG / PNG / WebP)</label>
+      <input id="cover" type="file" name="cover" accept="image/*" required>
+      <p style="margin:.7rem 0 0"><button class="btn small" type="submit">আপলোড</button></p>
+    </form>
+  </div>
+</div>
+
+<!-- ================= Chapters ================= -->
+<div class="card">
+  <h2 style="margin-top:0">অধ্যায়</h2>
+  <% if (!chapters.length) { %>
+    <p class="muted">কোনো অধ্যায় পাওয়া যায়নি।</p>
+  <% } else { %>
+    <table>
+      <thead><tr><th>শিরোনাম</th><th>শব্দ</th><th>দৈর্ঘ্য</th></tr></thead>
+      <tbody>
+        <% const maxW = Math.max.apply(null, chapters.map(function(c){return c.word_count||0;})) || 1; %>
+        <% chapters.forEach(function (c) { %>
+          <tr>
+            <td><%= c.title || ('অধ্যায় ' + bn(c.chapter_no)) %></td>
+            <td><%= bn(c.word_count) %></td>
+            <td style="width:40%">
+              <div class="bar"><i style="width:<%= Math.round((c.word_count / maxW) * 100) %>%"></i></div>
+            </td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  <% } %>
+</div>
+
+<!-- ================= Details form ================= -->
+<div class="card">
+  <h2 style="margin-top:0">বইয়ের তথ্য</h2>
+  <form method="post" action="/studio/<%= ms.manuscript_id %>/edit">
+    <div class="grid two">
+      <div>
+        <label for="title">নাম</label>
+        <input id="title" name="title" type="text" value="<%= ms.title %>" required>
+        <label for="subtitle">উপশিরোনাম</label>
+        <input id="subtitle" name="subtitle" type="text" value="<%= ms.subtitle || '' %>">
+        <label for="genre">ধরন</label>
+        <input id="genre" name="genre" type="text" value="<%= ms.genre || '' %>">
+      </div>
+      <div>
+        <label for="audience">পাঠক</label>
+        <select id="audience" name="audience">
+          <% ['adult','ya','children','academic'].forEach(function (a) { %>
+            <option value="<%= a %>" <%= ms.audience === a ? 'selected' : '' %>>
+              <%= { adult:'প্রাপ্তবয়স্ক', ya:'তরুণ (YA)', children:'শিশু-কিশোর', academic:'শিক্ষায়তনিক' }[a] %>
+            </option>
+          <% }) %>
+        </select>
+        <label for="language">ভাষা</label>
+        <select id="language" name="language">
+          <% ['bn','en','mixed'].forEach(function (l) { %>
+            <option value="<%= l %>" <%= ms.language === l ? 'selected' : '' %>>
+              <%= { bn:'বাংলা', en:'ইংরেজি', mixed:'মিশ্র' }[l] %>
+            </option>
+          <% }) %>
+        </select>
+        <label for="country">দেশ</label>
+        <input id="country" name="country" type="text" value="<%= ms.country || '' %>">
+      </div>
+    </div>
+    <label for="synopsis">সারসংক্ষেপ</label>
+    <textarea id="synopsis" name="synopsis"><%= ms.synopsis || '' %></textarea>
+    <p style="margin-top:1rem"><button class="btn" type="submit">সংরক্ষণ করুন</button></p>
+  </form>
+</div>
+
+<%- include('../partials/foot') %>

@@ -1,0 +1,68 @@
+<%- include('../partials/head', { pageTitle }) %>
+
+<h1>প্রকাশক ও সাহিত্য-এজেন্ট মিল</h1>
+<p class="sub">ধরন, ভাষা, পাঠক, শব্দসংখ্যা, দেশ এবং এই প্ল্যাটফর্মে তাদের অনুমোদনের রেকর্ড — ছয়টি বিষয় মিলিয়ে স্কোর।</p>
+
+<%- include('../partials/msnav', { ms, tab }) %>
+
+<div class="tabs">
+  <a href="?type=all" class="<%= filter === 'all' ? 'on' : '' %>">সবাই</a>
+  <a href="?type=publisher" class="<%= filter === 'publisher' ? 'on' : '' %>">প্রকাশক</a>
+  <a href="?type=agent" class="<%= filter === 'agent' ? 'on' : '' %>">এজেন্ট</a>
+</div>
+
+<% if (!matches.length) { %>
+  <div class="card empty">
+    <p>কোনো মিল পাওয়া যায়নি।</p>
+    <p class="muted">প্রকাশকদের প্রোফাইলে ধরন ও ভাষা যোগ করা না থাকলে মিল বের করা যায় না।</p>
+  </div>
+<% } %>
+
+<div class="grid two">
+<% matches.forEach(function (m) {
+     const sent = submitted.get(Number(m.publisher_id)); %>
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;gap:1rem;align-items:flex-start">
+      <div>
+        <h3 style="margin:0"><%= m.name %></h3>
+        <div class="muted">
+          <%= m.is_agent ? 'সাহিত্য এজেন্ট' : 'প্রকাশক' %> ·
+          সাধারণত <%= bn(m.response_days) %> দিনে উত্তর দেন
+        </div>
+      </div>
+      <div class="dial" style="width:64px;height:64px;flex:0 0 64px;--v:<%= m.score %>;--dial:<%= m.score >= 80 ? 'var(--good)' : m.score >= 55 ? 'var(--warn)' : 'var(--bad)' %>">
+        <span style="font-size:1rem"><%= bn(m.score) %>%</span>
+      </div>
+    </div>
+
+    <div style="margin-top:.8rem">
+      <% m.reasons.forEach(function (r) { %>
+        <div style="display:flex;justify-content:space-between;gap:.6rem;font-size:.86rem;padding:.15rem 0">
+          <span class="muted"><%= r.reason %></span>
+          <span class="<%= r.earned >= r.max * 0.8 ? '' : 'muted' %>"><%= bn(r.earned) %>/<%= bn(r.max) %></span>
+        </div>
+      <% }) %>
+    </div>
+
+    <% if (m.guidelines) { %>
+      <div class="notice" style="margin-top:.8rem;font-size:.87rem"><strong>তাদের শর্ত:</strong> <%= m.guidelines %></div>
+    <% } %>
+
+    <p style="margin:.9rem 0 0">
+      <% if (sent) { %>
+        <span class="pill good">পাঠানো হয়েছে — <%= statusLabels[sent] || sent %></span>
+        <a class="btn small ghost" href="/studio/<%= ms.manuscript_id %>/submissions">ট্র্যাকারে দেখুন</a>
+      <% } else { %>
+        <form method="post" action="/studio/<%= ms.manuscript_id %>/submissions/create" style="display:inline">
+          <input type="hidden" name="publisher_id" value="<%= m.publisher_id %>">
+          <input type="hidden" name="back" value="/studio/<%= ms.manuscript_id %>/matches">
+          <button class="btn small" type="submit">এখানে পাঠান</button>
+        </form>
+        <a class="btn small ghost" href="/studio/<%= ms.manuscript_id %>/package">প্যাকেজ দেখুন</a>
+      <% } %>
+    </p>
+  </div>
+<% }) %>
+</div>
+
+<%- include('../partials/foot') %>

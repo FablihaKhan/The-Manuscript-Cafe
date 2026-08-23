@@ -1,0 +1,27 @@
+<%- include('../partials/head', { pageTitle, narrow: true }) %>
+
+<div class="card" style="text-align:center;padding:2.2rem 1.5rem">
+  <% if (ubl.cover_path) { %>
+    <img src="/<%= ubl.cover_path %>" alt="<%= ubl.title %>"
+         style="max-width:220px;border-radius:8px;border:1px solid var(--line);margin-bottom:1.2rem">
+  <% } %>
+  <h1><%= ubl.title %></h1>
+  <% if (ubl.blurb) { %>
+    <p class="sub" style="text-align:justify;max-width:34rem;margin:1rem auto 2rem"><%= ubl.blurb %></p>
+  <% } %>
+
+  <% if (!retailers.length) { %>
+    <p class="muted">এখনো কোনো দোকানের লিংক যোগ করা হয়নি।</p>
+  <% } else { %>
+    <h2 style="margin-top:0">কোথা থেকে কিনবেন</h2>
+    <div style="display:flex;flex-direction:column;gap:.6rem;max-width:22rem;margin:0 auto">
+      <% retailers.forEach(function (r) { %>
+        <a class="btn" href="/b/<%= ubl.slug %>/go/<%= r.retailer_id %>" rel="nofollow noopener">
+          <%= r.retailer %> <span style="opacity:.7;font-size:.85em">· <%= r.region %></span>
+        </a>
+      <% }) %>
+    </div>
+  <% } %>
+</div>
+
+<%- include('../partials/foot') %>

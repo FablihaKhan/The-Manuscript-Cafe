@@ -1,106 +1,62 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>User Login</title>
-    <!-- Link to Bootstrap CSS -->
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <style>
-        body {
-            margin: 0;
-            font-family: Arial, sans-serif;
-            background-image: url('background-image.jpg');
-            background-size: cover;
-            background-position: center;
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-        }
+<%- include('partials/rolehead', {
+  role: 'author', pageTitle: 'লেখক ড্যাশবোর্ড',
+  userName: (user.first_name || '') + ' ' + (user.last_name || ''),
+  logout: '/author/logout',
+  nav: [
+    { href: '/studio', label: 'স্টুডিও' },
+    { href: '/author/request', label: 'প্রকাশ-অনুরোধ' },
+    { href: '/author/book_status', label: 'বইয়ের অবস্থা' },
+    { href: '/author/edit', label: 'প্রোফাইল' }
+  ]
+}) %>
 
-        .navbar {
-            position: fixed;
-            top: 0;
-            width: 100%;
-            z-index: 1000;
-        }
+<h1>স্বাগতম, <%= user.first_name %> <%= user.last_name %></h1>
+<p class="sub">লেখক হিসেবে আপনার সব কাজ এক জায়গায়।</p>
 
-        .dashboard-container {
-            max-width: 800px;
-            width: 100%;
-            padding: 20px;
-            margin-top: 70px; /* Adjusted margin-top to give space for the fixed navbar */
-            border: 1px solid #ccc;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            background-color: #fff;
-        }
-
-        .nav-tabs {
-            margin-bottom: 20px;
-        }
-
-        .nav-item {
-            margin-right: 10px;
-        }
-
-        .nav-link {
-            color: #000;
-        }
-
-        .nav-link.active {
-            font-weight: bold;
-            color: #007bff;
-        }
-
-        .card {
-            width: 100%; /* Make the card width match the width of the dashboard container */
-        }
-    </style>
-</head>
-<body>
-
-<nav class="navbar navbar-expand-lg navbar-light bg-light">
-    <div class="container">
-        <a class="navbar-brand" href="#">Author Profile</a>
-        <ul class="navbar-nav ml-auto">
-            <li class="nav-item">
-                <a class="nav-link active" aria-current="page" href="/">Home</a>
-            </li>
-            <li class="nav-item">
-                <a href="/author/edit" class="nav-link">Edit Profile</a>
-            </li>
-            <li class="nav-item">
-                <a href="/author/search" class="nav-link">SEARCH FOR YOUR BOOK</a>
-            </li>
-        </ul>
-    </div>
-</nav>
-
-<div class="dashboard-container">
-    <h1 class="text-center mb-4">Author Profile</h1>
-
-    <!-- Dynamically generate cards based on data from the database -->
-    <div class="card">
-        <img src="/uploads/author.jpg" class="card-img-top" alt="Author Image">
-        <div class="card-body">
-          <h5 class="card-title"><%= user.first_name %> <%= user.last_name %></h5>
-          <p class="card-text">Gender: <%= user.gender %></p>
-          <p class="card-text">Email: <%= user.email %></p>
-          <p class="card-text">Contact No: <%= user.contact_no %></p>
-          <p class="card-text">Genre: <%= user.interested_genre %></p>
-    
-          <a href="/author/request" class="btn btn-danger">Make Request to Publisher</a>
-          <a href="/author/book_status" class="btn btn-danger">Book Status</a>
-        </div>
-    </div>
+<div class="taskbar author">
+  <div style="flex:1">
+    <div class="tb-title">✍️ লেখকের দায়িত্ব</div>
+    <ul>
+      <li>পাণ্ডুলিপি লেখা ও আপলোড করা</li>
+      <li>Manuscript Doctor দিয়ে যাচাই করা</li>
+      <li>ফরম্যাট, প্রচ্ছদ ও Metadata তৈরি</li>
+      <li>উপযুক্ত প্রকাশক খুঁজে সাবমিশন</li>
+      <li>বিটা রিডার ও পেশাজীবী নিয়োগ</li>
+      <li>বিক্রয় ও পাঠক বিশ্লেষণ দেখা</li>
+    </ul>
+  </div>
 </div>
 
-<!-- Link to Bootstrap JS and Popper.js (if needed for Bootstrap's JavaScript features) -->
-<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.0.8/dist/umd/popper.min.js"></script>
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-</body>
-</html>
+<div class="grid two">
+  <div class="card">
+    <h2 style="margin-top:0">🖋️ রাইটার্স স্টুডিও</h2>
+    <p class="muted">পাণ্ডুলিপি থেকে প্রকাশ পর্যন্ত সম্পূর্ণ যাত্রা — ডক্টর, প্রস্তুতি স্কোর, ফরম্যাট, প্রকাশক মিল, ট্র্যাকার।</p>
+    <a class="btn" href="/studio">স্টুডিওতে যান</a>
+    <a class="btn ghost" href="/studio/upload">নতুন পাণ্ডুলিপি</a>
+  </div>
+
+  <div class="card">
+    <h2 style="margin-top:0">📮 প্রথাগত প্রকাশ-অনুরোধ</h2>
+    <p class="muted">সরাসরি প্রকাশকের কাছে প্রকাশের অনুরোধ পাঠান ও অবস্থা দেখুন।</p>
+    <a class="btn ghost" href="/author/request">প্রকাশকের কাছে অনুরোধ</a>
+    <a class="btn ghost" href="/author/book_status">বইয়ের অবস্থা</a>
+    <a class="btn ghost" href="/author/search">আমার বই খুঁজুন</a>
+  </div>
+</div>
+
+<div class="card">
+  <h2 style="margin-top:0">আমার পরিচিতি</h2>
+  <div class="grid two">
+    <div>
+      <p class="muted" style="margin:.2rem 0">নাম</p><strong><%= user.first_name %> <%= user.last_name %></strong>
+      <p class="muted" style="margin:.8rem 0 .2rem">ইমেইল</p><strong><%= user.email %></strong>
+    </div>
+    <div>
+      <p class="muted" style="margin:.2rem 0">যোগাযোগ</p><strong><%= user.contact_no || '—' %></strong>
+      <p class="muted" style="margin:.8rem 0 .2rem">পছন্দের ধরন</p><strong><%= user.interested_genre || '—' %></strong>
+    </div>
+  </div>
+  <p style="margin-top:1rem"><a class="btn ghost" href="/author/edit">প্রোফাইল সম্পাদনা</a></p>
+</div>
+
+<%- include('partials/foot') %>

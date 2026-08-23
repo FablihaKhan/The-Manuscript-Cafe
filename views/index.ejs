@@ -1,191 +1,118 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="bn">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Your Express.js App with Bootstrap</title>
-
-    <!-- Link to Bootstrap CSS -->
-    <link rel="stylesheet" href="/static/css/bootstrap.min.css">
-    
-    <!-- Link to Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-
-    <style>
-        /* Navbar styling */
-        .navbar {
-            background-color: #343a40; /* Dark background color */
-        }
-
-        .navbar-brand {
-            color: white !important; /* White text color for brand */
-        }
-
-        .navbar-nav .nav-link {
-            color: white !important; /* White text color for links */
-        }
-
-        .navbar-nav .nav-link.active {
-            font-weight: bold; /* Bold font for active link */
-        }
-
-        /* Homepage styling */
-        body {
-            background-image: url('your-background-image.jpg'); /* Replace 'your-background-image.jpg' with your image path */
-            background-size: cover;
-            background-position: center;
-            color: white; /* White text color for contrast */
-        }
-
-        .center {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    height: 50vh;
-    text-align: center;
-    padding: 20px; /* Adjust padding as needed */
-}
-
-
-        .btn-container {
-            margin-top: 10px;
-        }
-
-        /* Additional styles */
-        .jumbotron {
-            background-color: rgba(0,0,0,0.5); /* Semi-transparent background for better readability */
-        }
-
-        /* Animation container */
-
-        /* Animation keyframes */
-        @keyframes slideInFromRight {
-            0% { transform: translateX(100%); opacity: 0; }
-            45% { transform: translateX(0); opacity: 1; }
-            55% { transform: translateX(0); opacity: 1; }
-            100% { transform: translateX(-100%); opacity: 0; }
-        }
-
-        /* Continuous animation */
-        .animation-container img {
-            animation: slideInFromRight 6s ease-in-out infinite; /* Apply continuous animation */
-        }
-
-        .logo {
-            height: auto;
-            margin-bottom: 5px;
-            width: 200px;
-        }
-
-        .logo:nth-child(2) {
-            animation-delay: 3s; /* Delay the animation of the second logo */
-        }
-
-        .custom-search-form {
-            flex: 1; /* This will make the search bar take up remaining space */
-            max-width: 400px; /* Set a maximum width for the search bar */
-        }
-        /* Image container styles */
-.image-container {
-    display: flex;
-    justify-content: space-around;
-    align-items: center;
-    margin-bottom: 20px; /* Adjust margin as needed */
-}
-
-.image-container img {
-    width: 600px; /* Adjust image width as needed */
-    height: auto;
-    margin-right: 10px; /* Adjust margin between images */
-}
-    </style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>মুদ্রণ — পাণ্ডুলিপি থেকে প্রকাশিত বই</title>
+  <link rel="stylesheet" href="/static/css/mudron.css">
 </head>
 <body>
 
-<!-- Navbar -->
-<nav class="navbar navbar-expand-lg navbar-light" style="background-color: #343a40;">
-    <div class="container-fluid">
-        <a class="navbar-brand" href="#">
-            Navbar
-        </a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
-            <div class="navbar-nav me-auto">
-                <a class="nav-link active" aria-current="page" href="#">Home</a>
-                <a class="nav-link" href="#">Features</a>
-                <a class="nav-link" href="/statistics">Statistics</a>
-            </div>
-            <form class="d-flex custom-search-form"> <!-- Added custom-search-form class -->
-                <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
-                <button class="btn btn-outline-light" type="submit">Search</button>
-            </form>
-            
-            <div class="navbar-nav ms-auto">
-                <a class="nav-link" href="#"><i class="fab fa-facebook-f"></i></a> <!-- Added Font Awesome icon classes -->
-                <a class="nav-link" href="#"><i class="fab fa-twitter"></i></a> <!-- Added Font Awesome icon classes -->
-            </div>
-        </div>
-    </div>
+<nav class="topbar">
+  <span class="brand">মুদ্রণ</span>
+  <a href="/">হোম</a>
+  <a href="/statistics">পরিসংখ্যান</a>
+  <a href="/marketplace">পেশাজীবী</a>
+  <a href="/online_books">অনলাইন বই</a>
 </nav>
 
-<div class="jumbotron" style="background-color: #f8f9fa; padding: 50px; border-radius: 15px; box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); text-align: center;">
-    <div class="animation-container center">
-        <img src="/uploads/logo.jpg" alt="Logo 1" class="logo" id="first">
+<div class="hero">
+  <img src="/uploads/logo.jpg" alt="মুদ্রণ" class="logo">
+  <h1>মুদ্রণ</h1>
+  <p class="tag">পাণ্ডুলিপি থেকে প্রকাশিত বই পর্যন্ত — লেখক, প্রকাশক, সম্পাদক ও পাঠকের একই মঞ্চ।</p>
+  <p class="sub-tag">আপনি কে? নিচ থেকে আপনার ভূমিকা বেছে নিন।</p>
+</div>
+
+<main class="wrap">
+  <div class="roles">
+
+    <!-- ============ AUTHOR ============ -->
+    <div class="role-card author">
+      <div class="cap">
+        <div class="emoji">✍️</div>
+        <h3>লেখক</h3>
+        <div class="en">Author</div>
+      </div>
+      <ul class="tasks">
+        <li>পাণ্ডুলিপি লেখা ও আপলোড করা</li>
+        <li>Manuscript Doctor ও প্রস্তুতি স্কোর</li>
+        <li>EPUB/PDF ফরম্যাট ও Metadata</li>
+        <li>উপযুক্ত প্রকাশক/এজেন্ট খুঁজে সাবমিশন</li>
+        <li>বিটা রিডার, পেশাজীবী ও বিক্রয় বিশ্লেষণ</li>
+      </ul>
+      <div class="actions">
+        <a class="btn role-btn" href="/author/login">লগইন</a>
+        <a class="btn role-ghost" href="/author/register">নিবন্ধন</a>
+      </div>
     </div>
-    <h1 class="display-4" style="font-family: 'Arial', sans-serif; color: #DC143C; text-shadow: 2px 2px 4px #000000;">MUDRON</h1>
-    <p class="lead" style="font-size: 18px; color: #FF5733;">Thank you for visiting our website. We are dedicated to improving the book publishing and reading experience for all our users.</p>
-</div>
 
-<div class="image-container">
-    <img src="/uploads/publish.png" alt="Image 1">
-    <img src="/uploads/subs.png" alt="Image 2">
-</div>
-
-<div class="center">
-    <div class="btn-group btn-container">
-        <button type="button" class="btn btn-danger dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">Login As</button>
-        <ul class="dropdown-menu">
-            <li><a class="dropdown-item" href="/sub_or_login" data-role="Reader">Reader</a></li>
-            <li><a class="dropdown-item" href="/author/login">Author</a></li>
-            <li><a class="dropdown-item" href="/publisher/login">Publisher</a></li>
-            <li><a class="dropdown-item" href="/editor/login">Editor</a></li>
-        </ul>
+    <!-- ============ PUBLISHER ============ -->
+    <div class="role-card publisher">
+      <div class="cap">
+        <div class="emoji">🏢</div>
+        <h3>প্রকাশক</h3>
+        <div class="en">Publisher</div>
+      </div>
+      <ul class="tasks">
+        <li>লেখকের প্রকাশ-অনুরোধ পর্যালোচনা</li>
+        <li>পাণ্ডুলিপি অনুমোদন বা প্রত্যাখ্যান</li>
+        <li>অনুমোদিত বই সম্পাদকের কাছে পাঠানো</li>
+        <li>ধরন অনুযায়ী অনুরোধ খোঁজা</li>
+        <li>শীর্ষ লেখক ও আর্থিক পরিসংখ্যান</li>
+      </ul>
+      <div class="actions">
+        <a class="btn role-btn" href="/publisher/login">লগইন</a>
+        <a class="btn role-ghost" href="/publisher/register">নিবন্ধন</a>
+      </div>
     </div>
 
-    <div class="btn-group btn-container">
-        <button type="button" class="btn btn-danger dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">Register As</button>
-        <ul class="dropdown-menu">
-            <li><a class="dropdown-item" href="/reader/register">Reader</a></li>
-            <li><a class="dropdown-item" href="/author/register">Author</a></li>
-            <li><a class="dropdown-item" href="/publisher/register">Publisher</a></li>
-            <li><a class="dropdown-item" href="/editor/register">Editor</a></li>
-        </ul>
-    </div> 
-</div>
+    <!-- ============ EDITOR ============ -->
+    <div class="role-card editor">
+      <div class="cap">
+        <div class="emoji">📝</div>
+        <h3>সম্পাদক</h3>
+        <div class="en">Editor</div>
+      </div>
+      <ul class="tasks">
+        <li>প্রকাশকের পাঠানো বই সম্পাদনা</li>
+        <li>সম্পাদনার অবস্থা হালনাগাদ করা</li>
+        <li>ডেডলাইন অনুযায়ী কাজ শেষ করা</li>
+        <li>সম্পাদিত বই ফেরত পাঠানো</li>
+      </ul>
+      <div class="actions">
+        <a class="btn role-btn" href="/editor/login">লগইন</a>
+        <a class="btn role-ghost" href="/editor/register">নিবন্ধন</a>
+      </div>
+    </div>
 
+    <!-- ============ READER ============ -->
+    <div class="role-card reader">
+      <div class="cap">
+        <div class="emoji">📖</div>
+        <h3>পাঠক</h3>
+        <div class="en">Reader</div>
+      </div>
+      <ul class="tasks">
+        <li>সাবস্ক্রিপশন নিয়ে অনলাইন বই পড়া</li>
+        <li>নাম বা ধরন দিয়ে বই খোঁজা</li>
+        <li>রেটিং ও রিভিউ দেওয়া</li>
+        <li>পছন্দের তালিকা তৈরি করা</li>
+      </ul>
+      <div class="actions">
+        <a class="btn role-btn" href="/sub_or_login">শুরু করুন</a>
+        <a class="btn role-ghost" href="/online_books">বই দেখুন</a>
+      </div>
+    </div>
 
+  </div>
 
+  <p class="muted" style="text-align:center;margin-top:2rem">
+    প্রতিটি ভূমিকার আলাদা ড্যাশবোর্ড ও দায়িত্ব রয়েছে — লগইন করলে শুধু আপনার কাজগুলোই দেখবেন।
+  </p>
+</main>
 
-
-<!-- Homepage Content -->
-
-
-<!-- Link to Bootstrap JS and Popper.js -->
-<script src="/static/js/bootstrap.bundle.min.js"></script>
-<script>
-    // JavaScript to handle animation
-    const firstLogo = document.getElementById('first');
-    const secondLogo = document.getElementById('second');
-
-    firstLogo.addEventListener('animationend', () => {
-        firstLogo.style.display = 'none'; // Hide the first logo when animation ends
-        secondLogo.style.display = 'inline-block'; // Show the second logo
-        secondLogo.style.animation = 'slideInFromRight 6s ease-in-out infinite'; // Apply animation to the second logo
-    });
-</script>
-
+<footer class="site">
+  মুদ্রণ — পাণ্ডুলিপি থেকে প্রকাশিত বই পর্যন্ত লেখকের সহযাত্রী।
+</footer>
 </body>
 </html>

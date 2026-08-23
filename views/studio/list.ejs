@@ -1,0 +1,78 @@
+<%- include('../partials/head', { pageTitle }) %>
+
+<h1>আমার পাণ্ডুলিপি</h1>
+<p class="sub">
+  পাণ্ডুলিপি থেকে প্রকাশিত বই পর্যন্ত প্রতিটি ধাপ এখান থেকে চালান।
+  <% if (!aiOn) { %><span class="pill grey">AI বন্ধ — heuristic ইঞ্জিন চলছে</span><% } %>
+</p>
+
+<div class="flow">
+  <span class="step">লেখা / আপলোড</span> →
+  <span class="step">ডক্টর</span> →
+  <span class="step">বিটা রিডার</span> →
+  <span class="step">প্রস্তুতি স্কোর</span> →
+  <span class="step">ফরম্যাট</span> →
+  <span class="step">প্রচ্ছদ ও Metadata</span> →
+  <span class="step">প্রকাশক মিল</span> →
+  <span class="step">ট্র্যাকার</span> →
+  <span class="step">প্রকাশ ও বিপণন</span>
+</div>
+
+<p><a class="btn" href="/studio/upload">নতুন পাণ্ডুলিপি আপলোড</a></p>
+
+<% if (!manuscripts.length) { %>
+  <div class="card empty">
+    <p>এখনো কোনো পাণ্ডুলিপি নেই।</p>
+    <p class="muted">DOCX, TXT বা Markdown ফাইল আপলোড করলে মুদ্রণ নিজে থেকেই অধ্যায় আলাদা করে নেবে।</p>
+  </div>
+<% } else { %>
+  <div class="grid two">
+  <% manuscripts.forEach(function (m) { %>
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;gap:1rem;align-items:flex-start">
+        <div>
+          <h3 style="margin:0"><a href="/studio/<%= m.manuscript_id %>"><%= m.title %></a></h3>
+          <div class="muted">
+            <%= m.genre || 'ধরন দেওয়া হয়নি' %> ·
+            <%= bn(m.word_count) %> শব্দ ·
+            <%= bn(m.chapter_count) %> অধ্যায় ·
+            <%= m.language === 'bn' ? 'বাংলা' : m.language === 'en' ? 'ইংরেজি' : 'মিশ্র' %>
+          </div>
+        </div>
+        <span class="pill <%= m.status === 'published' ? 'good' : m.status === 'submitted' ? 'warn' : 'grey' %>">
+          <%= { draft:'খসড়া', analyzed:'বিশ্লেষিত', formatted:'ফরম্যাট হয়েছে', submitted:'পাঠানো হয়েছে', published:'প্রকাশিত' }[m.status] || m.status %>
+        </span>
+      </div>
+
+      <div class="grid two" style="margin-top:.9rem;gap:.7rem">
+        <div>
+          <div class="row" style="display:flex;justify-content:space-between;font-size:.85rem">
+            <span>Health Score</span><strong><%= m.health_score !== null ? bn(m.health_score) + '/১০০' : '—' %></strong>
+          </div>
+          <div class="bar <%= m.health_score >= 75 ? 'good' : m.health_score >= 50 ? 'warn' : 'bad' %>">
+            <i style="width:<%= m.health_score || 0 %>%"></i>
+          </div>
+        </div>
+        <div>
+          <div class="row" style="display:flex;justify-content:space-between;font-size:.85rem">
+            <span>প্রস্তুতি</span><strong><%= m.readiness_pct !== null ? bn(m.readiness_pct) + '%' : '—' %></strong>
+          </div>
+          <div class="bar <%= m.readiness_pct >= 85 ? 'good' : m.readiness_pct >= 50 ? 'warn' : 'bad' %>">
+            <i style="width:<%= m.readiness_pct || 0 %>%"></i>
+          </div>
+        </div>
+      </div>
+
+      <p style="margin:.9rem 0 0">
+        <a class="btn small ghost" href="/studio/<%= m.manuscript_id %>/doctor">ডক্টর</a>
+        <a class="btn small ghost" href="/studio/<%= m.manuscript_id %>/matches">প্রকাশক মিল</a>
+        <a class="btn small ghost" href="/studio/<%= m.manuscript_id %>/submissions">
+          ট্র্যাকার<% if (Number(m.submission_count)) { %> (<%= bn(m.submission_count) %>)<% } %>
+        </a>
+      </p>
+    </div>
+  <% }) %>
+  </div>
+<% } %>
+
+<%- include('../partials/foot') %>

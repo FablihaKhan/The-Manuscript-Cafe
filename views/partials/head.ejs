@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title><%= typeof pageTitle !== 'undefined' ? pageTitle : 'মুদ্রণ' %> · মুদ্রণ</title>
+  <link rel="stylesheet" href="/static/css/mudron.css">
+</head>
+<body>
+<nav class="topbar">
+  <span class="brand"><a href="/" style="color:inherit;text-decoration:none">মুদ্রণ</a></span>
+  <a href="/studio">স্টুডিও</a>
+  <a href="/studio/upload">পাণ্ডুলিপি আপলোড</a>
+  <a href="/marketplace">পেশাজীবী</a>
+  <a href="/studio/analytics">বিক্রয় বিশ্লেষণ</a>
+  <span class="spacer"></span>
+  <% if (typeof authorName !== 'undefined' && authorName) { %>
+    <span class="muted" style="color:#bdb4a0"><%= authorName %></span>
+    <a href="/author/logout">লগআউট</a>
+  <% } else { %>
+    <a href="/author/login">লগইন</a>
+  <% } %>
+</nav>
+<main class="wrap<%= typeof narrow !== 'undefined' && narrow ? ' narrow' : '' %>">

@@ -1,0 +1,7 @@
+node_modules/
+.env
+uploads/manuscripts/
+uploads/covers/
+uploads/formatted/
+npm-debug.log*
+*.log

@@ -1,0 +1,80 @@
+<%- include('../partials/head', { pageTitle }) %>
+
+<h1>ইউনিভার্সাল বুক লিংক</h1>
+<p class="sub">একটি লিংক — পাঠক যেখান থেকে খুশি বইটি কিনবেন। কোন দোকান থেকে কত ক্লিক এসেছে, তাও দেখা যাবে।</p>
+
+<%- include('../partials/msnav', { ms, tab }) %>
+
+<div class="card">
+  <form method="post" action="/studio/<%= ms.manuscript_id %>/link/create">
+    <label for="slug">লিংকের ঠিকানা</label>
+    <div style="display:flex;gap:.5rem;align-items:center;flex-wrap:wrap">
+      <span class="muted mono"><%= baseUrl %>/b/</span>
+      <input id="slug" name="slug" type="text" value="<%= ubl ? ubl.slug : '' %>"
+             placeholder="<%= ms.title %>" style="flex:1;min-width:12rem">
+      <button class="btn" type="submit"><%= ubl ? 'হালনাগাদ করুন' : 'লিংক তৈরি করুন' %></button>
+    </div>
+  </form>
+
+  <% if (ubl) { %>
+    <p style="margin:1rem 0 0">
+      <input class="mono" type="text" readonly value="<%= baseUrl %>/b/<%= ubl.slug %>" onclick="this.select()">
+      <a class="btn small ghost" href="/b/<%= ubl.slug %>" target="_blank" style="margin-top:.5rem">পাতাটি দেখুন</a>
+    </p>
+  <% } %>
+</div>
+
+<% if (ubl) { %>
+<div class="grid two">
+  <div class="card">
+    <h2 style="margin-top:0">দোকান যোগ করুন</h2>
+    <form method="post" action="/studio/<%= ms.manuscript_id %>/link/retailer">
+      <label for="retailer">দোকানের নাম</label>
+      <input id="retailer" name="retailer" type="text" placeholder="রকমারি, Amazon, বইঘর…" required>
+      <label for="url">লিংক</label>
+      <input id="url" name="url" type="url" placeholder="https://…" required>
+      <div class="grid two">
+        <div>
+          <label for="region">অঞ্চল</label>
+          <input id="region" name="region" type="text" value="BD">
+        </div>
+        <div>
+          <label for="sort_order">ক্রম</label>
+          <input id="sort_order" name="sort_order" type="number" value="0">
+        </div>
+      </div>
+      <p style="margin-top:1rem"><button class="btn small" type="submit">যোগ করুন</button></p>
+    </form>
+  </div>
+
+  <div class="card">
+    <h2 style="margin-top:0">ক্লিক</h2>
+    <% if (!clicks.length) { %>
+      <p class="muted">এখনো কোনো ক্লিক আসেনি।</p>
+    <% } else {
+         const total = clicks.reduce(function (s, c) { return s + c.n; }, 0); %>
+      <p><strong><%= bn(total) %></strong> মোট ক্লিক</p>
+      <% clicks.forEach(function (c) { %>
+        <div class="pillar">
+          <div class="row"><span><%= c.retailer %></span><strong><%= bn(c.n) %></strong></div>
+          <div class="bar"><i style="width:<%= Math.round((c.n / total) * 100) %>%"></i></div>
+        </div>
+      <% }) %>
+    <% } %>
+
+    <% if (retailers.length) { %>
+      <h3>যুক্ত দোকান</h3>
+      <table>
+        <tbody>
+          <% retailers.forEach(function (r) { %>
+            <tr><td><%= r.retailer %></td><td class="muted"><%= r.region %></td>
+                <td class="mono" style="font-size:.75rem;word-break:break-all"><%= r.url %></td></tr>
+          <% }) %>
+        </tbody>
+      </table>
+    <% } %>
+  </div>
+</div>
+<% } %>
+
+<%- include('../partials/foot') %>

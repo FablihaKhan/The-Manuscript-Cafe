@@ -1,0 +1,76 @@
+<%- include('../partials/head', { pageTitle }) %>
+
+<h1>পেশাজীবী মার্কেটপ্লেস</h1>
+<p class="sub">সম্পাদক, প্রুফরিডার, প্রচ্ছদশিল্পী, অনুবাদক ও বিপণনকারী — বাংলা বইয়ে অভিজ্ঞ।</p>
+
+<div class="tabs">
+  <a href="/marketplace" class="<%= !role ? 'on' : '' %>">সবাই</a>
+  <a href="/marketplace?role=editor" class="<%= role === 'editor' ? 'on' : '' %>">সম্পাদক</a>
+  <a href="/marketplace?role=proofreader" class="<%= role === 'proofreader' ? 'on' : '' %>">প্রুফরিডার</a>
+  <a href="/marketplace?role=cover_designer" class="<%= role === 'cover_designer' ? 'on' : '' %>">প্রচ্ছদশিল্পী</a>
+  <a href="/marketplace?role=translator" class="<%= role === 'translator' ? 'on' : '' %>">অনুবাদক</a>
+  <a href="/marketplace?role=marketer" class="<%= role === 'marketer' ? 'on' : '' %>">বিপণন</a>
+</div>
+
+<% if (!pros.length) { %>
+  <div class="card empty"><p>এই ধরনের কেউ এখন নেই।</p></div>
+<% } %>
+
+<div class="grid two">
+<% const roleLabel = { editor:'সম্পাদক', proofreader:'প্রুফরিডার', cover_designer:'প্রচ্ছদশিল্পী',
+                       translator:'অনুবাদক', marketer:'বিপণন', illustrator:'চিত্রশিল্পী' };
+   pros.forEach(function (p) { %>
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;gap:1rem;align-items:flex-start">
+      <div>
+        <h3 style="margin:0"><%= p.name %></h3>
+        <div class="muted">
+          <%= roleLabel[p.role] || p.role %> ·
+          <%= (p.languages || []).map(function (l) { return l === 'bn' ? 'বাংলা' : 'ইংরেজি'; }).join(', ') %>
+        </div>
+      </div>
+      <div style="text-align:right">
+        <div><strong>৳<%= bn(Math.round(Number(p.rate || 0))) %></strong></div>
+        <div class="muted" style="font-size:.78rem">
+          <%= p.rate_unit === 'per_1000_words' ? 'প্রতি ১০০০ শব্দ' : p.rate_unit %>
+        </div>
+      </div>
+    </div>
+
+    <p style="margin:.7rem 0"><%= p.bio || '' %></p>
+    <p class="muted" style="margin:0">
+      ★ <%= bn(Number(p.rating || 0)) %> · <%= bn(p.jobs_done) %>টি কাজ সম্পন্ন
+      <% (p.genres || []).forEach(function (g) { %><span class="pill grey" style="margin-left:.3rem"><%= g %></span><% }) %>
+    </p>
+
+    <% if (manuscripts.length) { %>
+      <form method="post" action="/marketplace/hire" style="margin-top:.9rem">
+        <input type="hidden" name="pro_id" value="<%= p.pro_id %>">
+        <div class="grid two" style="gap:.6rem">
+          <div>
+            <label style="margin-top:0" for="ms<%= p.pro_id %>">কোন পাণ্ডুলিপি</label>
+            <select id="ms<%= p.pro_id %>" name="manuscript_id" required>
+              <% manuscripts.forEach(function (m) { %>
+                <option value="<%= m.manuscript_id %>"><%= m.title %></option>
+              <% }) %>
+            </select>
+          </div>
+          <div>
+            <label style="margin-top:0" for="rate<%= p.pro_id %>">সম্মত পারিশ্রমিক</label>
+            <input id="rate<%= p.pro_id %>" name="agreed_rate" type="number" step="0.01" value="<%= p.rate %>">
+          </div>
+        </div>
+        <label for="brief<%= p.pro_id %>">কী কাজ চান</label>
+        <input id="brief<%= p.pro_id %>" name="brief" type="text" placeholder="সংক্ষেপে লিখুন">
+        <p style="margin:.7rem 0 0"><button class="btn small" type="submit">অনুরোধ পাঠান</button></p>
+      </form>
+    <% } else { %>
+      <p class="muted" style="margin-top:.9rem">
+        অনুরোধ পাঠাতে <a href="/author/login">লগইন</a> করে একটি পাণ্ডুলিপি আপলোড করুন।
+      </p>
+    <% } %>
+  </div>
+<% }) %>
+</div>
+
+<%- include('../partials/foot') %>

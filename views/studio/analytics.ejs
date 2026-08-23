@@ -1,0 +1,117 @@
+<%- include('../partials/head', { pageTitle }) %>
+
+<h1>বিক্রয় ও পাঠক বিশ্লেষণ</h1>
+<p class="sub">প্রকাশের পরে কী ঘটছে — কপি, আয়, রেটিং, লিংকের ক্লিক এবং সাবমিশনের ফলাফল।</p>
+
+<div class="grid four">
+  <% const totalCopies = sales.reduce(function (s, r) { return s + Number(r.copies_sold || 0); }, 0);
+     const totalGross  = sales.reduce(function (s, r) { return s + Number(r.gross || 0); }, 0);
+     const totalShare  = sales.reduce(function (s, r) { return s + Number(r.author_share || 0); }, 0);
+     const totalClicks = clicks.reduce(function (s, r) { return s + Number(r.clicks || 0); }, 0); %>
+  <div class="card tight"><div class="muted">মোট কপি</div><h2 style="margin:.2rem 0 0"><%= bn(totalCopies) %></h2></div>
+  <div class="card tight"><div class="muted">মোট বিক্রয়</div><h2 style="margin:.2rem 0 0">৳<%= bn(Math.round(totalGross)) %></h2></div>
+  <div class="card tight"><div class="muted">আপনার অংশ</div><h2 style="margin:.2rem 0 0">৳<%= bn(Math.round(totalShare)) %></h2></div>
+  <div class="card tight"><div class="muted">লিংক ক্লিক</div><h2 style="margin:.2rem 0 0"><%= bn(totalClicks) %></h2></div>
+</div>
+
+<div class="grid two">
+  <div class="card">
+    <h2 style="margin-top:0">মাসভিত্তিক বিক্রয়</h2>
+    <% if (!monthly.length) { %>
+      <p class="muted">এখনো কোনো বিক্রয় নেই।</p>
+    <% } else {
+         const maxR = Math.max.apply(null, monthly.map(function (m) { return m.revenue; }).concat([1])); %>
+      <div class="sparkline">
+        <% monthly.forEach(function (m) { %>
+          <i class="<%= m.revenue > maxR * 0.7 ? 'tall' : '' %>"
+             style="height:<%= Math.max(6, Math.round((m.revenue / maxR) * 100)) %>%"
+             title="<%= m.month %> — ৳<%= Math.round(m.revenue) %> (<%= m.copies %> কপি)"></i>
+        <% }) %>
+      </div>
+      <table style="margin-top:1rem">
+        <thead><tr><th>মাস</th><th>কপি</th><th>আয়</th></tr></thead>
+        <tbody>
+        <% monthly.slice(-8).forEach(function (m) { %>
+          <tr><td><%= m.month %></td><td><%= bn(m.copies) %></td><td>৳<%= bn(Math.round(m.revenue)) %></td></tr>
+        <% }) %>
+        </tbody>
+      </table>
+    <% } %>
+  </div>
+
+  <div class="card">
+    <h2 style="margin-top:0">বই অনুযায়ী</h2>
+    <% if (!sales.length) { %>
+      <p class="muted">কোনো প্রকাশিত বই নেই।</p>
+    <% } else { %>
+      <table>
+        <thead><tr><th>বই</th><th>কপি</th><th>বিক্রয়</th><th>আপনার অংশ</th></tr></thead>
+        <tbody>
+        <% sales.forEach(function (r) { %>
+          <tr>
+            <td><%= r.book_title %></td>
+            <td><%= bn(Number(r.copies_sold || 0)) %></td>
+            <td>৳<%= bn(Math.round(Number(r.gross || 0))) %></td>
+            <td>৳<%= bn(Math.round(Number(r.author_share || 0))) %></td>
+          </tr>
+        <% }) %>
+        </tbody>
+      </table>
+    <% } %>
+  </div>
+</div>
+
+<div class="grid two">
+  <div class="card">
+    <h2 style="margin-top:0">পাঠকের মূল্যায়ন</h2>
+    <% if (!reviews.length) { %>
+      <p class="muted">এখনো কোনো রিভিউ নেই।</p>
+    <% } else { %>
+      <% reviews.forEach(function (r) { %>
+        <div class="pillar">
+          <div class="row">
+            <span><%= r.book_title %></span>
+            <strong><%= r.avg_rating ? bn(r.avg_rating) + '/৫' : '—' %> <span class="muted">(<%= bn(r.reviews) %>)</span></strong>
+          </div>
+          <div class="bar <%= r.avg_rating >= 4 ? 'good' : r.avg_rating >= 3 ? 'warn' : 'bad' %>">
+            <i style="width:<%= (Number(r.avg_rating || 0) / 5) * 100 %>%"></i>
+          </div>
+        </div>
+      <% }) %>
+    <% } %>
+  </div>
+
+  <div class="card">
+    <h2 style="margin-top:0">সাবমিশনের ফলাফল</h2>
+    <% if (!submissionStats.length) { %>
+      <p class="muted">এখনো কোথাও পাঠানো হয়নি।</p>
+    <% } else {
+         const labels = { submitted:'পাঠানো', viewed:'দেখা হয়েছে', requested_partial:'আংশিক চেয়েছে',
+                          requested_full:'পুরোটা চেয়েছে', offer:'প্রস্তাব', accepted:'গৃহীত',
+                          rejected:'প্রত্যাখ্যাত', withdrawn:'প্রত্যাহার' };
+         const tot = submissionStats.reduce(function (s, r) { return s + r.n; }, 0); %>
+      <% submissionStats.forEach(function (r) { %>
+        <div class="pillar">
+          <div class="row"><span><%= labels[r.status] || r.status %></span><strong><%= bn(r.n) %></strong></div>
+          <div class="bar <%= r.status === 'accepted' ? 'good' : r.status === 'rejected' ? 'bad' : '' %>">
+            <i style="width:<%= Math.round((r.n / tot) * 100) %>%"></i>
+          </div>
+        </div>
+      <% }) %>
+    <% } %>
+
+    <% if (clicks.length) { %>
+      <h3>বুক লিংকের ক্লিক</h3>
+      <table>
+        <thead><tr><th>বই</th><th>দোকান</th><th>ক্লিক</th></tr></thead>
+        <tbody>
+        <% clicks.forEach(function (c) { %>
+          <tr><td><%= c.title %></td><td><%= c.retailer %></td><td><%= bn(c.clicks) %></td></tr>
+        <% }) %>
+        </tbody>
+      </table>
+    <% } %>
+  </div>
+</div>
+
+<%- include('../partials/foot') %>

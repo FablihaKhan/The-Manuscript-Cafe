@@ -1,5 +1,3 @@
-gH"Fg$aMP+OPJV
-sZ1?S.q9t4AE6,!
 
 create table Book (
 	book_id BIGSERIAL NOT NULL PRIMARY KEY,

@@ -1,0 +1,58 @@
+<%- include('../partials/head', { pageTitle }) %>
+
+<h1>এক ক্লিকে ফরম্যাট</h1>
+<p class="sub">
+  শিরোনাম পাতা, কপিরাইট পাতা, সূচিপত্র, পৃষ্ঠা নম্বর, মার্জিন — সব নিজে থেকেই বসে যাবে।
+</p>
+
+<%- include('../partials/msnav', { ms, tab }) %>
+
+<form class="card" method="post" action="/studio/<%= ms.manuscript_id %>/format/build">
+  <h2 style="margin-top:0">কোন কোন ফরম্যাট চান?</h2>
+  <label style="display:flex;gap:.5rem;align-items:center;margin:.5rem 0">
+    <input type="checkbox" name="formats" value="epub" checked style="width:auto">
+    <span><strong>EPUB 3</strong> — ই-বুক দোকানের জন্য। বাংলা ফন্ট ভিতরেই বসানো থাকে।</span>
+  </label>
+  <label style="display:flex;gap:.5rem;align-items:center;margin:.5rem 0">
+    <input type="checkbox" name="formats" value="pdf" checked style="width:auto">
+    <span><strong>PDF (A5)</strong> — পড়ার ও পাঠানোর জন্য।</span>
+  </label>
+  <label style="display:flex;gap:.5rem;align-items:center;margin:.5rem 0">
+    <input type="checkbox" name="formats" value="print_pdf" checked style="width:auto">
+    <span><strong>ছাপার PDF (৬×৯ ইঞ্চি)</strong> — ভিতরের মার্জিন চওড়া, running head সহ।</span>
+  </label>
+  <p style="margin-top:1rem"><button class="btn" type="submit">তৈরি করুন</button></p>
+</form>
+
+<div class="card">
+  <h2 style="margin-top:0">তৈরি হওয়া ফাইল</h2>
+  <% if (!files.length) { %>
+    <p class="muted">এখনো কোনো ফাইল তৈরি হয়নি।</p>
+  <% } else { %>
+    <table>
+      <thead><tr><th>ফরম্যাট</th><th>আকার</th><th>তৈরির সময়</th><th></th></tr></thead>
+      <tbody>
+      <% files.forEach(function (f) { %>
+        <tr>
+          <td><%= { epub:'EPUB 3', pdf:'PDF (A5)', print_pdf:'ছাপার PDF (৬×৯)' }[f.kind] || f.kind %></td>
+          <td><%= bn(Math.round(f.size_bytes / 1024)) %> KB</td>
+          <td><%= new Date(f.created_at).toLocaleString('bn-BD') %></td>
+          <td><a class="btn small ghost" href="/studio/<%= ms.manuscript_id %>/download/<%= f.kind %>">ডাউনলোড</a></td>
+        </tr>
+      <% }) %>
+      </tbody>
+    </table>
+  <% } %>
+</div>
+
+<div class="card">
+  <h2 style="margin-top:0">নিখুঁত বাংলা ছাপার জন্য</h2>
+  <p class="muted">
+    PDF তৈরিতে ব্যবহৃত লাইব্রেরি বাংলা যুক্তাক্ষরের বেশিরভাগই ঠিকভাবে বসায়, তবে রেফ বা য-ফলার
+    কিছু বিরল সংযোগে হেরফের হতে পারে। মলাট-প্রস্তুত ফাইল দরকার হলে নিচের পাতাটি ব্রাউজারে খুলে
+    <strong>Print → Save as PDF</strong> করুন — ব্রাউজারের টাইপসেটিং বাংলার জন্য নিখুঁত।
+  </p>
+  <a class="btn ghost" href="/studio/<%= ms.manuscript_id %>/print" target="_blank">ছাপার পাতা খুলুন</a>
+</div>
+
+<%- include('../partials/foot') %>

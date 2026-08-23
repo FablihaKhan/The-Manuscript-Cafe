@@ -1,0 +1,9 @@
+<%- include('partials/head', { pageTitle: title, narrow: true }) %>
+<div class="card" style="text-align:center;padding:3rem 1.5rem">
+  <h1><%= title %></h1>
+  <p class="sub"><%= message %></p>
+  <% if (typeof link !== 'undefined' && link) { %>
+    <a class="btn" href="<%= link %>"><%= linkText || 'ফিরে যান' %></a>
+  <% } %>
+</div>
+<%- include('partials/foot') %>

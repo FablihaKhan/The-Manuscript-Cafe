@@ -1,136 +1,62 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Online Section</title>
-    <link rel="stylesheet" href="node_modules/bootstrap/dist/css/bootstrap.css">
-    <style>
-        body {
-            background-color: white;
-            color:black;
-            font-size: 20px; /* Larger font size for all text */
-        }
+<%- include('partials/rolehead', {
+  role: 'reader', pageTitle: 'পাঠক ড্যাশবোর্ড',
+  userName: (typeof user !== 'undefined' && user) ? (user.user_name || '') : '',
+  nav: [
+    { href: '/online/reader/search', label: 'বই খুঁজুন' },
+    { href: '/subscribe', label: 'সাবস্ক্রিপশন' }
+  ]
+}) %>
 
-        .container {
-            padding: 50px;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        }
+<h1>অনলাইন পাঠাগার</h1>
+<p class="sub">সাবস্ক্রিপশন নিয়ে বই পড়ুন, রেটিং ও রিভিউ দিন।</p>
 
-        h2 {
-            color: skyblue;
-            font-size: 24px; /* Larger font size for heading */
-        }
+<div class="taskbar reader">
+  <div style="flex:1">
+    <div class="tb-title">📖 পাঠকের দায়িত্ব</div>
+    <ul>
+      <li>সাবস্ক্রিপশন নিয়ে অনলাইন বই পড়া</li>
+      <li>নাম বা ধরন দিয়ে বই খোঁজা</li>
+      <li>বইয়ে রেটিং ও রিভিউ দেওয়া</li>
+      <li>পছন্দের তালিকা তৈরি করা</li>
+    </ul>
+  </div>
+  <div style="text-align:right">
+    <div class="muted">সাবস্ক্রিপশন শেষ হবে</div>
+    <strong><%= (typeof remainingTime !== 'undefined' && remainingTime) ? remainingTime : 'তথ্য নেই' %></strong>
+  </div>
+</div>
 
-        .book-card {
-            margin-bottom: 20px;
-        }
+<div class="card tight" style="margin-bottom:1.2rem">
+  <div style="display:flex;gap:.5rem;flex-wrap:wrap;align-items:center">
+    <span class="muted">ধরন:</span>
+    <% ['Fantasy','Drama','Mystery','Science Fiction','Thriller','Romance'].forEach(function (g) { %>
+      <a class="btn small ghost" href="/online/reader/search?genre=<%= encodeURIComponent(g) %>"><%= g %></a>
+    <% }) %>
+    <a class="btn small" href="/online/reader/search" style="margin-left:auto">বই খুঁজুন</a>
+  </div>
+</div>
 
-        .card-img-top {
-            object-fit: cover;
-            height: 200px;
-        }
-
-        .subscription-info {
-            color: #007bff;
-            font-size: 24px;
-            margin-top: 20px;
-        }
-
-        .category-btn,.see-all-btn {
-            background-color: skyblue !important;
-        }
-        .btn {
-          background-color: skyblue;
-        color: white; /* Set button text color to white */
-        border: none;
-        border-radius: 5px;
-        padding: 10px 20px;
-        cursor: pointer;
-    }
-        .category-btn:hover,.see-all-btn:hover {
-            background-color: #0056b3 !important;
-        }
-
-        
-
-        /* Custom styles for Add Review and Add Rating buttons */
-        .add-review-btn,
-        .add-rating-btn {
-            background-color: skyblue; /* Dark red color */
-            color: #fff;
-            font-size: 20px; /* Larger font size for buttons */
-            margin-right: 10px; /* Add some spacing between buttons */
-        }
-
-        .add-review-btn:hover,
-        .add-rating-btn:hover {
-            background-color: skyblue; /* Darker shade of red on hover */
-        }
-    </style>
-</head>
-<body>
-    <script src="node_modules/bootstrap/dist/js/bootstrap.bundle.js"></script>
-    <div class="container mt-5">
-        <a href="/online/reader/search">Go to search</a>
-        <h2 class="text-center">Online Section - Books</h2>
-
-        <!-- Subscription Information -->
-        <div class="subscription-info">
-            <h4>Subscription Information</h4>
-            <p>Subscription Ends: <span id="subscriptionTimeRemaining"><%= remainingTime ? remainingTime  : 'N/A' %></span></p>
+<h2>বইসমূহ</h2>
+<% if (!books || !books.length) { %>
+  <div class="card empty">এখন কোনো বই নেই।</div>
+<% } else { %>
+  <div class="book-grid">
+    <% books.forEach(function (book) { %>
+      <div class="book-card">
+        <h4><%= book.book_title %></h4>
+        <p class="muted" style="margin:.2rem 0"><%= book.genre || '' %></p>
+        <div style="display:flex;gap:.4rem;margin-top:.6rem;flex-wrap:wrap">
+          <% if (book.pdf_url) { %>
+            <a class="btn small" href="<%= book.pdf_url %>" target="_blank" rel="noopener">পড়ুন</a>
+          <% } %>
+          <form action="/reader/review_rate" method="post" style="margin:0">
+            <input type="hidden" name="bookId" value="<%= book.book_id %>">
+            <button class="btn small ghost" type="submit">রিভিউ / রেটিং</button>
+          </form>
         </div>
-    
+      </div>
+    <% }); %>
+  </div>
+<% } %>
 
-        <!-- Book Categories -->
-        <h4 class="mt-4">Book Categories</h4>
-        <div class="row">
-            <div class="col-md-3">
-                <a href="#" class="btn btn-primary btn-block category-btn">Fantasy</a>
-            </div>
-            <div class="col-md-3">
-                <a href="#" class="btn btn-primary btn-block category-btn">Drama</a>
-            </div>
-            <div class="col-md-3">
-                <a href="#" class="btn btn-primary btn-block category-btn">Mystery</a>
-            </div>
-            <div class="col-md-3">
-                <a href="#" class="btn btn-primary btn-block category-btn">Science Fiction</a>
-            </div>
-        </div>
-        
-        <div class="text-center mt-3">
-            <a href="#" class="btn btn-primary see-all-btn">See All Books</a>
-        </div>
-        
-        <!-- Featured Book Cards -->
-        <h4 class="mt-4">Search Results</h4>
-        <div class="row">
-            <% books.forEach(book => { %>
-                <div class="col-md-4">
-                    <div class="card book-card">
-                        <!-- Use a placeholder image from Lorem Picsum -->
-                        <img src="https://picsum.photos/300/200
-" class="card-img-top" alt="Book Cover">
-                        <div class="card-body">
-                            <h5 class="card-title"><%= book.book_title %></h5>
-                            <p class="card-text">Author: <%= book.author_code %></p>
-                            <!-- Add other book details as needed -->
-                            <a href="<%= book.pdf_url %>" class="btn btn-primary">Read Now</a>
-                            
-                            <!-- Add Review and Rating section -->
-                            <div class="review-rating-section mt-3">
-                                <form action="/reader/review_rate" method="post">
-                                    <input type="hidden" name="bookId" value="<%= book.book_id %>">
-                                    <button class="request-button" type="submit">Add Review Rating</button>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            <% }); %>
-        </div>
-    </div>
-</body>
-</html>
+<%- include('partials/foot') %>

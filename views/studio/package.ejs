@@ -1,0 +1,83 @@
+<%- include('../partials/head', { pageTitle }) %>
+
+<h1>সাবমিশন প্যাকেজ</h1>
+<p class="sub">প্রকাশককে পাঠানোর জন্য যা যা লাগে — query letter, সারসংক্ষেপ, এক-অনুচ্ছেদ pitch, লেখক পরিচিতি, প্রস্তাবনা, তুলনীয় বই এবং নমুনা অধ্যায়।</p>
+
+<%- include('../partials/msnav', { ms, tab }) %>
+
+<div class="card">
+  <form method="post" action="/studio/<%= ms.manuscript_id %>/package/generate">
+    <div class="grid two">
+      <div>
+        <label for="publisher_id">কাকে সম্বোধন করবেন? <span class="muted">(ঐচ্ছিক)</span></label>
+        <select id="publisher_id" name="publisher_id">
+          <option value="">সাধারণভাবে "সম্পাদক মহোদয়"</option>
+          <% publishers.forEach(function (p) { %>
+            <option value="<%= p.publisher_id %>"><%= p.name %></option>
+          <% }) %>
+        </select>
+      </div>
+      <div style="display:flex;align-items:flex-end;gap:1rem;flex-wrap:wrap">
+        <button class="btn" type="submit"><%= pack ? 'নতুন করে তৈরি করুন' : 'প্যাকেজ তৈরি করুন' %></button>
+        <% if (aiOn) { %>
+          <label style="margin:0;display:flex;gap:.4rem;align-items:center">
+            <input type="checkbox" name="use_ai" value="on" checked style="width:auto"> AI দিয়ে লিখুন
+          </label>
+        <% } %>
+      </div>
+    </div>
+  </form>
+  <p class="muted" style="margin:.9rem 0 0">
+    আপনি যা জানাননি — পুরস্কার, বিক্রির সংখ্যা, পরিচিতি — এমন কিছু কখনো বানিয়ে লেখা হয় না।
+    ফাঁকা জায়গাগুলো বর্গবন্ধনীতে চিহ্নিত থাকে, আপনি পূরণ করবেন।
+  </p>
+</div>
+
+<% if (!pack) { %>
+  <div class="card empty"><p>এখনো প্যাকেজ তৈরি হয়নি।</p></div>
+<% } else { %>
+<form method="post" action="/studio/<%= ms.manuscript_id %>/package/save">
+  <input type="hidden" name="package_id" value="<%= pack.package_id %>">
+
+  <div class="card">
+    <h2 style="margin-top:0">Query Letter</h2>
+    <textarea name="query_letter" style="min-height:18rem"><%= pack.query_letter || '' %></textarea>
+  </div>
+
+  <div class="grid two">
+    <div class="card">
+      <h2 style="margin-top:0">এক-অনুচ্ছেদ Pitch</h2>
+      <textarea name="pitch" style="min-height:8rem"><%= pack.pitch || '' %></textarea>
+    </div>
+    <div class="card">
+      <h2 style="margin-top:0">লেখক পরিচিতি</h2>
+      <textarea name="author_bio" style="min-height:8rem"><%= pack.author_bio || '' %></textarea>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2 style="margin-top:0">সারসংক্ষেপ (Synopsis)</h2>
+    <textarea name="synopsis" style="min-height:16rem"><%= pack.synopsis || '' %></textarea>
+  </div>
+
+  <div class="card">
+    <h2 style="margin-top:0">বই প্রস্তাবনা (Proposal)</h2>
+    <textarea name="proposal" style="min-height:18rem"><%= pack.proposal || '' %></textarea>
+  </div>
+
+  <div class="card">
+    <h2 style="margin-top:0">তুলনীয় বই</h2>
+    <textarea name="comp_titles" style="min-height:7rem"><%= pack.comp_titles || '' %></textarea>
+  </div>
+
+  <p><button class="btn" type="submit">সব সংরক্ষণ করুন</button></p>
+</form>
+
+<div class="card">
+  <h2 style="margin-top:0">নমুনা অধ্যায়</h2>
+  <p class="muted">প্রথম তিনটি অধ্যায় — বেশিরভাগ প্রকাশক এটাই চান।</p>
+  <pre class="doc"><%= (pack.sample_chapters || '').slice(0, 6000) %></pre>
+</div>
+<% } %>
+
+<%- include('../partials/foot') %>

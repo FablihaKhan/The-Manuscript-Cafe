@@ -1,0 +1,152 @@
+<%- include('../partials/head', { pageTitle }) %>
+
+<h1>কপিরাইট ও উৎস যাচাই</h1>
+<p class="sub">মিল, উদ্ধৃতি, দায়স্বীকার এবং লেখার উৎসের ইতিহাস — প্রকাশককে দেখানোর মতো একটি রেকর্ড।</p>
+
+<%- include('../partials/msnav', { ms, tab }) %>
+
+<div class="card">
+  <form method="post" action="/studio/<%= ms.manuscript_id %>/integrity/run">
+    <button class="btn" type="submit"><%= report ? 'আবার যাচাই করুন' : 'যাচাই শুরু করুন' %></button>
+  </form>
+</div>
+
+<% if (report) {
+     const d = report.details || {}; %>
+<div class="grid three">
+  <div class="card">
+    <div class="score">
+      <div class="dial" style="width:72px;height:72px;flex:0 0 72px;--v:<%= report.plagiarism_score %>;--dial:<%= report.plagiarism_score < 15 ? 'var(--good)' : report.plagiarism_score < 40 ? 'var(--warn)' : 'var(--bad)' %>">
+        <span style="font-size:1.1rem"><%= bn(report.plagiarism_score) %></span>
+      </div>
+      <div>
+        <strong>মিলের মাত্রা</strong>
+        <div class="muted"><%= bn(d.overlap_count || 0) %>টি মিল পাওয়া গেছে</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="score">
+      <div class="dial" style="width:72px;height:72px;flex:0 0 72px;--v:<%= report.ai_likelihood %>;--dial:var(--warn)">
+        <span style="font-size:1.1rem"><%= bn(report.ai_likelihood) %></span>
+      </div>
+      <div>
+        <strong>AI-সদৃশ লেখার সংকেত</strong>
+        <div class="muted">নির্ভরযোগ্যতা: <%= { low:'কম', medium:'মাঝারি', high:'বেশি' }[d.ai_confidence] || 'কম' %></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="score">
+      <div class="dial" style="width:72px;height:72px;flex:0 0 72px;--v:<%= Math.min(100, report.unverified_quotes * 10) %>;--dial:var(--warn)">
+        <span style="font-size:1.1rem"><%= bn(report.unverified_quotes) %></span>
+      </div>
+      <div>
+        <strong>দায়স্বীকারহীন উদ্ধৃতি</strong>
+        <div class="muted">সূত্র উল্লেখ নেই এমন উদ্ধৃতি</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="notice">
+  <strong>AI সংকেত নিয়ে একটি জরুরি কথা:</strong>
+  এটি লেখার পরিসংখ্যান থেকে হিসাব করা একটি <em>সংকেত</em> — প্রমাণ নয়। বাক্যের দৈর্ঘ্যের একঘেয়েমি,
+  অনুচ্ছেদের সমান আকার, সংলাপের অনুপস্থিতি ইত্যাদি দেখে এটি বের করা হয়। মানুষের লেখা সাবলীল, পরিমার্জিত গদ্যেও
+  এই সংখ্যা বেশি আসতে পারে। কাউকে অভিযুক্ত করার জন্য এটি ব্যবহার করবেন না।
+  <% if ((d.ai_signals || []).length) { %>
+    <ul style="margin:.6rem 0 0">
+      <% d.ai_signals.forEach(function (s) { %>
+        <li><span class="mono"><%= s.name %></span> — <%= s.detail %> <span class="muted">(+<%= bn(s.weight) %>)</span></li>
+      <% }) %>
+    </ul>
+  <% } %>
+</div>
+
+<div class="card">
+  <h2 style="margin-top:0">পাওয়া মিল ও উদ্ধৃতি</h2>
+  <% if (!matches.length) { %>
+    <p class="muted">কোনো উল্লেখযোগ্য মিল পাওয়া যায়নি।</p>
+  <% } else { %>
+    <% matches.forEach(function (m) { %>
+      <div class="issue <%= m.similarity >= 40 ? 'high' : m.similarity >= 15 ? 'medium' : 'low' %>">
+        <div class="meta">
+          <%= m.chapter_no ? 'অধ্যায় ' + bn(m.chapter_no) : 'পুরো বই' %> ·
+          <%= { internal_manuscript:'অন্য পাণ্ডুলিপির সঙ্গে মিল', self:'নিজের লেখার পুনরাবৃত্তি',
+                quote:'দায়স্বীকারহীন উদ্ধৃতি', online_book:'অনলাইন বইয়ের সঙ্গে মিল' }[m.source_type] || m.source_type %>
+          <%= m.similarity ? ' · ' + bn(m.similarity) + '% মিল' : '' %>
+        </div>
+        <% if (m.source_ref) { %><div class="msg">উৎস: <%= m.source_ref %></div><% } %>
+        <% if (m.excerpt) { %><blockquote><%= m.excerpt %></blockquote><% } %>
+        <% if (m.source_type === 'quote') { %>
+          <div class="fix">→ উদ্ধৃতির কাছাকাছি সূত্র লিখুন (কে বলেছেন / কোন বই থেকে)।</div>
+        <% } %>
+      </div>
+    <% }) %>
+  <% } %>
+</div>
+<% } %>
+
+<div class="grid two">
+  <div class="card">
+    <h2 style="margin-top:0">উৎসের ইতিহাস যোগ করুন</h2>
+    <p class="muted">সৎভাবে ঘোষণা করা AI-সহায়তা সমস্যা নয় — লুকানো ঘোষণাই সমস্যা।</p>
+    <form method="post" action="/studio/<%= ms.manuscript_id %>/integrity/provenance">
+      <label for="chapter_no">অধ্যায়</label>
+      <select id="chapter_no" name="chapter_no">
+        <option value="">পুরো বই</option>
+        <% chapters.forEach(function (c) { %>
+          <option value="<%= c.chapter_no %>"><%= c.title || ('অধ্যায় ' + bn(c.chapter_no)) %></option>
+        <% }) %>
+      </select>
+
+      <label for="event_type">ধরন</label>
+      <select id="event_type" name="event_type" required>
+        <option value="authored">নিজে লিখেছি</option>
+        <option value="ai_assisted">AI-এর সহায়তা নিয়েছি</option>
+        <option value="edited_by_pro">পেশাদার সম্পাদক সম্পাদনা করেছেন</option>
+        <option value="imported">অন্য জায়গা থেকে আনা</option>
+      </select>
+
+      <label for="tool">কোন টুল / কে</label>
+      <input id="tool" name="tool" type="text" placeholder="যেমন: ব্যাকরণ সংশোধক, সম্পাদকের নাম">
+
+      <label for="share_pct">কত শতাংশ (আনুমানিক)</label>
+      <input id="share_pct" name="share_pct" type="number" min="0" max="100" value="0">
+
+      <label for="note">মন্তব্য</label>
+      <input id="note" name="note" type="text">
+
+      <p style="margin-top:1rem"><button class="btn small" type="submit">যোগ করুন</button></p>
+    </form>
+  </div>
+
+  <div class="card">
+    <h2 style="margin-top:0">উৎসের রেকর্ড</h2>
+    <% if (Number(timeline.declared_ai_share) > 0) { %>
+      <div class="notice">ঘোষিত AI-সহায়তা: গড়ে <%= bn(timeline.declared_ai_share) %>%</div>
+    <% } %>
+    <% if (!timeline.events.length) { %>
+      <p class="muted">এখনো কিছু যোগ করা হয়নি।</p>
+    <% } else { %>
+      <table>
+        <thead><tr><th>ধরন</th><th>অধ্যায়</th><th>টুল</th><th>%</th><th>সময়</th></tr></thead>
+        <tbody>
+        <% timeline.events.forEach(function (e) { %>
+          <tr>
+            <td><%= { authored:'নিজে লেখা', ai_assisted:'AI-সহায়তা', edited_by_pro:'পেশাদার সম্পাদনা', imported:'আমদানি' }[e.event_type] || e.event_type %></td>
+            <td><%= e.chapter_no ? bn(e.chapter_no) : '—' %></td>
+            <td class="muted"><%= e.tool || '' %></td>
+            <td><%= bn(e.share_pct || 0) %></td>
+            <td class="muted"><%= new Date(e.recorded_at).toLocaleDateString('bn-BD') %></td>
+          </tr>
+        <% }) %>
+        </tbody>
+      </table>
+    <% } %>
+  </div>
+</div>
+
+<%- include('../partials/foot') %>

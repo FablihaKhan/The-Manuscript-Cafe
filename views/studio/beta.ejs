@@ -1,0 +1,106 @@
+<%- include('../partials/head', { pageTitle }) %>
+
+<h1>বিটা রিডার</h1>
+<p class="sub">নির্দিষ্ট অধ্যায় পর্যন্ত পড়ার লিংক পাঠান। পাঠক লগইন ছাড়াই কাঠামোবদ্ধ ফিডব্যাক দিতে পারবেন।</p>
+
+<%- include('../partials/msnav', { ms, tab }) %>
+
+<% if (avg && Number(avg.responses) > 0) { %>
+<div class="card">
+  <h2 style="margin-top:0">গড় মূল্যায়ন <span class="muted">(<%= bn(avg.responses) %> জন)</span></h2>
+  <div class="grid three">
+    <% [['গল্প', avg.avg_story], ['চরিত্র', avg.avg_characters], ['গতি', avg.avg_pacing],
+        ['সমাপ্তি', avg.avg_ending], ['গদ্য', avg.avg_prose]].forEach(function (p) {
+         const v = Number(p[1] || 0); %>
+      <div class="pillar">
+        <div class="row"><span><%= p[0] %></span><strong><%= bn(v) %>/১০</strong></div>
+        <div class="bar <%= v >= 7.5 ? 'good' : v >= 5 ? 'warn' : 'bad' %>"><i style="width:<%= v * 10 %>%"></i></div>
+      </div>
+    <% }) %>
+  </div>
+  <p style="margin:.9rem 0 0">
+    <%= bn(Number(avg.recommend_pct || 0)) %>% পাঠক বইটি অন্যকে পড়তে বলবেন।
+  </p>
+</div>
+<% } %>
+
+<div class="grid two">
+  <div class="card">
+    <h2 style="margin-top:0">নতুন আমন্ত্রণ</h2>
+    <form method="post" action="/studio/<%= ms.manuscript_id %>/beta/invite">
+      <label for="reader_name">পাঠকের নাম</label>
+      <input id="reader_name" name="reader_name" type="text">
+      <label for="reader_email">ইমেইল <span class="muted">(ঐচ্ছিক — লিংকটি আপনি নিজে পাঠাবেন)</span></label>
+      <input id="reader_email" name="reader_email" type="email">
+      <div class="grid two">
+        <div>
+          <label for="from_chapter">কোন অধ্যায় থেকে</label>
+          <input id="from_chapter" name="from_chapter" type="number" min="1" value="1">
+        </div>
+        <div>
+          <label for="to_chapter">কোন অধ্যায় পর্যন্ত</label>
+          <input id="to_chapter" name="to_chapter" type="number" min="1"
+                 placeholder="ফাঁকা = শেষ পর্যন্ত" max="<%= chapters.length %>">
+        </div>
+      </div>
+      <p style="margin-top:1rem"><button class="btn" type="submit">লিংক তৈরি করুন</button></p>
+    </form>
+  </div>
+
+  <div class="card">
+    <h2 style="margin-top:0">পাঠানো লিংক</h2>
+    <% if (!invites.length) { %>
+      <p class="muted">এখনো কোনো আমন্ত্রণ নেই।</p>
+    <% } else { %>
+      <% invites.forEach(function (i) { %>
+        <div style="padding:.6rem 0;border-bottom:1px solid var(--line)">
+          <div style="display:flex;justify-content:space-between;gap:.6rem;align-items:center">
+            <strong><%= i.reader_name || i.reader_email || 'নাম নেই' %></strong>
+            <span class="pill <%= i.status === 'submitted' ? 'good' : i.status === 'expired' ? 'bad' : 'grey' %>">
+              <%= { invited:'পাঠানো হয়েছে', opened:'খোলা হয়েছে', submitted:'ফিডব্যাক দিয়েছেন', expired:'বাতিল' }[i.status] %>
+            </span>
+          </div>
+          <div class="muted" style="font-size:.82rem">
+            অধ্যায় <%= bn(i.from_chapter) %>–<%= i.to_chapter ? bn(i.to_chapter) : 'শেষ' %>
+          </div>
+          <input class="mono" type="text" readonly value="<%= baseUrl %>/beta/<%= i.token %>"
+                 onclick="this.select()" style="margin-top:.35rem;font-size:.78rem">
+          <% if (i.status !== 'expired') { %>
+            <form method="post" action="/studio/<%= ms.manuscript_id %>/beta/revoke" style="margin-top:.35rem">
+              <input type="hidden" name="invite_id" value="<%= i.invite_id %>">
+              <button class="btn small ghost" type="submit">বাতিল করুন</button>
+            </form>
+          <% } %>
+        </div>
+      <% }) %>
+    <% } %>
+  </div>
+</div>
+
+<div class="card">
+  <h2 style="margin-top:0">ফিডব্যাক</h2>
+  <% if (!feedback.length) { %>
+    <p class="muted">এখনো কোনো ফিডব্যাক আসেনি।</p>
+  <% } else { %>
+    <% feedback.forEach(function (f) { %>
+      <div class="issue low">
+        <div class="meta">
+          <%= f.reader_name %> ·
+          <%= f.chapter_no ? 'অধ্যায় ' + bn(f.chapter_no) : 'পুরো বই' %> ·
+          <%= new Date(f.created_at).toLocaleDateString('bn-BD') %>
+        </div>
+        <div class="msg">
+          গল্প <%= bn(f.story) %>/১০ ·
+          চরিত্র <%= bn(f.characters) %>/১০ ·
+          গতি <%= bn(f.pacing) %>/১০ ·
+          সমাপ্তি <%= bn(f.ending) %>/১০ ·
+          গদ্য <%= bn(f.prose) %>/১০
+          <% if (f.would_recommend) { %><span class="pill good">সুপারিশ করবেন</span><% } %>
+        </div>
+        <% if (f.comment) { %><blockquote><%= f.comment %></blockquote><% } %>
+      </div>
+    <% }) %>
+  <% } %>
+</div>
+
+<%- include('../partials/foot') %>

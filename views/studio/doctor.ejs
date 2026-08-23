@@ -1,0 +1,127 @@
+<%- include('../partials/head', { pageTitle }) %>
+
+<h1>Manuscript Doctor</h1>
+<p class="sub"><%= ms.title %> — অধ্যায় ধরে ধরে বিশ্লেষণ। আপনার লেখা কখনো নতুন করে লিখে দেওয়া হয় না, শুধু সমস্যা দেখানো হয়।</p>
+
+<%- include('../partials/msnav', { ms, tab }) %>
+
+<div class="card">
+  <form method="post" action="/studio/<%= ms.manuscript_id %>/doctor/run" style="display:flex;gap:1rem;align-items:center;flex-wrap:wrap">
+    <button class="btn" type="submit"><%= analysis ? 'আবার বিশ্লেষণ করুন' : 'বিশ্লেষণ শুরু করুন' %></button>
+    <% if (aiOn) { %>
+      <label style="margin:0;display:flex;gap:.4rem;align-items:center">
+        <input type="checkbox" name="use_ai" value="on" checked style="width:auto">
+        AI দিয়ে গভীর পাঠ (plot hole, চরিত্রের অসঙ্গতি)
+      </label>
+    <% } else { %>
+      <span class="muted">AI কী সেট করা নেই — heuristic ইঞ্জিন চলবে (offline, বাংলা সমর্থিত)।</span>
+    <% } %>
+  </form>
+</div>
+
+<% if (!analysis) { %>
+  <div class="card empty">
+    <p>এখনো বিশ্লেষণ হয়নি।</p>
+    <p class="muted">বিশ্লেষণে দেখা হয়: গতি (pacing), পুনরাবৃত্তি, সংলাপ, চরিত্রের ধারাবাহিকতা, পাঠযোগ্যতা,
+      সাধু-চলিত মিশ্রণ এবং বাংলা বানান।</p>
+  </div>
+<% } else {
+     const m = analysis.metrics || {};
+     const subs = m.sub_scores || {};
+     const open = issues.filter(function (i) { return !i.resolved; });
+     const byCat = {};
+     open.forEach(function (i) { byCat[i.category] = (byCat[i.category] || 0) + 1; });
+     const catLabel = { plot_hole:'কাহিনির ফাঁক', pacing:'গতি', repetition:'পুনরাবৃত্তি', character:'চরিত্র',
+                        dialogue:'সংলাপ', clarity:'স্পষ্টতা', grammar:'বানান ও যতি', style:'রীতি' };
+%>
+
+<div class="card">
+  <div class="score">
+    <div class="dial" style="--v:<%= analysis.health_score %>;--dial:<%= analysis.health_score >= 75 ? 'var(--good)' : analysis.health_score >= 50 ? 'var(--warn)' : 'var(--bad)' %>">
+      <span><%= bn(analysis.health_score) %></span><small>/১০০</small>
+    </div>
+    <div>
+      <h2 style="margin:0">Manuscript Health Score</h2>
+      <p class="muted" style="margin:.2rem 0">
+        <%= new Date(analysis.run_at).toLocaleString('bn-BD') %> ·
+        ইঞ্জিন: <%= analysis.engine === 'hybrid' ? 'AI + heuristic' : 'heuristic' %> ·
+        ভাষা: <%= analysis.language === 'bn' ? 'বাংলা' : analysis.language === 'en' ? 'ইংরেজি' : 'মিশ্র' %>
+      </p>
+      <p style="margin:.2rem 0"><%= bn(open.length) %>টি বিষয় খোলা আছে, <%= bn(issues.length - open.length) %>টি ঠিক করা হয়েছে।</p>
+    </div>
+  </div>
+
+  <div class="grid three" style="margin-top:1.3rem">
+    <% [['structure','গঠন'],['prose','গদ্য'],['dialogue','সংলাপ'],['originality','মৌলিকতা'],['clarity','স্পষ্টতা'],['mechanics','বানান ও রীতি']].forEach(function (p) {
+         const v = subs[p[0]] || 0; %>
+      <div class="pillar">
+        <div class="row"><span><%= p[1] %></span><strong><%= bn(v) %></strong></div>
+        <div class="bar <%= v >= 75 ? 'good' : v >= 50 ? 'warn' : 'bad' %>"><i style="width:<%= v %>%"></i></div>
+      </div>
+    <% }) %>
+  </div>
+</div>
+
+<div class="grid two">
+  <div class="card">
+    <h2 style="margin-top:0">গতির রেখা (pacing)</h2>
+    <p class="muted">প্রতিটি দণ্ড একটি অধ্যায়ের দৈর্ঘ্য। খুব উঁচু বা খুব নিচু দণ্ড পাঠকের ছন্দ ভাঙে।</p>
+    <% const curve = m.pacing_curve || []; const maxW = Math.max.apply(null, curve.map(function(c){return c.words;}).concat([1])); %>
+    <div class="sparkline">
+      <% curve.forEach(function (c) { %>
+        <i class="<%= c.words > maxW * 0.75 ? 'tall' : '' %>"
+           style="height:<%= Math.max(6, Math.round((c.words / maxW) * 100)) %>%"
+           title="অধ্যায় <%= c.chapter %> — <%= c.words %> শব্দ"></i>
+      <% }) %>
+    </div>
+    <p class="muted" style="margin-top:.6rem">
+      গড় পাঠযোগ্যতা <%= bn(m.avg_readability || 0) %>/১০০ ·
+      সংলাপের অনুপাত <%= bn(Math.round((m.avg_dialogue_ratio || 0) * 100)) %>%
+    </p>
+  </div>
+
+  <div class="card">
+    <h2 style="margin-top:0">সমস্যার ধরন</h2>
+    <% if (!Object.keys(byCat).length) { %>
+      <p class="muted">কোনো খোলা সমস্যা নেই।</p>
+    <% } else { %>
+      <% Object.keys(byCat).sort(function(a,b){return byCat[b]-byCat[a];}).forEach(function (c) { %>
+        <div class="pillar">
+          <div class="row"><span><%= catLabel[c] || c %></span><strong><%= bn(byCat[c]) %></strong></div>
+          <div class="bar"><i style="width:<%= Math.round((byCat[c] / open.length) * 100) %>%"></i></div>
+        </div>
+      <% }) %>
+    <% } %>
+    <% if ((m.cast || []).length) { %>
+      <h3>চরিত্র</h3>
+      <p><% m.cast.forEach(function (n) { %><span class="pill grey" style="margin:0 .2rem .3rem 0"><%= n %></span><% }) %></p>
+    <% } %>
+  </div>
+</div>
+
+<div class="card">
+  <h2 style="margin-top:0">বিস্তারিত পর্যবেক্ষণ</h2>
+  <% if (!issues.length) { %>
+    <p class="muted">কোনো সমস্যা পাওয়া যায়নি।</p>
+  <% } else { %>
+    <% issues.forEach(function (i) { %>
+      <div class="issue <%= i.severity %>" style="<%= i.resolved ? 'opacity:.5' : '' %>">
+        <div class="meta">
+          <%= i.chapter_no ? 'অধ্যায় ' + bn(i.chapter_no) : 'পুরো বই' %> ·
+          <%= catLabel[i.category] || i.category %> ·
+          <%= { high:'গুরুতর', medium:'মাঝারি', low:'সামান্য' }[i.severity] %>
+        </div>
+        <div class="msg"><%= i.message %></div>
+        <% if (i.excerpt) { %><blockquote><%= i.excerpt %></blockquote><% } %>
+        <% if (i.suggestion) { %><div class="fix">→ <%= i.suggestion %></div><% } %>
+        <form method="post" action="/studio/<%= ms.manuscript_id %>/doctor/resolve" style="margin-top:.4rem">
+          <input type="hidden" name="issue_id" value="<%= i.issue_id %>">
+          <button class="btn small ghost" type="submit"><%= i.resolved ? 'আবার খুলুন' : 'ঠিক করেছি' %></button>
+        </form>
+      </div>
+    <% }) %>
+  <% } %>
+</div>
+<% } %>
+
+<%- include('../partials/foot') %>

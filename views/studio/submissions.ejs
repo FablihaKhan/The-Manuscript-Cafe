@@ -1,0 +1,83 @@
+<%- include('../partials/head', { pageTitle }) %>
+
+<h1>সাবমিশন ট্র্যাকার</h1>
+<p class="sub">কোথায় পাঠিয়েছেন, কে দেখেছে, কে পুরো পাণ্ডুলিপি চেয়েছে — সব এক জায়গায়।</p>
+
+<%- include('../partials/msnav', { ms, tab }) %>
+
+<div class="flow">
+  <span class="step">পাঠানো হয়েছে</span> →
+  <span class="step">দেখা হয়েছে</span> →
+  <span class="step">পাণ্ডুলিপি চেয়েছে</span> →
+  <span class="step">প্রস্তাব</span> →
+  <span class="step">গৃহীত</span>
+</div>
+
+<% if (!submissions.length) { %>
+  <div class="card empty">
+    <p>এখনো কোথাও পাঠানো হয়নি।</p>
+    <p><a class="btn" href="/studio/<%= ms.manuscript_id %>/matches">উপযুক্ত প্রকাশক খুঁজুন</a></p>
+  </div>
+<% } %>
+
+<% submissions.forEach(function (s) {
+     const events = eventsBySubmission.get(Number(s.submission_id)) || [];
+     const overdue = s.days_overdue !== null && Number(s.days_overdue) > 0
+                     && ['submitted','viewed'].indexOf(s.status) !== -1; %>
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;gap:1rem;align-items:flex-start;flex-wrap:wrap">
+      <div>
+        <h3 style="margin:0"><%= s.publisher_name %></h3>
+        <div class="muted">
+          <%= s.is_agent ? 'এজেন্ট' : 'প্রকাশক' %> ·
+          পাঠানো হয়েছে <%= new Date(s.submitted_at).toLocaleDateString('bn-BD') %>
+          <% if (s.expected_by) { %> · উত্তর প্রত্যাশিত <%= new Date(s.expected_by).toLocaleDateString('bn-BD') %><% } %>
+        </div>
+      </div>
+      <span class="pill <%= ['accepted','offer'].indexOf(s.status) !== -1 ? 'good' : s.status === 'rejected' ? 'bad' : 'warn' %>">
+        <%= statusLabels[s.status] || s.status %>
+      </span>
+    </div>
+
+    <% if (overdue) { %>
+      <div class="notice warn" style="margin-top:.8rem">
+        প্রত্যাশিত সময়ের <%= bn(Number(s.days_overdue)) %> দিন পার হয়ে গেছে — ভদ্রভাবে একটি follow-up পাঠানো যায়।
+      </div>
+    <% } %>
+
+    <form method="post" action="/studio/<%= ms.manuscript_id %>/submissions/status"
+          style="display:flex;gap:.6rem;align-items:flex-end;flex-wrap:wrap;margin-top:.9rem">
+      <input type="hidden" name="submission_id" value="<%= s.submission_id %>">
+      <div style="flex:0 0 15rem">
+        <label style="margin-top:0" for="st<%= s.submission_id %>">অবস্থা বদলান</label>
+        <select id="st<%= s.submission_id %>" name="status">
+          <% Object.keys(statusLabels).forEach(function (k) { %>
+            <option value="<%= k %>" <%= s.status === k ? 'selected' : '' %>><%= statusLabels[k] %></option>
+          <% }) %>
+        </select>
+      </div>
+      <div style="flex:1;min-width:12rem">
+        <label style="margin-top:0" for="nt<%= s.submission_id %>">নোট</label>
+        <input id="nt<%= s.submission_id %>" name="notes" type="text" value="<%= s.notes || '' %>">
+      </div>
+      <button class="btn small" type="submit">সংরক্ষণ</button>
+    </form>
+
+    <% if (events.length) { %>
+      <h3>ইতিহাস</h3>
+      <table>
+        <tbody>
+        <% events.forEach(function (e) { %>
+          <tr>
+            <td><%= statusLabels[e.status] || e.status %></td>
+            <td class="muted"><%= e.note || '' %></td>
+            <td class="muted"><%= new Date(e.event_at).toLocaleString('bn-BD') %></td>
+          </tr>
+        <% }) %>
+        </tbody>
+      </table>
+    <% } %>
+  </div>
+<% }) %>
+
+<%- include('../partials/foot') %>

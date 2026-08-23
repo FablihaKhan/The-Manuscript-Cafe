@@ -1,62 +1,67 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Books Sent for Editing</title>
-    <style>
-        /* Add your custom CSS styles here */
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        th, td {
-            border: 1px solid #ddd;
-            padding: 8px;
-            text-align: left;
-        }
-        th {
-            background-color: #f2f2f2;
-        }
-        tr:nth-child(even) {
-            background-color: #f2f2f2;
-        }
-    </style>
-</head>
-<body>
-    <h1>!!!COMPLETE BEFORE DEADLINE!!!</h1>
-    <% if (edit_book.length > 0) { %>
-        <table>
-            <thead>
-                <tr>
-                    <th>Book Name</th>
-                    <th>Genre</th>
-                    <th>PDF Link</th>
-                    <th>Status</th>
-                    <th>Editing Status</th>
-                    <th>Edit Start Date</th>
-                    <th>Edit Deadline</th>
-                </tr>
-            </thead>
-            <tbody>
-                <% edit_book.forEach(function(book) { %>
-                    <tr>
-                        <td><%= book.book_name %></td>
-                        <td><%= book.genre %></td>
-                        <td><a href="<%= book.pdf_link %>">PDF</a></td>
-                        <td><%= book.editing_status %></td>
-                        <td><%= book.edit_start_date %></td>
-                        <td><%= book.edit_deadline %></td>
-                    </tr>
-                <% }); %>
-            </tbody>
-        </table>
-    <% } else { %>
-        <p>No books found for editing.</p>
-    <% } %>
-</body>
-</html>
+<%- include('partials/rolehead', {
+  role: 'editor', pageTitle: 'সম্পাদক ড্যাশবোর্ড',
+  logout: '/author/logout',
+  nav: [ { href: '/', label: 'হোম' } ]
+}) %>
+
+<h1>সম্পাদনার কাজ</h1>
+<p class="sub">প্রকাশকের পাঠানো বইগুলো ডেডলাইনের মধ্যে সম্পাদনা করুন।</p>
+
+<div class="taskbar editor">
+  <div style="flex:1">
+    <div class="tb-title">📝 সম্পাদকের দায়িত্ব</div>
+    <ul>
+      <li>প্রকাশকের পাঠানো বই সম্পাদনা করা</li>
+      <li>সম্পাদনার অবস্থা হালনাগাদ রাখা</li>
+      <li>নির্ধারিত ডেডলাইনের মধ্যে কাজ শেষ করা</li>
+      <li>সম্পাদিত পাণ্ডুলিপি ফেরত পাঠানো</li>
+    </ul>
+  </div>
+</div>
+
+<%
+  const total = edit_book.length;
+  const done = edit_book.filter(function(b){ return (b.editing_status||'').toLowerCase()==='completed' || (b.editing_status||'').toLowerCase()==='done'; }).length;
+  const notStarted = edit_book.filter(function(b){ return (b.editing_status||'Not Started')==='Not Started'; }).length;
+%>
+<div class="stat-row">
+  <div class="stat editor"><div class="n"><%= bn(total) %></div><div class="l">বরাদ্দকৃত বই</div></div>
+  <div class="stat editor"><div class="n"><%= bn(notStarted) %></div><div class="l">শুরু হয়নি</div></div>
+  <div class="stat editor"><div class="n"><%= bn(done) %></div><div class="l">সম্পন্ন</div></div>
+</div>
+
+<div class="card">
+  <h2 style="margin-top:0">✏️ সম্পাদনার তালিকা</h2>
+  <% if (edit_book.length > 0) { %>
+    <div style="overflow-x:auto">
+    <table>
+      <thead>
+        <tr><th>বই</th><th>ধরন</th><th>PDF</th><th>অবস্থা</th><th>শুরু</th><th>ডেডলাইন</th></tr>
+      </thead>
+      <tbody>
+        <% edit_book.forEach(function (b) {
+             const st = (b.editing_status || 'Not Started');
+             const cls = /complete|done/i.test(st) ? 'good' : st === 'Not Started' ? 'grey' : 'warn';
+             const overdue = b.edit_deadline && new Date(b.edit_deadline) < new Date() && !/complete|done/i.test(st);
+        %>
+          <tr>
+            <td><strong><%= b.book_name %></strong></td>
+            <td><span class="pill grey"><%= b.genre %></span></td>
+            <td><% if (b.pdf_link) { %><a href="<%= b.pdf_link %>" target="_blank" rel="noopener">PDF</a><% } else { %>—<% } %></td>
+            <td><span class="pill <%= cls %>"><%= st %></span></td>
+            <td class="muted"><%= b.edit_start_date ? new Date(b.edit_start_date).toLocaleDateString('bn-BD') : '—' %></td>
+            <td class="<%= overdue ? '' : 'muted' %>">
+              <%= b.edit_deadline ? new Date(b.edit_deadline).toLocaleDateString('bn-BD') : '—' %>
+              <% if (overdue) { %><span class="pill bad">সময় পার</span><% } %>
+            </td>
+          </tr>
+        <% }); %>
+      </tbody>
+    </table>
+    </div>
+  <% } else { %>
+    <div class="empty">এখন সম্পাদনার জন্য কোনো বই বরাদ্দ নেই।</div>
+  <% } %>
+</div>
+
+<%- include('partials/foot') %>
